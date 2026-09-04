@@ -1,0 +1,64 @@
+@extends('layouts.zharzhar')
+
+@section('content')
+<header>
+    <div>
+        <div class="brand">Жар-Жар · {{ $restaurant->name }}</div>
+        <div class="muted">Кабинет ресторана</div>
+    </div>
+    <form method="POST" action="{{ route('logout') }}">
+        @csrf
+        <button class="button" type="submit">Выйти</button>
+    </form>
+</header>
+
+<h1>Бронирования</h1>
+<p class="muted">Добавляйте посетителей и управляйте периодами.</p>
+
+@if (session('success'))
+    <p style="color:#26724d">{{ session('success') }}</p>
+@endif
+@if ($errors->any())
+    <div class="error">{{ $errors->first() }}</div>
+@endif
+
+<div class="grid">
+    <section class="card">
+        <h2>Новое бронирование</h2>
+        <form method="POST" action="{{ route('restaurant.bookings.store') }}">
+            @csrf
+            <label>Имя посетителя<br><input name="visitor_name" value="{{ old('visitor_name') }}" required style="width:100%;padding:11px;margin:7px 0 14px;box-sizing:border-box"></label>
+            <label>Телефон<br><input name="phone" value="{{ old('phone') }}" placeholder="+7 700 000 00 00" style="width:100%;padding:11px;margin:7px 0 14px;box-sizing:border-box"></label>
+            <label>Дата<br><input name="booking_date" type="date" value="{{ old('booking_date', now()->format('Y-m-d')) }}" required style="width:100%;padding:11px;margin:7px 0 14px;box-sizing:border-box"></label>
+            <label>Период<br>
+                <select name="restaurant_slot_id" required style="width:100%;padding:11px;margin:7px 0 14px;box-sizing:border-box">
+                    <option value="">Выберите период</option>
+                    @foreach ($restaurant->slots as $slot)
+                        <option value="{{ $slot->id }}" @selected(old('restaurant_slot_id') == $slot->id)>{{ $slot->label }} · {{ $slot->start_time }}–{{ $slot->end_time }}</option>
+                    @endforeach
+                </select>
+            </label>
+            <label>Количество гостей<br><input name="guest_count" type="number" min="1" value="{{ old('guest_count', 2) }}" required style="width:100%;padding:11px;margin:7px 0 14px;box-sizing:border-box"></label>
+            <label>Примечания<br><textarea name="note" rows="3" placeholder="Например: детский стул, особое меню..." style="width:100%;padding:11px;margin:7px 0 14px;box-sizing:border-box">{{ old('note') }}</textarea></label>
+            <button class="button" type="submit">Добавить бронирование</button>
+        </form>
+    </section>
+
+    <section>
+        <h2>Записи</h2>
+        @forelse ($bookings as $booking)
+            <article class="card" style="margin-bottom:12px;border-left:5px solid {{ $booking->color }}">
+                <strong>{{ $booking->visitor_name }}</strong>
+                <p>{{ $booking->booking_date->format('d.m.Y') }} · {{ $booking->slot?->label ?? 'Период не выбран' }}</p>
+                <p>{{ $booking->phone ?? 'Телефон не указан' }} · {{ $booking->guest_count }} гостей</p>
+                @if ($booking->note)
+                    <p><strong>Примечание:</strong> {{ $booking->note }}</p>
+                @endif
+                <span class="muted">{{ $booking->status }}</span>
+            </article>
+        @empty
+            <div class="card">Пока нет бронирований.</div>
+        @endforelse
+    </section>
+</div>
+@endsection
