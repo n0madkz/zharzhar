@@ -25,6 +25,7 @@
 <link rel="stylesheet" href="{{ asset('store.css') }}">
 @if($invitationMode ?? false)<link rel="stylesheet" href="{{ asset('invitation.css') }}">@endif
 <link rel="stylesheet" href="{{ asset('fonts.css') }}">
+<link rel="stylesheet" href="{{ asset('motion.css') }}">
 <script src="{{ asset('store.js') }}" defer></script>
 @if($invitationMode ?? false)<script src="{{ asset('invitation.js') }}" defer></script>@endif
 </head>

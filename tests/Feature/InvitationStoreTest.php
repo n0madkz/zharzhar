@@ -146,6 +146,23 @@ class InvitationStoreTest extends TestCase
         $this->get('/orders/not-a-real-token')->assertNotFound();
     }
 
+    public function test_selected_language_is_used_by_the_published_invitation(): void
+    {
+        $template = Template::factory()->create();
+        $this->placeOrder([...$this->checkoutData($template), 'language' => 'ru'])->assertRedirect();
+        $order = InvitationOrder::firstOrFail();
+        $this->assertSame('ru', $order->details['language']);
+
+        $admin = User::factory()->create(['role' => 'admin']);
+        $this->actingAs($admin)->post('/admin/store/orders/'.$order->id.'/confirm')->assertRedirect();
+
+        $this->get('/i/'.$order->fresh()->invitation->slug)
+            ->assertOk()
+            ->assertSee('ДОРОГИЕ РОДНЫЕ И ДРУЗЬЯ!')
+            ->assertSee('Дата торжества')
+            ->assertDontSee('ҚҰРМЕТТІ АҒАЙЫН-ТУЫС');
+    }
+
     #[TestWith(['percent', 100, 7990, 0])]
     #[TestWith(['fixed', 1000, 1000, 6990])]
     #[TestWith(['fixed', 9000, 7990, 0])]

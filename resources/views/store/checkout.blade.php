@@ -7,7 +7,9 @@
         'title' => 'Шақыруды рәсімдеу — ZharZhar', 'back' => 'Барлық дизайндар',
         'heading' => 'Мерекеңіздің барлық мәліметі', 'progress' => '01 Дизайн таңдалды / 02 Мереке мәліметі / 03 Төлем',
         'errors' => 'Форма өрістерін тексеріңіз.', 'event' => '01. Мереке туралы', 'event_type' => 'Қандай мереке өткізесіз?',
-        'invite_language' => 'Шақыру тілі', 'names' => 'Жас жұбайлардың немесе мерейтой иесінің есімі',
+        'invite_language' => 'Дайын сайт-шақырудың тілі', 'language_hint' => 'Қонақтар шақыруды осы тілде көреді.',
+        'kk_language_hint' => 'Барлық бөлімдер қазақ тілінде', 'ru_language_hint' => 'Все разделы на русском языке',
+        'names' => 'Жас жұбайлардың немесе мерейтой иесінің есімі',
         'names_placeholder' => 'Алихан және Аружан / Айгүл', 'date' => 'Мереке күні', 'time' => 'Басталу уақыты',
         'hosts' => 'Той иелері', 'hosts_placeholder' => 'Ерлан – Айгүл, Марат – Сәуле',
         'venue' => '02. Кездесу орны', 'restaurant' => 'Каталогтағы мейрамхана', 'own_restaurant' => 'Мейрамхананы өзім көрсетемін',
@@ -26,7 +28,9 @@
         'title' => 'Оформить приглашение — ZharZhar', 'back' => 'Все дизайны',
         'heading' => 'Ваш праздник в деталях', 'progress' => '01 Дизайн выбран / 02 Данные события / 03 Оплата',
         'errors' => 'Проверьте поля формы.', 'event' => '01. О событии', 'event_type' => 'Какой у вас праздник?',
-        'invite_language' => 'Язык приглашения', 'names' => 'Имена молодожёнов или имя именинника',
+        'invite_language' => 'Язык готового сайта-приглашения', 'language_hint' => 'Гости увидят приглашение на выбранном языке.',
+        'kk_language_hint' => 'Барлық бөлімдер қазақ тілінде', 'ru_language_hint' => 'Все разделы на русском языке',
+        'names' => 'Имена молодожёнов или имя именинника',
         'names_placeholder' => 'Алихан и Аружан / Айгүл', 'date' => 'Дата праздника', 'time' => 'Начало',
         'hosts' => 'Той иелері — хозяева торжества', 'hosts_placeholder' => 'Ерлан – Айгүл, Марат – Сәуле',
         'venue' => '02. Место встречи', 'restaurant' => 'Ресторан из каталога', 'own_restaurant' => 'Укажу свой ресторан',
@@ -53,7 +57,10 @@
 <div class="panel">
 <fieldset class="form-section"><legend>{{ $t['event'] }}</legend><div class="form-grid">
 <label class="field">{{ $t['event_type'] }}<select name="event_type" required>@foreach($eventLabels as $key => $label)@if(!$template->event_type || $template->event_type === $key)<option value="{{ $key }}" @selected(old('event_type', $template->event_type) === $key)>{{ $label }}</option>@endif @endforeach</select>@error('event_type')<span class="error">{{ $message }}</span>@enderror</label>
-<label class="field">{{ $t['invite_language'] }}<select name="language"><option value="kk" @selected(old('language', app()->getLocale()) === 'kk')>Қазақша</option><option value="ru" @selected(old('language', app()->getLocale()) === 'ru')>Русский</option></select></label>
+<div class="field wide language-choice"><span class="field-label">{{ $t['invite_language'] }}</span><div class="language-options" role="radiogroup" aria-label="{{ $t['invite_language'] }}">
+<label class="language-option"><input type="radio" name="language" value="kk" required @checked(old('language', app()->getLocale()) === 'kk')><span><strong>Қазақша</strong><small>{{ $t['kk_language_hint'] }}</small></span></label>
+<label class="language-option"><input type="radio" name="language" value="ru" required @checked(old('language', app()->getLocale()) === 'ru')><span><strong>Русский</strong><small>{{ $t['ru_language_hint'] }}</small></span></label>
+</div><small>{{ $t['language_hint'] }}</small>@error('language')<span class="error">{{ $message }}</span>@enderror</div>
 <label class="field wide">{{ $t['names'] }}<input name="names" value="{{ old('names') }}" placeholder="{{ $t['names_placeholder'] }}" maxlength="160" required>@error('names')<span class="error">{{ $message }}</span>@enderror</label>
 <label class="field">{{ $t['date'] }}<input type="date" name="event_date" value="{{ old('event_date') }}" min="{{ now()->format('Y-m-d') }}" required>@error('event_date')<span class="error">{{ $message }}</span>@enderror</label>
 <label class="field">{{ $t['time'] }}<input type="time" name="event_time" value="{{ old('event_time', '18:00') }}" required>@error('event_time')<span class="error">{{ $message }}</span>@enderror</label>
