@@ -3,15 +3,34 @@
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\RestaurantController;
+use App\Http\Controllers\StoreAdminController;
+use App\Http\Controllers\StorefrontController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
+Route::domain(config('store.admin_domain'))->get('/', fn () => redirect('/admin/store'));
+Route::get('/', [StorefrontController::class, 'index'])->name('store.catalog');
+Route::get('/designs/{template}/preview', [StorefrontController::class, 'preview'])->name('store.preview');
+Route::get('/checkout/{template}', [StorefrontController::class, 'checkout'])->name('store.checkout');
+Route::post('/checkout', [StorefrontController::class, 'store'])->middleware('throttle:10,1')->name('store.order');
+Route::post('/checkout/quote', [StorefrontController::class, 'quote'])->middleware('throttle:30,1')->name('store.quote');
+Route::get('/orders/{token}', [StorefrontController::class, 'payment'])->name('store.payment');
+Route::post('/orders/{token}/payment', [StorefrontController::class, 'submitPayment'])->middleware('throttle:5,1')->name('store.payment.submit');
+Route::get('/i/{slug}', [StorefrontController::class, 'invitation'])->name('store.invitation');
+Route::post('/i/{slug}/rsvp', [StorefrontController::class, 'rsvp'])->middleware('throttle:10,1')->name('store.rsvp');
+Route::get('/responses/{token}', [StorefrontController::class, 'responses'])->name('store.responses');
+Route::middleware(['auth', 'role:admin'])->prefix('admin/store')->name('admin.store.')->group(function () {
+    Route::get('/', [StoreAdminController::class, 'index'])->name('index');
+    Route::post('/orders/{order}/confirm', [StoreAdminController::class, 'confirm'])->name('confirm');
+    Route::post('/orders/{order}/reject', [StoreAdminController::class, 'reject'])->name('reject');
+    Route::post('/templates/{template?}', [StoreAdminController::class, 'saveTemplate'])->name('templates');
+    Route::post('/music/{music?}', [StoreAdminController::class, 'saveMusic'])->name('music');
+    Route::post('/promos/{promo?}', [StoreAdminController::class, 'savePromo'])->name('promos');
+    Route::post('/restaurants/{restaurant?}', [StoreAdminController::class, 'saveRestaurant'])->name('restaurants');
 });
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-    Route::post('/login', [AuthController::class, 'login'])->name('login.store');
+    Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,1')->name('login.store');
 });
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
 Route::get('/admin', [AdminController::class, 'index'])->middleware(['auth', 'role:admin'])->name('admin.dashboard');

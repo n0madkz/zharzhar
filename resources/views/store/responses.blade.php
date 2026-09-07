@@ -1,0 +1,7 @@
+@extends('layouts.store', ['title' => 'Ответы гостей — ZharZhar'])
+@section('content')
+<div class="shell section"><p class="eyebrow">ЛИЧНАЯ СТРАНИЦА ОТВЕТОВ</p><h2>{{ $order->details['names'] }}</h2><p class="hint">Эта ссылка открывает доступ к ответам. Не публикуйте её и не отправляйте гостям.</p><a class="button outline" href="{{ $order->publicUrl('i/'.$order->invitation->slug) }}">Открыть приглашение ↗</a>
+<div class="stats"><div class="panel"><strong>{{ $counts['yes'] }}</strong><span>Гостей придут, включая сопровождающих</span></div><div class="panel"><strong>{{ $counts['maybe'] }}</strong><span>Ответили «возможно»</span></div><div class="panel"><strong>{{ $counts['no'] }}</strong><span>Не смогут прийти</span></div></div>
+<div class="panel table-scroll"><table><thead><tr><th>ГОСТЬ</th><th>ОТВЕТ</th><th>ЧЕЛОВЕК</th><th>СООБЩЕНИЕ</th></tr></thead><tbody>@forelse($rsvps as $rsvp)<tr><td>{{ $rsvp->guest_name }}</td><td>{{ ['yes'=>'Придёт','no'=>'Не придёт','maybe'=>'Возможно'][$rsvp->attendance_status] }}</td><td>{{ $rsvp->guest_count }}</td><td>{{ $rsvp->message ?: '—' }}</td></tr>@empty<tr><td colspan="4">Ответов пока нет. Отправьте гостям ссылку на приглашение.</td></tr>@endforelse</tbody></table></div>
+<div class="pagination">@if($rsvps->previousPageUrl())<a href="{{ $rsvps->previousPageUrl() }}">← Назад</a>@endif<span>Страница {{ $rsvps->currentPage() }}</span>@if($rsvps->nextPageUrl())<a href="{{ $rsvps->nextPageUrl() }}">Далее →</a>@endif</div></div>
+@endsection
