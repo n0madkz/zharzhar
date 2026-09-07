@@ -9,15 +9,29 @@ class InvitationCatalogSeeder extends Seeder
 {
     public function run(): void
     {
+        Template::whereIn('slug', [
+            'sage-wedding', 'rose-wedding', 'gold-wedding',
+            'classic-anniversary', 'gold-anniversary', 'happy-birthday',
+        ])->update(['is_active' => false]);
+
         foreach ([
-            ['Нежный шалфей', 'sage-wedding', 'wedding', 'sage', 7990],
-            ['Розовый сад', 'rose-wedding', 'wedding', 'rose', 9990],
-            ['Вечернее золото', 'gold-wedding', 'wedding', 'midnight', 12990],
-            ['Тёплая классика', 'classic-anniversary', 'anniversary', 'sand', 7990],
-            ['Золотой юбилей', 'gold-anniversary', 'anniversary', 'midnight', 9990],
-            ['Счастливый день', 'happy-birthday', 'birthday', 'rose', 7990],
-        ] as [$name,$slug,$event,$theme,$price]) {
-            Template::firstOrCreate(['slug' => $slug], ['name' => $name, 'category' => $event, 'event_type' => $event, 'price' => $price, 'config_json' => ['theme' => $theme], 'is_active' => true]);
+            ['Ақ інжу', 'ak-inju', 'wedding', 'pearl', 7990, '/invitation-assets/pearl-ethno.webp', 'Алихан & Аружан'],
+            ['Royal кеш', 'royal-kesh', 'wedding', 'royal', 8990, '/invitation-assets/royal-ethno.webp', 'Әли & Аяулым'],
+            ['Нәзік ботаника', 'nazik-botanika', 'wedding', 'botanical', 9990, '/invitation-assets/botanical-ethno.webp', 'Нұрлан & Жансая'],
+            ['Ақ жібек', 'ak-zhibek', 'wedding', 'silk', 10990, '/invitation-assets/silk-ethno.webp', 'Мирас & Айдана'],
+            ['Алтын Nomad', 'altyn-nomad', 'wedding', 'nomad', 11990, '/invitation-assets/nomad-horse.webp', 'Ерасыл & Томирис'],
+            ['Мерейлі шеңбер', 'mereyli-shenber', 'anniversary', 'jubilee', 9990, '/invitation-assets/jubilee-ethno.webp', 'Мерейлі 60 жас'],
+            ['Ару қыз ұзату', 'aru-qyz-uzatu', 'qyz_uzatu', 'qyz', 10990, '/invitation-assets/qyz-ethno.webp', 'Аружан'],
+        ] as [$name, $slug, $event, $theme, $price, $image, $sampleNames]) {
+            Template::updateOrCreate(['slug' => $slug], [
+                'name' => $name,
+                'category' => $event,
+                'event_type' => $event,
+                'price' => $price,
+                'preview_image' => $image,
+                'config_json' => ['theme' => $theme, 'sample_names' => $sampleNames],
+                'is_active' => true,
+            ]);
         }
     }
 }

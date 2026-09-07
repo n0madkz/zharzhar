@@ -36,6 +36,15 @@ class StoreInvitationOrderRequest extends FormRequest
 
     public function messages(): array
     {
+        if (app()->isLocale('kk')) {
+            return [
+                'required' => 'Бұл өрісті толтырыңыз.', 'exists' => 'Таңдалған нұсқа енді қолжетімсіз.',
+                'event_date.after_or_equal' => 'Бүгінгі немесе болашақ күнді таңдаңыз.',
+                'customer_phone.regex' => 'Телефон нөмірін көрсетіңіз, мысалы +7 700 123 45 67.',
+                'max' => 'Мән тым ұзын.', 'date_format' => 'Күн немесе уақыт пішімін тексеріңіз.',
+            ];
+        }
+
         return ['required' => 'Заполните это поле.', 'exists' => 'Выбранный вариант больше недоступен.',
             'event_date.after_or_equal' => 'Выберите сегодняшнюю или будущую дату.',
             'customer_phone.regex' => 'Укажите телефон, например +7 700 123 45 67.',

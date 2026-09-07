@@ -48,7 +48,7 @@ class StoreAdminController extends Controller
                 'venue_name' => $details['venue_name'], 'venue_address' => $details['venue_address'], 'language' => $details['language'], 'status' => 'active',
             ]);
             $invitation = Invitation::create([
-                'event_id' => $event->id, 'template_id' => $order->template_id, 'slug' => strtolower(Str::random(24)),
+                'event_id' => $event->id, 'template_id' => $order->template_id, 'slug' => $this->invitationSlug($details['names']),
                 'content_json' => $details, 'settings_json' => ['music_url' => $details['music_url'] ?? null, 'theme' => $details['theme']],
                 'status' => 'published', 'published_at' => now(),
             ]);
@@ -166,5 +166,25 @@ class StoreAdminController extends Controller
         }
 
         return back()->with('success', 'Ресторан сохранён в каталоге.');
+    }
+
+    private function invitationSlug(string $names): string
+    {
+        $letters = [
+            'а' => 'a', 'ә' => 'a', 'б' => 'b', 'в' => 'v', 'г' => 'g', 'ғ' => 'g', 'д' => 'd',
+            'е' => 'e', 'ё' => 'yo', 'ж' => 'zh', 'з' => 'z', 'и' => 'i', 'й' => 'i', 'к' => 'k',
+            'қ' => 'q', 'л' => 'l', 'м' => 'm', 'н' => 'n', 'ң' => 'n', 'о' => 'o', 'ө' => 'o',
+            'п' => 'p', 'р' => 'r', 'с' => 's', 'т' => 't', 'у' => 'u', 'ұ' => 'u', 'ү' => 'u',
+            'ф' => 'f', 'х' => 'h', 'һ' => 'h', 'ц' => 'ts', 'ч' => 'ch', 'ш' => 'sh', 'щ' => 'sh',
+            'ы' => 'y', 'і' => 'i', 'э' => 'e', 'ю' => 'yu', 'я' => 'ya', 'ь' => '', 'ъ' => '',
+        ];
+        $namePart = Str::slug(strtr(mb_strtolower($names), $letters));
+        $namePart = trim(substr($namePart ?: 'shaqyru', 0, 80), '-');
+
+        do {
+            $slug = $namePart.'-'.random_int(10000, 99999);
+        } while (Invitation::where('slug', $slug)->exists());
+
+        return $slug;
     }
 }

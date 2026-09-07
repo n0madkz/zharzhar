@@ -31,6 +31,13 @@ class InvitationOrder extends Model
 
     public function statusLabel(): string
     {
+        if (app()->isLocale('kk')) {
+            return match ($this->status) {
+                'review' => 'Төлем тексерілуде', 'paid' => 'Шақыру дайын',
+                'rejected' => 'Тапсырыс қабылданбады', default => 'Төлем күтілуде',
+            };
+        }
+
         return match ($this->status) {
             'review' => 'Проверяем оплату', 'paid' => 'Приглашение готово',
             'rejected' => 'Заказ отклонён', default => 'Ожидает оплаты',

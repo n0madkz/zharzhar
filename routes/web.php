@@ -7,6 +7,13 @@ use App\Http\Controllers\StoreAdminController;
 use App\Http\Controllers\StorefrontController;
 use Illuminate\Support\Facades\Route;
 
+Route::post('/language/{locale}', function (string $locale) {
+    abort_unless(in_array($locale, ['kk', 'ru'], true), 404);
+    session(['store_locale' => $locale]);
+
+    return back();
+})->name('store.language');
+
 Route::domain(config('store.admin_domain'))->get('/', fn () => redirect('/admin/store'));
 Route::get('/', [StorefrontController::class, 'index'])->name('store.catalog');
 Route::get('/designs/{template}/preview', [StorefrontController::class, 'preview'])->name('store.preview');

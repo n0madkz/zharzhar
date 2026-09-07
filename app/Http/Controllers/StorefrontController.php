@@ -32,8 +32,35 @@ class StorefrontController extends Controller
     {
         abort_unless($template->is_active, 404);
 
-        return view('store.invitation', ['template' => $template, 'preview' => true, 'invitation' => null,
-            'details' => ['names' => 'Алихан & Аружан', 'hosts' => 'Ерлан – Айгүл', 'event_type' => $template->event_type ?? 'wedding', 'event_date' => now()->addMonth()->format('Y-m-d'), 'event_time' => '18:00', 'venue_name' => 'Ваш ресторан', 'venue_address' => 'Город и адрес вашего торжества', 'language' => 'ru', 'invitation_text' => 'Приглашаем вас разделить с нами радость этого особенного дня!', 'theme' => $template->config_json['theme'] ?? 'sage']]);
+        $eventType = $template->event_type ?? 'wedding';
+        $samples = [
+            'wedding' => ['names' => 'Алихан & Аружан', 'hosts' => 'Әділбек — Ақмоншақ', 'invitation_text' => 'Құрметті ағайын-туыс, бауырлар мен достар! Сіздерді қуанышымыздың қадірлі қонағы болуға шақырамыз.'],
+            'qyz_uzatu' => ['names' => 'Аружан', 'hosts' => 'Ерлан — Айгүл', 'invitation_text' => 'Аяулы қызымыз Аружанның жаңа өмірге қадам басар қыз ұзату тойына арналған ақ дастарханымызға шақырамыз.'],
+            'anniversary' => ['names' => 'Мерейлі 60 жас', 'hosts' => 'Балалары мен немерелері', 'invitation_text' => 'Ардақты әкеміздің мерейлі жасына арналған салтанатты кешіміздің қадірлі қонағы болыңыз.'],
+            'birthday' => ['names' => 'Әлихан · 30 жас', 'hosts' => 'Отбасы', 'invitation_text' => 'Бізбен бірге ерекше күннің қуанышын бөлісуге шақырамыз.'],
+        ];
+        if (app()->isLocale('ru')) {
+            $samples['wedding']['invitation_text'] = 'Дорогие родные и друзья! Приглашаем вас разделить с нами радость этого особенного дня.';
+            $samples['qyz_uzatu']['invitation_text'] = 'Приглашаем вас на торжественный қыз ұзату нашей дорогой дочери и будем рады видеть за праздничным дастарханом.';
+            $samples['anniversary']['invitation_text'] = 'Приглашаем вас на праздничный вечер в честь юбилея нашего дорогого отца.';
+            $samples['birthday']['invitation_text'] = 'Приглашаем разделить с нами радость этого особенного дня.';
+        }
+
+        return view('store.invitation', [
+            'template' => $template,
+            'preview' => true,
+            'invitation' => null,
+            'details' => array_merge($samples[$eventType] ?? $samples['wedding'], [
+                'names' => $template->config_json['sample_names'] ?? ($samples[$eventType]['names'] ?? $samples['wedding']['names']),
+                'event_type' => $eventType,
+                'event_date' => now()->addMonths(2)->format('Y-m-d'),
+                'event_time' => '18:00',
+                'venue_name' => 'Royal Hall',
+                'venue_address' => 'Алматы қаласы, Абай даңғылы, 50',
+                'language' => app()->getLocale(),
+                'theme' => $template->config_json['theme'] ?? 'pearl',
+            ]),
+        ]);
     }
 
     public function checkout(Request $request, Template $template): View
@@ -74,7 +101,7 @@ class StorefrontController extends Controller
         }
         $promo = PromoCode::where('code', $code)->when($lock, fn ($q) => $q->lockForUpdate())->first();
         if (! $promo) {
-            throw ValidationException::withMessages(['promo_code' => 'Промокод не найден.']);
+            throw ValidationException::withMessages(['promo_code' => app()->isLocale('kk') ? 'Промокод табылмады.' : 'Промокод не найден.']);
         }
 
         return $promo;
@@ -93,11 +120,11 @@ class StorefrontController extends Controller
             $promo = $this->promo($data['promo_code'] ?? '', true);
             $discount = $promo?->discountFor($template->price) ?? 0;
             if ($template->event_type && $template->event_type !== $data['event_type']) {
-                throw ValidationException::withMessages(['event_type' => 'Этот дизайн предназначен для другого события.']);
+                throw ValidationException::withMessages(['event_type' => app()->isLocale('kk') ? 'Бұл дизайн басқа мерекеге арналған.' : 'Этот дизайн предназначен для другого события.']);
             }
             $music = empty($data['music_id']) ? null : Music::where('is_active', true)->findOrFail($data['music_id']);
             if ($music && ! $music->supportsCategory($data['event_type'])) {
-                throw ValidationException::withMessages(['music_id' => 'Эта музыка недоступна для выбранного события.']);
+                throw ValidationException::withMessages(['music_id' => app()->isLocale('kk') ? 'Бұл музыка таңдалған мерекеге қолжетімсіз.' : 'Эта музыка недоступна для выбранного события.']);
             }
             $details = collect($data)->only(['event_type', 'names', 'hosts', 'event_date', 'event_time', 'restaurant_id', 'venue_name', 'venue_address', 'language', 'invitation_text'])->all();
             $details['theme'] = $template->config_json['theme'] ?? 'sage';
@@ -128,13 +155,20 @@ class StorefrontController extends Controller
 
     public function submitPayment(Request $request, string $token): RedirectResponse
     {
-        $data = $request->validate(['payment_reference' => ['required', 'string', 'max:500']], ['payment_reference.required' => 'Укажите имя отправителя и время перевода.']);
-        InvitationOrder::where('token', $token)->firstOrFail();
-        InvitationOrder::where('token', $token)->where('status', 'pending')->update([
-            'status' => 'review', 'payment_reference' => $data['payment_reference'], 'submitted_at' => now(),
+        $order = InvitationOrder::where('token', $token)->firstOrFail();
+        InvitationOrder::whereKey($order->id)->where('status', 'pending')->update([
+            'status' => 'review', 'submitted_at' => now(),
         ]);
+        $phone = preg_replace('/\D+/', '', config('store.whatsapp_phone'));
+        $message = app()->isLocale('kk')
+            ? ($order->total > 0
+                ? "Сәлеметсіз бе! ZharZhar №{$order->id} тапсырысының ақысын төледім. Төлемді тексеріңізші."
+                : "Сәлеметсіз бе! ZharZhar №{$order->id} тапсырысы промокодпен рәсімделді. Тапсырысты тексеріңізші.")
+            : ($order->total > 0
+                ? "Здравствуйте! Я оплатил(а) заказ ZharZhar №{$order->id}. Пожалуйста, проверьте оплату."
+                : "Здравствуйте! Заказ ZharZhar №{$order->id} оформлен по промокоду. Пожалуйста, проверьте заказ.");
 
-        return back()->with('success', 'Информация отправлена. Обновите эту страницу после проверки оплаты.');
+        return redirect()->away('https://wa.me/'.$phone.'?text='.rawurlencode($message));
     }
 
     public function invitation(string $slug): View

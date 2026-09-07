@@ -1,7 +1,17 @@
 document.addEventListener('DOMContentLoaded', () => {
+  const kk = document.documentElement.lang === 'kk';
+  const copy = kk ? {
+    copied: 'Көшірілді', copyFallback: 'Мәтінді белгілеп, көшіріңіз', applyHint: 'Жеңілдікті тексеру үшін «Қолдану» батырмасын басыңыз.',
+    checking: 'Промокод тексерілуде…', promoError: 'Промокодты тексеру мүмкін болмады. Қайталап көріңіз.',
+    applied: 'Промокод қолданылды.', noPromo: 'Промокодсыз баға.', saving: 'Сақталуда…',
+  } : {
+    copied: 'Скопировано', copyFallback: 'Выделите и скопируйте текст', applyHint: 'Нажмите «Применить», чтобы проверить скидку.',
+    checking: 'Проверяем промокод…', promoError: 'Не удалось проверить промокод. Попробуйте ещё раз.',
+    applied: 'Промокод применён.', noPromo: 'Цена без промокода.', saving: 'Сохраняем…',
+  };
   document.querySelectorAll('[data-copy]').forEach(button => button.addEventListener('click', async () => {
-    try { await navigator.clipboard.writeText(button.dataset.copy); button.textContent = 'Скопировано'; }
-    catch { button.textContent = 'Выделите и скопируйте текст'; }
+    try { await navigator.clipboard.writeText(button.dataset.copy); button.textContent = copy.copied; }
+    catch { button.textContent = copy.copyFallback; }
   }));
   const restaurant = document.querySelector('#restaurant_id');
   restaurant?.addEventListener('change', () => {
@@ -27,12 +37,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const resetPrice = () => {
     document.querySelector('#discount-value').textContent = '0 ₸';
     document.querySelector('#total-value').textContent = money(Number(apply.dataset.price));
-    result.textContent = 'Нажмите «Применить», чтобы проверить скидку.';
+    result.textContent = copy.applyHint;
   };
   promo?.addEventListener('input', resetPrice);
   apply?.addEventListener('click', async () => {
     apply.disabled = true;
-    result.textContent = 'Проверяем промокод…';
+    result.textContent = copy.checking;
     const code = promo.value;
     try {
       const response = await fetch(apply.dataset.url, { method: 'POST', headers: {
@@ -40,15 +50,15 @@ document.addEventListener('DOMContentLoaded', () => {
       }, body: JSON.stringify({ template_id: apply.dataset.template, promo_code: code }) });
       const data = await response.json();
       if (promo.value !== code) { return; }
-      if (!response.ok) { throw new Error(data.errors?.promo_code?.[0] || 'Не удалось проверить промокод. Попробуйте ещё раз.'); }
+      if (!response.ok) { throw new Error(data.errors?.promo_code?.[0] || copy.promoError); }
       document.querySelector('#discount-value').textContent = '−' + money(data.discount);
       document.querySelector('#total-value').textContent = money(data.total);
-      result.textContent = code.trim() ? 'Промокод применён.' : 'Цена без промокода.';
+      result.textContent = code.trim() ? copy.applied : copy.noPromo;
     } catch (error) { resetPrice(); result.textContent = error.message; }
     finally { apply.disabled = false; }
   });
   document.querySelectorAll('form[data-submit-once]').forEach(form => form.addEventListener('submit', () => {
     const button = form.querySelector('button[type="submit"]');
-    if (button) { button.disabled = true; button.textContent = 'Сохраняем…'; }
+    if (button) { button.disabled = true; button.textContent = copy.saving; }
   }));
 });

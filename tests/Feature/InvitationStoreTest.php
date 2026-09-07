@@ -7,6 +7,7 @@ use App\Models\Music;
 use App\Models\PromoCode;
 use App\Models\Template;
 use App\Models\User;
+use Database\Seeders\InvitationCatalogSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Hash;
@@ -74,6 +75,57 @@ class InvitationStoreTest extends TestCase
         $this->get('/checkout/'.$wedding->id)->assertOk()->assertSee('Той иелері');
     }
 
+    public function test_store_is_kazakh_by_default_and_language_switch_persists_russian(): void
+    {
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('Үлкен күн.')
+            ->assertSee('ҚАЗ')
+            ->assertSee('РУС')
+            ->assertDontSee('Большой день.');
+
+        $this->from('/')->post('/language/ru')->assertRedirect('/');
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('Большой день.')
+            ->assertDontSee('Үлкен күн.');
+        $this->post('/language/en')->assertNotFound();
+    }
+
+    public function test_seeded_mobile_designs_have_dedicated_preview_controls(): void
+    {
+        Template::factory()->create(['slug' => 'gold-wedding', 'is_active' => true]);
+        $this->seed(InvitationCatalogSeeder::class);
+
+        $this->assertDatabaseHas('templates', ['slug' => 'ak-inju', 'event_type' => 'wedding']);
+        $this->assertDatabaseHas('templates', ['slug' => 'mereyli-shenber', 'event_type' => 'anniversary']);
+        $this->assertDatabaseHas('templates', ['slug' => 'aru-qyz-uzatu', 'event_type' => 'qyz_uzatu']);
+        $this->assertDatabaseHas('templates', ['slug' => 'gold-wedding', 'is_active' => false]);
+        $this->assertDatabaseHas('templates', ['slug' => 'altyn-nomad', 'preview_image' => '/invitation-assets/nomad-horse.webp']);
+        $this->assertSame(5, Template::where('event_type', 'wedding')->where('is_active', true)->pluck('preview_image')->unique()->count());
+
+        $qyzUzatu = Template::where('slug', 'aru-qyz-uzatu')->firstOrFail();
+        $royal = Template::where('slug', 'royal-kesh')->firstOrFail();
+
+        $this->get('/?event=qyz_uzatu')
+            ->assertOk()
+            ->assertSee('Ару қыз ұзату')
+            ->assertDontSee('Ақ інжу');
+
+        $this->get('/designs/'.$qyzUzatu->id.'/preview')
+            ->assertOk()
+            ->assertSee('Шаблондарға қайту')
+            ->assertSee('data-invite-music', false)
+            ->assertSee('invite-theme-qyz', false);
+
+        $this->get('/designs/'.$royal->id.'/preview')
+            ->assertOk()
+            ->assertSee('Әли &amp; Аяулым', false)
+            ->assertSee('royal-ethno.webp')
+            ->assertDontSee('Дастан')
+            ->assertDontSee('Ләззат');
+    }
+
     public function test_order_uses_server_price_and_discount_without_publishing_and_is_idempotent(): void
     {
         $template = Template::factory()->create();
@@ -120,12 +172,22 @@ class InvitationStoreTest extends TestCase
         $this->assertDatabaseCount('invitation_orders', 0);
     }
 
-    public function test_payment_report_requires_reference_and_never_publishes(): void
+    public function test_payment_button_sends_order_to_review_and_opens_whatsapp(): void
     {
         $order = InvitationOrder::factory()->create();
-        $this->post('/orders/'.$order->token.'/payment', [])->assertSessionHasErrors(['payment_reference' => 'Укажите имя отправителя и время перевода.']);
-        $this->post('/orders/'.$order->token.'/payment', ['payment_reference' => 'Айгүл, 12:30', 'status' => 'paid'])->assertRedirect();
+        $this->get('/orders/'.$order->token)
+            ->assertOk()
+            ->assertSee('Төледім — WhatsApp-қа жазу')
+            ->assertDontSee('payment_reference')
+            ->assertDontSee('<textarea', false);
+
+        $response = $this->post('/orders/'.$order->token.'/payment');
+
+        $response->assertRedirect();
+        $this->assertStringStartsWith('https://wa.me/77787367850?text=', $response->headers->get('Location'));
+        $this->assertStringContainsString(rawurlencode('№'.$order->id), $response->headers->get('Location'));
         $this->assertSame('review', $order->fresh()->status);
+        $this->assertNull($order->fresh()->payment_reference);
         $this->assertDatabaseCount('invitations', 0);
     }
 
@@ -140,6 +202,7 @@ class InvitationStoreTest extends TestCase
         $this->assertSame($admin->id, $order->confirmed_by);
         $this->assertDatabaseCount('invitations', 1);
         $this->assertDatabaseCount('events', 1);
+        $this->assertMatchesRegularExpression('/^alihan-aruzhan-[0-9]{5}$/', $order->invitation->slug);
         $this->get('/orders/'.$order->token)->assertSee($order->responses_token);
         $slug = $order->invitation->slug;
         $this->get('/i/'.$slug)->assertOk()->assertSee('Ерлан')->assertDontSee($order->responses_token);
@@ -196,12 +259,12 @@ class InvitationStoreTest extends TestCase
         $this->assertDatabaseHas('templates', ['id' => $template->id, 'price' => 12990, 'is_active' => false]);
         $this->post('/admin/store/music', [
             'name' => 'Той',
-            'categories' => ['wedding', 'birthday'],
+            'categories' => ['wedding', 'qyz_uzatu', 'birthday'],
             'audio_file' => UploadedFile::fake()->create('toi.mp3', 1024, 'audio/mpeg'),
             'is_active' => 1,
         ])->assertRedirect();
         $music = Music::firstOrFail();
-        $this->assertSame(['wedding', 'birthday'], $music->categories);
+        $this->assertSame(['wedding', 'qyz_uzatu', 'birthday'], $music->categories);
         $this->assertStringStartsWith('/storage/music/', $music->audio_url);
         Storage::disk('public')->assertExists(str_replace('/storage/', '', $music->audio_url));
         $this->post('/admin/store/music', [
@@ -213,7 +276,7 @@ class InvitationStoreTest extends TestCase
         $this->post('/admin/store/promos', ['type' => 'percent', 'value' => 15, 'max_uses' => 10, 'is_active' => 1])->assertRedirect();
         $this->assertStringStartsWith('ZHAR-', PromoCode::firstOrFail()->code);
         $this->post('/admin/store/restaurants', ['name' => 'Салтанат', 'city' => 'Алматы', 'address' => 'Абая 1', 'is_active' => 1])->assertRedirect();
-        $this->get('/admin/store')->assertOk()->assertSee('Розовый сад')->assertSee('Салтанат');
+        $this->get('/admin/store')->assertOk()->assertSee('Розовый сад')->assertSee('Салтанат')->assertSee('Қыз ұзату');
     }
 
     public function test_checkout_only_shows_music_for_its_event_category(): void

@@ -1,0 +1,178 @@
+@font-face {
+    font-family: 'Noto Serif Display';
+    font-style: normal;
+    font-weight: 100 900;
+    font-display: swap;
+    src: url('/fonts/noto-serif-display-cyrillic-ext-wght-normal.woff2') format('woff2');
+    unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+
+@font-face {
+    font-family: 'Noto Serif Display';
+    font-style: normal;
+    font-weight: 100 900;
+    font-display: swap;
+    src: url('/fonts/noto-serif-display-cyrillic-wght-normal.woff2') format('woff2');
+    unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+
+@font-face {
+    font-family: 'Noto Serif Display';
+    font-style: normal;
+    font-weight: 100 900;
+    font-display: swap;
+    src: url('/fonts/noto-serif-display-latin-wght-normal.woff2') format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+    font-family: 'Noto Serif Display';
+    font-style: italic;
+    font-weight: 100 900;
+    font-display: swap;
+    src: url('/fonts/noto-serif-display-cyrillic-ext-wght-italic.woff2') format('woff2');
+    unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+
+@font-face {
+    font-family: 'Noto Serif Display';
+    font-style: italic;
+    font-weight: 100 900;
+    font-display: swap;
+    src: url('/fonts/noto-serif-display-cyrillic-wght-italic.woff2') format('woff2');
+    unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+
+@font-face {
+    font-family: 'Noto Serif Display';
+    font-style: italic;
+    font-weight: 100 900;
+    font-display: swap;
+    src: url('/fonts/noto-serif-display-latin-wght-italic.woff2') format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+    font-family: 'Noto Sans';
+    font-style: normal;
+    font-weight: 100 900;
+    font-display: swap;
+    src: url('/fonts/noto-sans-cyrillic-ext-wght-normal.woff2') format('woff2');
+    unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+
+@font-face {
+    font-family: 'Noto Sans';
+    font-style: normal;
+    font-weight: 100 900;
+    font-display: swap;
+    src: url('/fonts/noto-sans-cyrillic-wght-normal.woff2') format('woff2');
+    unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+
+@font-face {
+    font-family: 'Noto Sans';
+    font-style: normal;
+    font-weight: 100 900;
+    font-display: swap;
+    src: url('/fonts/noto-sans-latin-wght-normal.woff2') format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+:root {
+    --serif: 'Noto Serif Display', 'Times New Roman', serif;
+    --date-font: 'Noto Sans', Arial, sans-serif;
+}
+
+body {
+    font-family: 'Noto Sans', Arial, sans-serif;
+}
+
+body.invitation-shell,
+.rsvp-preview span,
+.invite-form input,
+.invite-form select,
+.invite-form textarea,
+.rsvp-preview button,
+.invite-form button {
+    font-family: 'Noto Sans', Arial, sans-serif;
+}
+
+.hero h1,
+.paper-script,
+.paper-kicker,
+.mini-kicker,
+.design-preview strong,
+.design-info h3,
+.page-heading h1,
+.invitation-page h1 {
+    font-family: var(--serif);
+}
+
+.paper-kicker,
+.mini-kicker {
+    font-style: italic;
+    font-weight: 500;
+}
+
+.paper-date,
+.mini-date,
+.invite-date {
+    font-family: var(--date-font);
+    font-variant-numeric: tabular-nums;
+    font-weight: 500;
+}
+
+.paper-date,
+.mini-date {
+    letter-spacing: 0.24em;
+}
+
+.preview-template,
+.invite-cover .invite-overline,
+.invite-cover h1,
+.invite-monogram,
+.jubilee-number,
+.invite-message,
+.invite-script,
+.venue-section h2,
+.hosts-section h2,
+.finale-circle p {
+    font-family: var(--serif);
+}
+
+.invite-cover .invite-overline {
+    font-size: 13px;
+    font-style: italic;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+}
+
+.invite-cover h1 {
+    font-style: italic;
+    font-weight: 500;
+    line-height: 1.02;
+    letter-spacing: -0.035em;
+}
+
+.invite-cover-date,
+.date-orb span,
+.date-orb strong,
+.invite-time,
+.program-item time,
+.countdown-grid strong {
+    font-family: var(--date-font);
+    font-variant-numeric: tabular-nums;
+}
+
+.invite-cover-date {
+    font-weight: 500;
+    letter-spacing: 0.3em;
+}
+
+.date-orb strong,
+.invite-time,
+.program-item time {
+    font-style: normal;
+    font-weight: 300;
+}
