@@ -12,6 +12,7 @@ use App\Models\Template;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
@@ -97,12 +98,37 @@ class StoreAdminController extends Controller
 
     public function saveMusic(Request $request, ?Music $music = null): RedirectResponse
     {
-        $data = $request->validate(['name' => ['required', 'string', 'max:120'], 'category' => ['required', 'string', 'max:80'], 'audio_url' => ['required', 'url:https', 'max:255']]);
-        $data['is_active'] = $request->boolean('is_active');
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:120'],
+            'categories' => ['required', 'array', 'min:1'],
+            'categories.*' => ['required', 'string', Rule::in(array_keys(config('store.music_categories')))],
+            'audio_file' => [$music ? 'nullable' : 'required', 'file', 'mimes:mp3,m4a,mp4,wav,ogg,webm', 'max:30720'],
+        ], [
+            'categories.required' => 'Выберите хотя бы одну категорию.',
+            'audio_file.required' => 'Выберите аудиофайл на компьютере.',
+            'audio_file.mimes' => 'Поддерживаются MP3, M4A, MP4 Audio, WAV, OGG и WebM.',
+            'audio_file.max' => 'Размер аудиофайла не должен превышать 30 МБ.',
+        ]);
+        $categories = array_values(array_unique($data['categories']));
+        $values = [
+            'name' => $data['name'],
+            'categories' => $categories,
+            'category' => collect($categories)->map(fn (string $category) => config('store.music_categories.'.$category))->join(', '),
+            'is_active' => $request->boolean('is_active'),
+        ];
+        $oldAudioUrl = $music?->audio_url;
+        if ($request->hasFile('audio_file')) {
+            $file = $request->file('audio_file');
+            $path = $file->storePubliclyAs('music', Str::uuid().'.'.$file->extension(), 'public');
+            $values['audio_url'] = '/storage/'.$path;
+        }
         if ($music) {
-            $music->update($data);
+            $music->update($values);
         } else {
-            Music::create($data);
+            Music::create($values);
+        }
+        if (isset($values['audio_url']) && $oldAudioUrl && str_starts_with($oldAudioUrl, '/storage/music/')) {
+            Storage::disk('public')->delete(str_replace('/storage/', '', $oldAudioUrl));
         }
 
         return back()->with('success', 'Музыка сохранена.');

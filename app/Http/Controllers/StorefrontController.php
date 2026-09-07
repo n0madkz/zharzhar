@@ -41,11 +41,18 @@ class StorefrontController extends Controller
         abort_unless($template->is_active, 404);
         $key = (string) Str::uuid();
         $request->session()->put('checkout_keys.'.$key, true);
+        $music = Music::where('is_active', true)
+            ->when($template->event_type, fn ($query, $eventType) => $query->where(
+                fn ($categoryQuery) => $categoryQuery->whereJsonContains('categories', $eventType)->orWhereNull('categories')
+            ))
+            ->orderBy('category')
+            ->orderBy('name')
+            ->get();
 
         return view('store.checkout', [
             'template' => $template, 'requestKey' => $key,
             'restaurants' => Restaurant::where('status', 'active')->orderBy('name')->get(),
-            'music' => Music::where('is_active', true)->orderBy('category')->orderBy('name')->get(),
+            'music' => $music,
         ]);
     }
 
@@ -89,6 +96,9 @@ class StorefrontController extends Controller
                 throw ValidationException::withMessages(['event_type' => 'Этот дизайн предназначен для другого события.']);
             }
             $music = empty($data['music_id']) ? null : Music::where('is_active', true)->findOrFail($data['music_id']);
+            if ($music && ! $music->supportsCategory($data['event_type'])) {
+                throw ValidationException::withMessages(['music_id' => 'Эта музыка недоступна для выбранного события.']);
+            }
             $details = collect($data)->only(['event_type', 'names', 'hosts', 'event_date', 'event_time', 'restaurant_id', 'venue_name', 'venue_address', 'language', 'invitation_text'])->all();
             $details['theme'] = $template->config_json['theme'] ?? 'sage';
             $details['template_name'] = $template->name;

@@ -3,11 +3,14 @@
 namespace Tests\Feature;
 
 use App\Models\InvitationOrder;
+use App\Models\Music;
 use App\Models\PromoCode;
 use App\Models\Template;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Testing\TestResponse;
 use PHPUnit\Framework\Attributes\TestWith;
@@ -183,6 +186,7 @@ class InvitationStoreTest extends TestCase
 
     public function test_admin_can_manage_catalog_and_generate_codes_with_validation(): void
     {
+        Storage::fake('public');
         $this->actingAs(User::factory()->create(['role' => 'admin']));
         $data = ['name' => 'Розовый сад', 'slug' => 'rose-test', 'price' => 9990, 'theme' => 'rose', 'event_type' => 'wedding', 'is_active' => 1];
         $this->post('/admin/store/templates', $data)->assertRedirect();
@@ -190,13 +194,38 @@ class InvitationStoreTest extends TestCase
         $this->post('/admin/store/templates/'.$template->id, [...$data, 'price' => 500])->assertSessionHasErrors('price');
         $this->post('/admin/store/templates/'.$template->id, [...$data, 'price' => 12990, 'is_active' => 0])->assertRedirect();
         $this->assertDatabaseHas('templates', ['id' => $template->id, 'price' => 12990, 'is_active' => false]);
-        $this->post('/admin/store/music', ['name' => 'Той', 'category' => 'Свадьба', 'audio_url' => 'https://example.com/music.mp3', 'is_active' => 1])->assertRedirect();
-        $this->post('/admin/store/music', ['name' => 'Той', 'category' => 'Свадьба', 'audio_url' => 'javascript:alert(1)'])->assertSessionHasErrors('audio_url');
+        $this->post('/admin/store/music', [
+            'name' => 'Той',
+            'categories' => ['wedding', 'birthday'],
+            'audio_file' => UploadedFile::fake()->create('toi.mp3', 1024, 'audio/mpeg'),
+            'is_active' => 1,
+        ])->assertRedirect();
+        $music = Music::firstOrFail();
+        $this->assertSame(['wedding', 'birthday'], $music->categories);
+        $this->assertStringStartsWith('/storage/music/', $music->audio_url);
+        Storage::disk('public')->assertExists(str_replace('/storage/', '', $music->audio_url));
+        $this->post('/admin/store/music', [
+            'name' => 'Без категории',
+            'categories' => [],
+            'audio_file' => UploadedFile::fake()->create('track.txt', 1, 'text/plain'),
+        ])->assertSessionHasErrors(['categories', 'audio_file']);
         $this->post('/admin/store/promos', ['type' => 'percent', 'value' => 101, 'is_active' => 1])->assertSessionHasErrors('value');
         $this->post('/admin/store/promos', ['type' => 'percent', 'value' => 15, 'max_uses' => 10, 'is_active' => 1])->assertRedirect();
         $this->assertStringStartsWith('ZHAR-', PromoCode::firstOrFail()->code);
         $this->post('/admin/store/restaurants', ['name' => 'Салтанат', 'city' => 'Алматы', 'address' => 'Абая 1', 'is_active' => 1])->assertRedirect();
         $this->get('/admin/store')->assertOk()->assertSee('Розовый сад')->assertSee('Салтанат');
+    }
+
+    public function test_checkout_only_shows_music_for_its_event_category(): void
+    {
+        $template = Template::factory()->create(['event_type' => 'wedding']);
+        Music::create(['name' => 'Свадебная песня', 'category' => 'Свадьба', 'categories' => ['wedding', 'anniversary'], 'audio_url' => '/storage/music/wedding.mp3', 'is_active' => true]);
+        Music::create(['name' => 'Песня на день рождения', 'category' => 'День рождения', 'categories' => ['birthday'], 'audio_url' => '/storage/music/birthday.mp3', 'is_active' => true]);
+
+        $this->get('/checkout/'.$template->id)
+            ->assertOk()
+            ->assertSee('Свадебная песня')
+            ->assertDontSee('Песня на день рождения');
     }
 
     public function test_inactive_resources_and_invalid_event_data_cannot_be_ordered(): void

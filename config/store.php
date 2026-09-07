@@ -7,5 +7,6 @@ return [
     'admin_login' => env('STORE_ADMIN_LOGIN', 'Admin1601'),
     'admin_email' => env('STORE_ADMIN_EMAIL', 'admin@zharzhar.local'),
     'event_types' => ['wedding' => 'Свадьба / Үйлену той', 'anniversary' => 'Юбилей / Мерейтой', 'birthday' => 'День рождения / Туған күн'],
+    'music_categories' => ['wedding' => 'Свадьба', 'anniversary' => 'Юбилей', 'birthday' => 'День рождения'],
     'themes' => ['sage' => 'Нежный шалфей', 'rose' => 'Розовый сад', 'midnight' => 'Вечернее золото', 'sand' => 'Тёплая классика'],
 ];

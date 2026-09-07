@@ -32,9 +32,10 @@ $groups = [
 'theme'=>['label'=>'Оформление','options'=>config('store.themes')],
 'preview_image'=>['label'=>'Ссылка на обложку HTTPS','type'=>'url','hint'=>'Необязательно. Без ссылки показываем оформление дизайна.'],
 ]],
-'music' => ['title'=>'Музыкальная библиотека','records'=>$music,'route'=>'music','hint'=>'Укажите прямую HTTPS-ссылку на аудиофайл. Клиенты смогут прослушать его перед выбором.','fields'=>[
-'name'=>['label'=>'Название трека','required'=>true],'category'=>['label'=>'Категория','required'=>true],
-'audio_url'=>['label'=>'HTTPS-ссылка на аудио','type'=>'url','required'=>true],
+'music' => ['title'=>'Музыкальная библиотека','records'=>$music,'route'=>'music','hint'=>'Загрузите аудиофайл с компьютера и отметьте события, для которых он подходит. Один трек можно добавить сразу в несколько категорий.','fields'=>[
+'name'=>['label'=>'Название трека','required'=>true],
+'categories'=>['label'=>'Категории','multiple_options'=>config('store.music_categories'),'hint'=>'Выберите одну или несколько категорий.'],
+'audio_file'=>['label'=>'Аудиофайл','type'=>'file','accept'=>'.mp3,.m4a,.mp4,.wav,.ogg,.webm,audio/*','required'=>true,'hint'=>'MP3, M4A, WAV, OGG или WebM, не более 30 МБ.'],
 ]],
 'promos' => ['title'=>'Промокоды','records'=>$promos,'route'=>'promos','hint'=>'Пустой код будет сгенерирован автоматически. Лимит включает оформленные и оплаченные заказы; при отклонении резерв освобождается.','fields'=>[
 'code'=>['label'=>'Промокод','hint'=>'Латиница, цифры и дефис. Пусто = сгенерировать.'],
@@ -51,11 +52,11 @@ $groups = [
 @endphp
 @foreach($groups as $groupKey => $group)
 <section class="admin-section" id="{{ $groupKey }}"><h2>{{ $group['title'] }}</h2><p class="hint">{{ $group['hint'] }}</p>
-<div class="admin-grid"><div class="admin-editor"><h3>Добавить</h3><form method="POST" action="{{ route('admin.store.'.$group['route']) }}">@csrf
+<div class="admin-grid"><div class="admin-editor"><h3>Добавить</h3><form method="POST" action="{{ route('admin.store.'.$group['route']) }}" @if($groupKey === 'music') enctype="multipart/form-data" @endif>@csrf
 @include('admin.store-fields', ['fields'=>$group['fields'],'record'=>null,'editor'=>$groupKey.'-new'])
 </form></div><div class="stack">
-@forelse($group['records'] as $record)<details class="admin-editor"><summary><span>{{ $record->name ?? $record->code }} @if($groupKey==='templates') · {{ number_format($record->price,0,',',' ') }} ₸ @endif @if($groupKey==='promos') · {{ $record->value }}{{ $record->type === 'percent' ? '%' : ' ₸' }} · {{ $record->uses }}/{{ $record->max_uses ?? '∞' }} @endif @if($groupKey==='restaurants' ? $record->status !== 'active' : !$record->is_active) · Неактивен @endif</span></summary>
-<form method="POST" action="{{ route('admin.store.'.$group['route'], $record) }}">@csrf
+@forelse($group['records'] as $record)<details class="admin-editor"><summary><span>{{ $record->name ?? $record->code }} @if($groupKey==='templates') · {{ number_format($record->price,0,',',' ') }} ₸ @endif @if($groupKey==='music') · {{ $record->categoryLabel() }} @endif @if($groupKey==='promos') · {{ $record->value }}{{ $record->type === 'percent' ? '%' : ' ₸' }} · {{ $record->uses }}/{{ $record->max_uses ?? '∞' }} @endif @if($groupKey==='restaurants' ? $record->status !== 'active' : !$record->is_active) · Неактивен @endif</span></summary>
+<form method="POST" action="{{ route('admin.store.'.$group['route'], $record) }}" @if($groupKey === 'music') enctype="multipart/form-data" @endif>@csrf
 @include('admin.store-fields', ['fields'=>$group['fields'],'record'=>$record,'editor'=>$groupKey.'-'.$record->id])
 </form></details>@empty<p class="hint">Записей пока нет.</p>@endforelse</div></div>
 </section>@endforeach</div>
