@@ -1,0 +1,11 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><style>
+@page{margin:34px}body{font-family:"DejaVu Sans",sans-serif;color:#17332a;font-size:12px;line-height:1.55}h1{font-size:25px;margin:4px 0 6px}.brand{font-size:13px;font-weight:bold;letter-spacing:1px}.status{display:inline-block;padding:6px 10px;background:#e7ecdf;border-radius:4px;font-weight:bold}.summary{margin-top:24px;padding:22px;background:#f7f5ef;border:1px solid #ddd8cc}.rows{width:100%;border-collapse:collapse}.rows td{padding:9px 5px;border-bottom:1px solid #e1ddd3;vertical-align:top}.rows td:first-child{width:38%;color:#69756f}.total{font-size:18px;font-weight:bold}.footer{position:fixed;bottom:-12px;left:0;right:0;color:#7c847f;font-size:9px;text-align:center}
+</style></head><body>
+<div class="brand">ZHARZHAR · БРОНИРОВАНИЕ №{{ $booking->id }}</div><h1>{{ $booking->visitor_name }}</h1><span class="status">{{ $booking->statusLabel() }}</span>
+<div class="summary"><table class="rows">
+<tr><td>Ресторан</td><td>{{ $booking->restaurant?->name ?? 'Не указан' }}</td></tr><tr><td>Адрес</td><td>{{ trim(($booking->restaurant?->city ?? '').' '.($booking->restaurant?->address ?? '')) ?: 'Не указан' }}</td></tr>
+<tr><td>Посетитель</td><td>{{ $booking->visitor_name }}</td></tr><tr><td>Телефон</td><td>{{ $booking->phone ?: 'Не указан' }}</td></tr><tr><td>Мероприятие</td><td>{{ $booking->event_type ?: 'Не указано' }}</td></tr>
+<tr><td>Дата</td><td>{{ $booking->booking_date->format('d.m.Y') }}</td></tr><tr><td>Период</td><td>{{ $booking->slot?->label ?? 'Не выбран' }} @if($booking->slot)({{ $booking->slot->start_time }}–{{ $booking->slot->end_time }})@endif</td></tr>
+<tr><td>Количество гостей</td><td>{{ $booking->guest_count }}</td></tr><tr><td>Цена за одного гостя</td><td>{{ number_format((float)$booking->price_per_guest, 0, ',', ' ') }} ₸</td></tr><tr><td>Предоплата</td><td>{{ number_format((float)$booking->prepayment, 0, ',', ' ') }} ₸</td></tr>
+<tr><td>Итоговая сумма</td><td class="total">{{ number_format($booking->total_amount, 0, ',', ' ') }} ₸</td></tr><tr><td>Примечание</td><td>{{ $booking->note ?: 'Нет' }}</td></tr><tr><td>Создано</td><td>{{ $booking->created_at?->format('d.m.Y H:i') }}</td></tr>
+</table></div><div class="footer">Сформировано в ZharZhar · {{ now()->format('d.m.Y H:i') }}</div></body></html>

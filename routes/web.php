@@ -46,6 +46,9 @@ Route::middleware('guest')->group(function () {
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
 Route::get('/admin', [AdminController::class, 'index'])->middleware(['auth', 'role:admin'])->name('admin.dashboard');
 Route::post('/admin/restaurants', [AdminController::class, 'storeRestaurant'])->middleware(['auth', 'role:admin'])->name('admin.restaurants.store');
+Route::put('/admin/restaurants/{restaurant}', [AdminController::class, 'updateRestaurant'])->middleware(['auth', 'role:admin'])->name('admin.restaurants.update');
+Route::get('/admin/bookings/{booking}', [AdminController::class, 'showBooking'])->middleware(['auth', 'role:admin'])->name('admin.bookings.show');
+Route::get('/admin/bookings/{booking}/pdf', [AdminController::class, 'bookingPdf'])->middleware(['auth', 'role:admin'])->name('admin.bookings.pdf');
 Route::domain(config('store.partner_domain'))->middleware(['partner.domain', 'auth', 'role:partner'])->group(function () {
     Route::get('/restaurant', [RestaurantController::class, 'index'])->name('restaurant.dashboard');
     Route::get('/restaurant/calendar-data', [RestaurantController::class, 'calendarData'])->name('restaurant.calendar.data');
