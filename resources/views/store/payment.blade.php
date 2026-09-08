@@ -10,9 +10,9 @@
         'answers_hint' => 'Бұл сілтемені құпия сақтаңыз. Сілтемесі бар адам қонақтар тізімін көре алады.',
         'answers_link' => 'Жауаптардың жеке сілтемесі', 'view_answers' => 'Жауаптарды көру',
         'rejected' => 'Тапсырыс қабылданбады', 'help' => 'WhatsApp арқылы хабарласып, №:id тапсырыс нөмірін көрсетіңіз.',
-        'write_whatsapp' => 'WhatsApp-қа жазу', 'payment' => 'KASPI АУДАРЫМЫ АРҚЫЛЫ ТӨЛЕУ', 'design' => 'Дизайн',
-        'promo' => 'Промокод', 'kaspi' => 'Kaspi қолданбасынан «Аударымдар → Kaspi клиентіне» бөлімін таңдап, мына нөмірді көрсетіңіз:',
-        'copy_number' => 'Нөмірді көшіру', 'check_number' => 'Аударым алдында алушының нөмірін тексеріңіз.',
+        'write_whatsapp' => 'WhatsApp-қа жазу', 'payment' => 'УАҚЫТША KASPI АУДАРЫМЫ', 'design' => 'Дизайн',
+        'promo' => 'Промокод', 'kaspi' => 'Kaspi Pay жақында қосылады. Әзірге соманы Kaspi қолданбасында мына нөмірге аударыңыз:',
+        'recipient' => 'Алушы', 'copy_number' => 'Нөмірді көшіру', 'check_number' => 'Төлем алдында алушы «Айдын Б.» екенін тексеріңіз.',
         'free' => 'Промокод толық соманы жапты. Аударым жасау қажет емес.',
         'paid_whatsapp' => 'Төледім — WhatsApp-қа жазу', 'order_whatsapp' => 'Тапсырыс туралы WhatsApp-қа жазу',
         'whatsapp_hint' => '№:id тапсырыс нөмірі жазылған дайын хабарлама ашылады. Сізге тек «Жіберу» батырмасын басу қалады.',
@@ -27,9 +27,9 @@
         'answers_hint' => 'Храните эту ссылку в секрете. Любой, у кого она есть, сможет увидеть список гостей.',
         'answers_link' => 'Личная ссылка на ответы', 'view_answers' => 'Посмотреть ответы',
         'rejected' => 'Заказ отклонён', 'help' => 'Свяжитесь с нами в WhatsApp и укажите номер заказа №:id.',
-        'write_whatsapp' => 'Написать в WhatsApp', 'payment' => 'ОПЛАТА ПЕРЕВОДОМ KASPI', 'design' => 'Дизайн',
-        'promo' => 'Промокод', 'kaspi' => 'В Kaspi выберите «Переводы → Клиенту Kaspi» и укажите номер:',
-        'copy_number' => 'Скопировать номер', 'check_number' => 'Перед переводом проверьте номер получателя.',
+        'write_whatsapp' => 'Написать в WhatsApp', 'payment' => 'ВРЕМЕННАЯ ОПЛАТА ЧЕРЕЗ KASPI', 'design' => 'Дизайн',
+        'promo' => 'Промокод', 'kaspi' => 'Kaspi Pay скоро появится. Пока переведите сумму в приложении Kaspi на номер:',
+        'recipient' => 'Получатель', 'copy_number' => 'Скопировать номер', 'check_number' => 'Перед оплатой убедитесь, что получатель — «Айдын Б.».',
         'free' => 'Промокод покрыл полную стоимость. Перевод не требуется.',
         'paid_whatsapp' => 'Я оплатил — написать в WhatsApp', 'order_whatsapp' => 'Написать в WhatsApp о заказе',
         'whatsapp_hint' => 'Откроется готовое сообщение с номером заказа №:id. Вам останется только нажать «Отправить».',
@@ -48,7 +48,7 @@
 <section class="panel"><h3>{{ $t['rejected'] }}</h3><p>{{ $order->admin_note }}</p><p>{{ $replaceId($t['help']) }}</p><a class="button outline" href="https://wa.me/{{ preg_replace('/\D+/', '', config('store.whatsapp_phone')) }}?text={{ rawurlencode(($kk ? 'Сәлеметсіз бе! ZharZhar №' : 'Здравствуйте! Нужна помощь с заказом ZharZhar №').$order->id.($kk ? ' тапсырысы бойынша көмек қажет.' : '.')) }}">{{ $t['write_whatsapp'] }}</a></section>
 @else
 <section class="panel payment-panel"><p class="eyebrow">{{ $t['payment'] }}</p><div class="summary-row"><span>{{ $t['design'] }}</span><strong>{{ number_format($order->subtotal, 0, ',', ' ') }} ₸</strong></div>@if($order->discount)<div class="summary-row"><span>{{ $t['promo'] }} {{ $order->promo_code }}</span><strong>−{{ number_format($order->discount, 0, ',', ' ') }} ₸</strong></div>@endif<p class="payment-amount">{{ number_format($order->total, 0, ',', ' ') }} ₸</p>
-@if($order->total > 0)<p>{{ $t['kaspi'] }}</p><p class="payment-phone">{{ config('store.kaspi_phone') }}</p><button type="button" class="button outline" data-copy="{{ preg_replace('/[^+0-9]/', '', config('store.kaspi_phone')) }}">{{ $t['copy_number'] }}</button><p class="hint">{{ $t['check_number'] }}</p>@else<p>{{ $t['free'] }}</p>@endif
+@if($order->total > 0)<p>{{ $t['kaspi'] }}</p><p class="payment-phone">{{ config('store.kaspi_phone') }}</p><p class="payment-recipient"><span>{{ $t['recipient'] }}</span><strong>{{ config('store.kaspi_recipient') }}</strong></p><button type="button" class="button outline" data-copy="{{ preg_replace('/[^+0-9]/', '', config('store.kaspi_phone')) }}">{{ $t['copy_number'] }}</button><p class="hint">{{ $t['check_number'] }}</p>@else<p>{{ $t['free'] }}</p>@endif
 @if($order->status === 'pending')<form method="POST" action="{{ route('store.payment.submit', $order->token) }}" data-submit-once>@csrf<button class="button whatsapp-button full" type="submit"><span aria-hidden="true">◉</span>{{ $order->total > 0 ? $t['paid_whatsapp'] : $t['order_whatsapp'] }}</button></form><p class="hint whatsapp-hint">{{ $replaceId($t['whatsapp_hint']) }}</p>@else<p class="notice">{{ $replaceId($t['review']) }}</p><a class="button outline" href="{{ route('store.payment', $order->token) }}">{{ $t['refresh'] }}</a>@endif
 </section>@endif</div></div>
 @endsection

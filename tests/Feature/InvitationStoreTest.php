@@ -88,6 +88,8 @@ class InvitationStoreTest extends TestCase
         $this->get('/')
             ->assertOk()
             ->assertSee('Большой день.')
+            ->assertSee('Оплата по Kaspi Pay')
+            ->assertDontSee('Переведите сумму')
             ->assertDontSee('Үлкен күн.');
         $this->post('/language/en')->assertNotFound();
     }
@@ -195,6 +197,8 @@ class InvitationStoreTest extends TestCase
         $this->get('/orders/'.$order->token)
             ->assertOk()
             ->assertSee('Төледім — WhatsApp-қа жазу')
+            ->assertSee('+7 778 736 78 50')
+            ->assertSee('Айдын Б.')
             ->assertDontSee('payment_reference')
             ->assertDontSee('<textarea', false);
 

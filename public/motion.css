@@ -18,12 +18,46 @@
     background: rgba(255, 252, 244, 0.78);
     box-shadow: 0 7px 24px rgba(58, 45, 32, 0.1);
     backdrop-filter: blur(7px);
+    font-size: clamp(25px, 2.1vw, 34px);
 }
 
 .design-preview[class*='invite-card-'] .mini-kicker,
 .design-preview[class*='invite-card-'] .mini-date,
 .design-preview[class*='invite-card-'] .preview-pill {
     text-shadow: 0 1px 0 rgba(255, 255, 255, 0.95);
+}
+
+.design-preview[class*='invite-card-'] .preview-pill {
+    bottom: 20px;
+    min-width: 150px;
+    min-height: 44px;
+    padding: 11px 17px;
+    border: 0;
+    border-radius: 999px;
+    background: var(--ink);
+    box-shadow: 0 8px 24px rgba(36, 60, 50, 0.22);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-shadow: none;
+}
+
+.payment-recipient {
+    display: flex;
+    width: fit-content;
+    align-items: center;
+    gap: 10px;
+    margin: 8px 0 18px;
+    padding: 9px 13px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--sage);
+}
+
+.payment-recipient span {
+    color: var(--muted);
+    font-size: 12px;
 }
 
 .design-preview[class*='invite-card-'] .card-ring {
