@@ -84,9 +84,59 @@ class StoreAdminController extends Controller
             'event_type' => ['nullable', Rule::in(array_keys(config('store.event_types')))],
             'price' => ['required', 'integer', 'min:7990', 'max:10000000'],
             'theme' => ['required', Rule::in(array_keys(config('store.themes')))],
-            'preview_image' => ['nullable', 'url:https', 'max:255'],
+            'preview_image' => ['nullable', 'string', 'max:255', 'regex:/^(https:\/\/|\/)[^\s]+$/'],
+            'preview_image_file' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp,avif', 'max:10240'],
+            'content_title' => ['required', 'string', 'max:160'],
+            'content_event_label' => ['required', 'string', 'max:120'],
+            'content_intro_title' => ['required', 'string', 'max:300'],
+            'content_invitation_text' => ['required', 'string', 'max:1500'],
+            'content_event_date' => ['required', 'date'],
+            'content_event_time' => ['required', 'date_format:H:i'],
+            'content_date_title' => ['required', 'string', 'max:120'],
+            'content_program_title' => ['required', 'string', 'max:120'],
+            'content_welcome_text' => ['required', 'string', 'max:120'],
+            'content_ceremony_text' => ['required', 'string', 'max:120'],
+            'content_celebration_text' => ['required', 'string', 'max:120'],
+            'content_venue_title' => ['required', 'string', 'max:120'],
+            'content_venue_name' => ['required', 'string', 'max:160'],
+            'content_venue_address' => ['required', 'string', 'max:255'],
+            'content_countdown_title' => ['required', 'string', 'max:120'],
+            'content_hosts_title' => ['required', 'string', 'max:120'],
+            'content_hosts_name' => ['required', 'string', 'max:180'],
+            'content_rsvp_title' => ['required', 'string', 'max:120'],
+            'content_rsvp_hint' => ['required', 'string', 'max:300'],
+            'content_closing_text' => ['required', 'string', 'max:180'],
         ]);
-        $values = [...collect($data)->except('theme')->all(), 'category' => $data['event_type'] ?? 'all', 'config_json' => ['theme' => $data['theme']], 'is_active' => $request->boolean('is_active')];
+
+        $content = collect($data)
+            ->filter(fn ($value, string $key) => str_starts_with($key, 'content_'))
+            ->mapWithKeys(fn ($value, string $key) => [str_replace('content_', '', $key) => $value])
+            ->all();
+        $config = $template?->config_json ?? [];
+        $config['theme'] = $data['theme'];
+        $config['sample_names'] = $content['title'];
+        $config['content_kk'] = $content;
+
+        $previewImage = $data['preview_image'] ?? $template?->preview_image;
+        if ($request->hasFile('preview_image_file')) {
+            $file = $request->file('preview_image_file');
+            $path = $file->storePubliclyAs('designs', Str::uuid().'.'.$file->extension(), 'public');
+            $previewImage = '/storage/'.$path;
+            if ($template?->preview_image && str_starts_with($template->preview_image, '/storage/designs/')) {
+                Storage::disk('public')->delete(str_replace('/storage/', '', $template->preview_image));
+            }
+        }
+
+        $values = [
+            'name' => $data['name'],
+            'slug' => $data['slug'],
+            'event_type' => $data['event_type'] ?? null,
+            'category' => $data['event_type'] ?? 'all',
+            'price' => $data['price'],
+            'preview_image' => $previewImage,
+            'config_json' => $config,
+            'is_active' => $request->boolean('is_active'),
+        ];
         if ($template) {
             $template->update($values);
         } else {

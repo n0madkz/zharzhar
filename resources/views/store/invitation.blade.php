@@ -49,6 +49,23 @@
         'music_play' => 'Включить музыку', 'music_pause' => 'Остановить музыку',
         'closing' => 'Разделите с нами этот счастливый день!',
     ];
+    $templateCopy = $preview ? ($details['template_copy'] ?? []) : [];
+    if ($templateCopy) {
+        $copy = array_replace($copy, array_filter([
+            'intro' => $templateCopy['intro_title'] ?? null,
+            'date_title' => $templateCopy['date_title'] ?? null,
+            'program' => $templateCopy['program_title'] ?? null,
+            'welcome' => $templateCopy['welcome_text'] ?? null,
+            'ceremony' => $templateCopy['ceremony_text'] ?? null,
+            'celebration' => $templateCopy['celebration_text'] ?? null,
+            'venue' => $templateCopy['venue_title'] ?? null,
+            'countdown' => $templateCopy['countdown_title'] ?? null,
+            'hosts' => $templateCopy['hosts_title'] ?? null,
+            'rsvp' => $templateCopy['rsvp_title'] ?? null,
+            'hint' => $templateCopy['rsvp_hint'] ?? null,
+            'closing' => $templateCopy['closing_text'] ?? null,
+        ], fn ($value) => filled($value)));
+    }
     $times = [
         ['17:00', $copy['welcome']],
         ['18:00', $copy['ceremony']],
@@ -86,7 +103,7 @@
         @if($image)<img class="invite-cover-image" src="{{ $image }}" alt="" fetchpriority="high">@endif
         <span class="invite-cover-shade" aria-hidden="true"></span>
         <div class="invite-cover-copy" data-reveal>
-            <p class="invite-overline">{{ $eventLabels[$eventType] ?? $eventLabels['wedding'] }}</p>
+            <p class="invite-overline">{{ $templateCopy['event_label'] ?? ($eventLabels[$eventType] ?? $eventLabels['wedding']) }}</p>
             <p class="invite-cover-date">{{ $eventDate->translatedFormat('d · m · Y') }}</p>
             @if($eventType === 'anniversary')<span class="jubilee-number" aria-hidden="true">60</span>@endif
             <h1>{{ $details['names'] }}</h1>

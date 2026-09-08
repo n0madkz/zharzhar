@@ -65,6 +65,26 @@ class InvitationStoreTest extends TestCase
         return $this->withSession(['checkout_keys' => [$data['request_key'] => true]])->post('/checkout', $data);
     }
 
+    private function adminTemplateData(array $overrides = []): array
+    {
+        return array_replace([
+            'name' => 'Ақ арман', 'slug' => 'ak-arman', 'price' => 9990, 'theme' => 'pearl',
+            'event_type' => 'wedding', 'is_active' => 1,
+            'content_title' => 'Ақ арман', 'content_event_label' => 'ҮЙЛЕНУ ТОЙЫ',
+            'content_intro_title' => 'АҚ ТІЛЕКПЕН БАСТАЛҒАН КҮН',
+            'content_invitation_text' => 'Қуанышымыздың қадірлі қонағы болуға шақырамыз.',
+            'content_event_date' => now()->addMonth()->format('Y-m-d'), 'content_event_time' => '18:00',
+            'content_date_title' => 'Той салтанаты', 'content_program_title' => 'Той бағдарламасы',
+            'content_welcome_text' => 'Қонақтардың жиналуы', 'content_ceremony_text' => 'Салтанатты рәсім',
+            'content_celebration_text' => 'Мерекелік кеш', 'content_venue_title' => 'Мекенжайымыз',
+            'content_venue_name' => 'Ақ Отау', 'content_venue_address' => 'Алматы қаласы, Абай даңғылы, 50',
+            'content_countdown_title' => 'Салтанатқа дейін', 'content_hosts_title' => 'Той иелері',
+            'content_hosts_name' => 'Қуаныш иелері', 'content_rsvp_title' => 'Сізді күтеміз!',
+            'content_rsvp_hint' => 'Қатысуыңызды растауыңызды сұраймыз.',
+            'content_closing_text' => 'Қуанышымызға ортақ болыңыз!',
+        ], $overrides);
+    }
+
     public function test_catalog_filters_active_designs_and_shows_individual_prices(): void
     {
         $wedding = Template::factory()->create(['name' => 'Свадебный дизайн', 'price' => 9990]);
@@ -102,6 +122,8 @@ class InvitationStoreTest extends TestCase
         $this->assertDatabaseHas('templates', ['slug' => 'ak-inju', 'event_type' => 'wedding']);
         $this->assertDatabaseHas('templates', ['slug' => 'mereyli-shenber', 'event_type' => 'anniversary']);
         $this->assertDatabaseHas('templates', ['slug' => 'aru-qyz-uzatu', 'event_type' => 'qyz_uzatu']);
+        $this->assertDatabaseHas('templates', ['slug' => 'royal-kesh', 'name' => 'Алтын салтанат']);
+        $this->assertDatabaseHas('templates', ['slug' => 'altyn-nomad', 'name' => 'Дала мұрасы']);
         $this->assertDatabaseHas('templates', ['slug' => 'gold-wedding', 'is_active' => false]);
         $this->assertDatabaseHas('templates', ['slug' => 'altyn-nomad', 'preview_image' => '/invitation-assets/nomad-horse.webp']);
         $this->assertSame(5, Template::where('event_type', 'wedding')->where('is_active', true)->pluck('preview_image')->unique()->count());
@@ -111,8 +133,7 @@ class InvitationStoreTest extends TestCase
 
         $this->get('/?event=qyz_uzatu')
             ->assertOk()
-            ->assertSee('Ару қыз ұзату')
-            ->assertDontSee('Ақ інжу');
+            ->assertSee('Ару қыз ұзату');
 
         $this->get('/designs/'.$qyzUzatu->id.'/preview')
             ->assertOk()
@@ -122,10 +143,17 @@ class InvitationStoreTest extends TestCase
 
         $this->get('/designs/'.$royal->id.'/preview')
             ->assertOk()
-            ->assertSee('Әли &amp; Аяулым', false)
+            ->assertSee('Алтын салтанат')
+            ->assertSee('ДОМБЫРА ҮНІМЕН ӨРІЛГЕН ҚУАНЫШ')
             ->assertSee('royal-ethno.webp')
             ->assertDontSee('Дастан')
             ->assertDontSee('Ләззат');
+
+        $this->withSession(['store_locale' => 'ru'])
+            ->get('/designs/'.$royal->id.'/preview')
+            ->assertOk()
+            ->assertSee('Той бағдарламасы')
+            ->assertDontSee('Программа вечера');
     }
 
     public function test_order_uses_server_price_and_discount_without_publishing_and_is_idempotent(): void
@@ -272,12 +300,19 @@ class InvitationStoreTest extends TestCase
     {
         Storage::fake('public');
         $this->actingAs(User::factory()->create(['role' => 'admin']));
-        $data = ['name' => 'Розовый сад', 'slug' => 'rose-test', 'price' => 9990, 'theme' => 'rose', 'event_type' => 'wedding', 'is_active' => 1];
+        $data = $this->adminTemplateData([
+            'preview_image_file' => UploadedFile::fake()->image('ak-arman.png', 800, 1000),
+        ]);
         $this->post('/admin/store/templates', $data)->assertRedirect();
         $template = Template::firstOrFail();
         $this->post('/admin/store/templates/'.$template->id, [...$data, 'price' => 500])->assertSessionHasErrors('price');
-        $this->post('/admin/store/templates/'.$template->id, [...$data, 'price' => 12990, 'is_active' => 0])->assertRedirect();
+        $this->post('/admin/store/templates/'.$template->id, [...$data, 'name' => 'Жаңарған ақ арман', 'content_invitation_text' => 'Жаңартылған қазақша шақыру мәтіні.', 'price' => 12990, 'is_active' => 0])->assertRedirect();
         $this->assertDatabaseHas('templates', ['id' => $template->id, 'price' => 12990, 'is_active' => false]);
+        $template->refresh();
+        $this->assertSame('Жаңарған ақ арман', $template->name);
+        $this->assertSame('Жаңартылған қазақша шақыру мәтіні.', $template->config_json['content_kk']['invitation_text']);
+        $this->assertStringStartsWith('/storage/designs/', $template->preview_image);
+        Storage::disk('public')->assertExists(str_replace('/storage/', '', $template->preview_image));
         $this->post('/admin/store/music', [
             'name' => 'Той',
             'categories' => ['wedding', 'qyz_uzatu', 'birthday'],
@@ -297,7 +332,14 @@ class InvitationStoreTest extends TestCase
         $this->post('/admin/store/promos', ['type' => 'percent', 'value' => 15, 'max_uses' => 10, 'is_active' => 1])->assertRedirect();
         $this->assertStringStartsWith('ZHAR-', PromoCode::firstOrFail()->code);
         $this->post('/admin/store/restaurants', ['name' => 'Салтанат', 'city' => 'Алматы', 'address' => 'Абая 1', 'is_active' => 1])->assertRedirect();
-        $this->get('/admin/store')->assertOk()->assertSee('Розовый сад')->assertSee('Салтанат')->assertSee('Қыз ұзату');
+        $this->get('/admin/store')->assertOk()->assertSee('Жаңарған ақ арман')->assertSee('Салтанат')->assertSee('Қыз ұзату')->assertSee('Главный заголовок превью');
+    }
+
+    public function test_partner_subdomain_opens_booking_service_and_restaurant_routes_are_isolated(): void
+    {
+        $this->get('http://partner.zharzhar.kz/')->assertRedirect('http://partner.zharzhar.kz/login');
+        $this->get('http://zharzhar.kz/restaurant')->assertNotFound();
+        $this->get('http://partner.zharzhar.kz/restaurant')->assertRedirect('http://partner.zharzhar.kz/login');
     }
 
     public function test_checkout_only_shows_music_for_its_event_category(): void

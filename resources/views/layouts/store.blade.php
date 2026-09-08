@@ -22,12 +22,12 @@
 <meta name="csrf-token" content="{{ csrf_token() }}"><meta name="referrer" content="no-referrer">
 <title>{{ $title ?? $layoutCopy['title'] }}</title>
 <meta name="description" content="{{ $layoutCopy['description'] }}">
-<link rel="stylesheet" href="{{ asset('store.css') }}">
-@if($invitationMode ?? false)<link rel="stylesheet" href="{{ asset('invitation.css') }}">@endif
-<link rel="stylesheet" href="{{ asset('fonts.css') }}">
-<link rel="stylesheet" href="{{ asset('motion.css') }}">
-<script src="{{ asset('store.js') }}" defer></script>
-@if($invitationMode ?? false)<script src="{{ asset('invitation.js') }}" defer></script>@endif
+<link rel="stylesheet" href="{{ asset('store.css') }}?v={{ filemtime(public_path('store.css')) }}">
+@if($invitationMode ?? false)<link rel="stylesheet" href="{{ asset('invitation.css') }}?v={{ filemtime(public_path('invitation.css')) }}">@endif
+<link rel="stylesheet" href="{{ asset('fonts.css') }}?v={{ filemtime(public_path('fonts.css')) }}">
+<link rel="stylesheet" href="{{ asset('motion.css') }}?v={{ filemtime(public_path('motion.css')) }}">
+<script src="{{ asset('store.js') }}?v={{ filemtime(public_path('store.js')) }}" defer></script>
+@if($invitationMode ?? false)<script src="{{ asset('invitation.js') }}?v={{ filemtime(public_path('invitation.js')) }}" defer></script>@endif
 </head>
 <body class="{{ ($invitationMode ?? false) ? 'invitation-shell' : '' }}">
 <a class="skip-link" href="#main">{{ $layoutCopy['skip'] }}</a>
@@ -36,10 +36,13 @@
 <a class="wordmark" href="{{ route('store.catalog') }}">zharzhar<span>●</span><small>{{ $layoutCopy['tagline'] }}</small></a>
 <nav aria-label="{{ $kk ? 'Негізгі навигация' : 'Основная навигация' }}"><a href="{{ route('store.catalog') }}#designs">{{ $layoutCopy['designs'] }}</a><a href="{{ route('store.catalog') }}#how">{{ $layoutCopy['how'] }}</a><a href="{{ route('store.catalog') }}#faq">{{ $layoutCopy['faq'] }}</a></nav>
 <div class="header-tools">
-    <div class="language-switch" aria-label="{{ $kk ? 'Сайт тілі' : 'Язык сайта' }}">
-        @foreach(['kk' => 'ҚАЗ', 'ru' => 'РУС'] as $locale => $label)
-            <form method="POST" action="{{ route('store.language', $locale) }}">@csrf<button type="submit" class="{{ app()->getLocale() === $locale ? 'active' : '' }}" @if(app()->getLocale() === $locale) aria-current="true" @endif>{{ $label }}</button></form>
+    <div class="language-control" aria-label="{{ $kk ? 'Сайт тілі' : 'Язык сайта' }}">
+        <span class="language-icon" aria-hidden="true">文</span>
+        <div class="language-switch">
+        @foreach(['kk' => ['Қазақша', 'ҚАЗ'], 'ru' => ['Русский', 'РУС']] as $locale => [$fullLabel, $shortLabel])
+            <form method="POST" action="{{ route('store.language', $locale) }}">@csrf<button type="submit" class="{{ app()->getLocale() === $locale ? 'active' : '' }}" @if(app()->getLocale() === $locale) aria-current="true" @endif><span class="language-full">{{ $fullLabel }}</span><span class="language-short">{{ $shortLabel }}</span></button></form>
         @endforeach
+        </div>
     </div>
     <a class="header-contact" href="tel:{{ preg_replace('/[^+0-9]/', '', config('store.kaspi_phone')) }}">{{ $layoutCopy['contact'] }} ↗</a>
 </div>

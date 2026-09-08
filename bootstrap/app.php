@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\AdminDomain;
+use App\Http\Middleware\PartnerDomain;
 use App\Http\Middleware\RoleMiddleware;
 use App\Http\Middleware\SetStoreLocale;
 use Illuminate\Foundation\Application;
@@ -15,8 +16,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->web(append: [SetStoreLocale::class, AdminDomain::class]);
-        $middleware->alias(['role' => RoleMiddleware::class]);
+        $middleware->web(append: [SetStoreLocale::class, AdminDomain::class, PartnerDomain::class]);
+        $middleware->alias(['role' => RoleMiddleware::class, 'partner.domain' => PartnerDomain::class]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

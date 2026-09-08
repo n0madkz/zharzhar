@@ -33,33 +33,40 @@ class StorefrontController extends Controller
         abort_unless($template->is_active, 404);
 
         $eventType = $template->event_type ?? 'wedding';
-        $samples = [
-            'wedding' => ['names' => 'Алихан & Аружан', 'hosts' => 'Әділбек — Ақмоншақ', 'invitation_text' => 'Құрметті ағайын-туыс, бауырлар мен достар! Сіздерді қуанышымыздың қадірлі қонағы болуға шақырамыз.'],
-            'qyz_uzatu' => ['names' => 'Аружан', 'hosts' => 'Ерлан — Айгүл', 'invitation_text' => 'Аяулы қызымыз Аружанның жаңа өмірге қадам басар қыз ұзату тойына арналған ақ дастарханымызға шақырамыз.'],
-            'anniversary' => ['names' => 'Мерейлі 60 жас', 'hosts' => 'Балалары мен немерелері', 'invitation_text' => 'Ардақты әкеміздің мерейлі жасына арналған салтанатты кешіміздің қадірлі қонағы болыңыз.'],
-            'birthday' => ['names' => 'Әлихан · 30 жас', 'hosts' => 'Отбасы', 'invitation_text' => 'Бізбен бірге ерекше күннің қуанышын бөлісуге шақырамыз.'],
-        ];
-        if (app()->isLocale('ru')) {
-            $samples['wedding']['invitation_text'] = 'Дорогие родные и друзья! Приглашаем вас разделить с нами радость этого особенного дня.';
-            $samples['qyz_uzatu']['invitation_text'] = 'Приглашаем вас на торжественный қыз ұзату нашей дорогой дочери и будем рады видеть за праздничным дастарханом.';
-            $samples['anniversary']['invitation_text'] = 'Приглашаем вас на праздничный вечер в честь юбилея нашего дорогого отца.';
-            $samples['birthday']['invitation_text'] = 'Приглашаем разделить с нами радость этого особенного дня.';
-        }
+        $content = array_replace([
+            'title' => $template->name,
+            'event_label' => match ($eventType) {
+                'qyz_uzatu' => 'ҚЫЗ ҰЗАТУ',
+                'anniversary' => 'МЕРЕЙТОЙ',
+                'birthday' => 'ТУҒАН КҮН',
+                default => 'ҮЙЛЕНУ ТОЙЫ',
+            },
+            'intro_title' => 'ҚҰРМЕТТІ АҒАЙЫН-ТУЫС, БАУЫРЛАР МЕН ДОСТАР!',
+            'invitation_text' => 'Сіздерді қуанышымыздың қадірлі қонағы болуға шақырамыз.',
+            'event_date' => now()->addMonths(2)->format('Y-m-d'),
+            'event_time' => '18:00',
+            'venue_name' => 'Салтанат сарайы',
+            'venue_address' => 'Алматы қаласы, Абай даңғылы, 50',
+            'hosts_name' => 'Қуаныш иелері',
+        ], $template->config_json['content_kk'] ?? []);
 
         return view('store.invitation', [
             'template' => $template,
             'preview' => true,
             'invitation' => null,
-            'details' => array_merge($samples[$eventType] ?? $samples['wedding'], [
-                'names' => $template->config_json['sample_names'] ?? ($samples[$eventType]['names'] ?? $samples['wedding']['names']),
+            'details' => [
+                'names' => $content['title'],
                 'event_type' => $eventType,
-                'event_date' => now()->addMonths(2)->format('Y-m-d'),
-                'event_time' => '18:00',
-                'venue_name' => 'Royal Hall',
-                'venue_address' => 'Алматы қаласы, Абай даңғылы, 50',
-                'language' => app()->getLocale(),
+                'event_date' => $content['event_date'],
+                'event_time' => $content['event_time'],
+                'venue_name' => $content['venue_name'],
+                'venue_address' => $content['venue_address'],
+                'hosts' => $content['hosts_name'],
+                'invitation_text' => $content['invitation_text'],
+                'language' => 'kk',
                 'theme' => $template->config_json['theme'] ?? 'pearl',
-            ]),
+                'template_copy' => $content,
+            ],
         ]);
     }
 

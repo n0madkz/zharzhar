@@ -24,13 +24,56 @@
 <div class="pagination">@if($orders->previousPageUrl())<a href="{{ $orders->previousPageUrl() }}">← Назад</a>@endif<span>Страница {{ $orders->currentPage() }}</span>@if($orders->nextPageUrl())<a href="{{ $orders->nextPageUrl() }}">Далее →</a>@endif</div>
 </section>
 @php
+$templateTextDefaults = [
+    'title' => 'Жаңа шақыру',
+    'event_label' => 'ҮЙЛЕНУ ТОЙЫ',
+    'intro_title' => 'ҚҰРМЕТТІ АҒАЙЫН-ТУЫС, БАУЫРЛАР МЕН ДОСТАР!',
+    'invitation_text' => 'Сіздерді қуанышымыздың қадірлі қонағы болуға шақырамыз.',
+    'event_date' => now()->addMonths(2)->format('Y-m-d'),
+    'event_time' => '18:00',
+    'date_title' => 'Той салтанаты',
+    'program_title' => 'Той бағдарламасы',
+    'welcome_text' => 'Қонақтардың жиналуы',
+    'ceremony_text' => 'Салтанатты рәсім',
+    'celebration_text' => 'Мерекелік кеш',
+    'venue_title' => 'Мекенжайымыз',
+    'venue_name' => 'Салтанат сарайы',
+    'venue_address' => 'Алматы қаласы, Абай даңғылы, 50',
+    'countdown_title' => 'Салтанатқа дейін',
+    'hosts_title' => 'Той иелері',
+    'hosts_name' => 'Қуаныш иелері',
+    'rsvp_title' => 'Сізді күтеміз!',
+    'rsvp_hint' => 'Тойға қатысуыңызды растауыңызды сұраймыз.',
+    'closing_text' => 'Қуанышымызға ортақ болыңыз!',
+];
 $groups = [
-'templates' => ['title'=>'Дизайны приглашений','records'=>$templates,'route'=>'templates','hint'=>'Добавляйте дизайны на основе доступных оформлений. Цена от 7 990 ₸. Изменения не меняют уже оформленные заказы.','fields'=>[
-'name'=>['label'=>'Название','required'=>true], 'slug'=>['label'=>'Код дизайна (латиница)','required'=>true],
+'templates' => ['title'=>'Дизайны приглашений','records'=>$templates,'route'=>'templates','hint'=>'Откройте любой дизайн справа, чтобы изменить обложку, оформление и все казахские тексты его демонстрационной страницы. Изменения не затрагивают уже оформленные заказы.','fields'=>[
+'name'=>['label'=>'Название дизайна на казахском','required'=>true], 'slug'=>['label'=>'Код дизайна (латиница)','required'=>true],
 'event_type'=>['label'=>'Событие','options'=>[''=>'Любое событие']+config('store.event_types')],
 'price'=>['label'=>'Цена, ₸','type'=>'number','min'=>7990,'max'=>10000000,'default'=>7990,'required'=>true],
 'theme'=>['label'=>'Оформление','options'=>config('store.themes')],
-'preview_image'=>['label'=>'Ссылка на обложку HTTPS','type'=>'url','hint'=>'Необязательно. Без ссылки показываем оформление дизайна.'],
+'preview_image'=>['label'=>'Ссылка или путь к обложке','hint'=>'Можно оставить текущий путь или указать HTTPS-ссылку.'],
+'preview_image_file'=>['label'=>'Загрузить новую обложку с компьютера','type'=>'file','accept'=>'.jpg,.jpeg,.png,.webp,.avif,image/*','preview'=>'image','hint'=>'JPG, PNG, WebP или AVIF, не более 10 МБ.'],
+'content_title'=>['label'=>'Главный заголовок превью','config'=>'content_kk.title','default'=>$templateTextDefaults['title'],'required'=>true],
+'content_event_label'=>['label'=>'Название события над заголовком','config'=>'content_kk.event_label','default'=>$templateTextDefaults['event_label'],'required'=>true],
+'content_intro_title'=>['label'=>'Обращение к гостям','config'=>'content_kk.intro_title','default'=>$templateTextDefaults['intro_title'],'type'=>'textarea','wide'=>true,'required'=>true,'maxlength'=>300],
+'content_invitation_text'=>['label'=>'Текст приглашения','config'=>'content_kk.invitation_text','default'=>$templateTextDefaults['invitation_text'],'type'=>'textarea','wide'=>true,'required'=>true],
+'content_event_date'=>['label'=>'Дата в превью','config'=>'content_kk.event_date','default'=>$templateTextDefaults['event_date'],'type'=>'date','required'=>true],
+'content_event_time'=>['label'=>'Время в превью','config'=>'content_kk.event_time','default'=>$templateTextDefaults['event_time'],'type'=>'time','required'=>true],
+'content_date_title'=>['label'=>'Заголовок блока даты','config'=>'content_kk.date_title','default'=>$templateTextDefaults['date_title'],'required'=>true],
+'content_program_title'=>['label'=>'Заголовок программы','config'=>'content_kk.program_title','default'=>$templateTextDefaults['program_title'],'required'=>true],
+'content_welcome_text'=>['label'=>'Пункт: сбор гостей','config'=>'content_kk.welcome_text','default'=>$templateTextDefaults['welcome_text'],'required'=>true],
+'content_ceremony_text'=>['label'=>'Пункт: церемония','config'=>'content_kk.ceremony_text','default'=>$templateTextDefaults['ceremony_text'],'required'=>true],
+'content_celebration_text'=>['label'=>'Пункт: праздничный вечер','config'=>'content_kk.celebration_text','default'=>$templateTextDefaults['celebration_text'],'required'=>true],
+'content_venue_title'=>['label'=>'Заголовок места','config'=>'content_kk.venue_title','default'=>$templateTextDefaults['venue_title'],'required'=>true],
+'content_venue_name'=>['label'=>'Название места в превью','config'=>'content_kk.venue_name','default'=>$templateTextDefaults['venue_name'],'required'=>true],
+'content_venue_address'=>['label'=>'Адрес в превью','config'=>'content_kk.venue_address','default'=>$templateTextDefaults['venue_address'],'wide'=>true,'required'=>true],
+'content_countdown_title'=>['label'=>'Заголовок таймера','config'=>'content_kk.countdown_title','default'=>$templateTextDefaults['countdown_title'],'required'=>true],
+'content_hosts_title'=>['label'=>'Заголовок организаторов','config'=>'content_kk.hosts_title','default'=>$templateTextDefaults['hosts_title'],'required'=>true],
+'content_hosts_name'=>['label'=>'Организаторы в превью','config'=>'content_kk.hosts_name','default'=>$templateTextDefaults['hosts_name'],'required'=>true],
+'content_rsvp_title'=>['label'=>'Заголовок формы ответа','config'=>'content_kk.rsvp_title','default'=>$templateTextDefaults['rsvp_title'],'required'=>true],
+'content_rsvp_hint'=>['label'=>'Подсказка формы ответа','config'=>'content_kk.rsvp_hint','default'=>$templateTextDefaults['rsvp_hint'],'type'=>'textarea','wide'=>true,'required'=>true,'maxlength'=>300],
+'content_closing_text'=>['label'=>'Финальная фраза','config'=>'content_kk.closing_text','default'=>$templateTextDefaults['closing_text'],'wide'=>true,'required'=>true],
 ]],
 'music' => ['title'=>'Музыкальная библиотека','records'=>$music,'route'=>'music','hint'=>'Загрузите аудиофайл с компьютера и отметьте события, для которых он подходит. Один трек можно добавить сразу в несколько категорий.','fields'=>[
 'name'=>['label'=>'Название трека','required'=>true],
@@ -52,11 +95,12 @@ $groups = [
 @endphp
 @foreach($groups as $groupKey => $group)
 <section class="admin-section" id="{{ $groupKey }}"><h2>{{ $group['title'] }}</h2><p class="hint">{{ $group['hint'] }}</p>
-<div class="admin-grid"><div class="admin-editor"><h3>Добавить</h3><form method="POST" action="{{ route('admin.store.'.$group['route']) }}" @if($groupKey === 'music') enctype="multipart/form-data" @endif>@csrf
+<div class="admin-grid"><div class="admin-editor"><h3>Добавить</h3><form method="POST" action="{{ route('admin.store.'.$group['route']) }}" @if(in_array($groupKey, ['templates', 'music'])) enctype="multipart/form-data" @endif>@csrf
 @include('admin.store-fields', ['fields'=>$group['fields'],'record'=>null,'editor'=>$groupKey.'-new'])
 </form></div><div class="stack">
 @forelse($group['records'] as $record)<details class="admin-editor"><summary><span>{{ $record->name ?? $record->code }} @if($groupKey==='templates') · {{ number_format($record->price,0,',',' ') }} ₸ @endif @if($groupKey==='music') · {{ $record->categoryLabel() }} @endif @if($groupKey==='promos') · {{ $record->value }}{{ $record->type === 'percent' ? '%' : ' ₸' }} · {{ $record->uses }}/{{ $record->max_uses ?? '∞' }} @endif @if($groupKey==='restaurants' ? $record->status !== 'active' : !$record->is_active) · Неактивен @endif</span></summary>
-<form method="POST" action="{{ route('admin.store.'.$group['route'], $record) }}" @if($groupKey === 'music') enctype="multipart/form-data" @endif>@csrf
+@if($groupKey === 'templates')<div class="admin-template-preview">@if($record->preview_image)<img src="{{ str_starts_with($record->preview_image, '/') ? asset(ltrim($record->preview_image, '/')) : $record->preview_image }}" alt="Обложка {{ $record->name }}">@endif<div><strong>{{ $record->name }}</strong><a href="{{ route('store.preview', $record) }}" target="_blank" rel="noopener">Открыть превью ↗</a></div></div>@endif
+<form method="POST" action="{{ route('admin.store.'.$group['route'], $record) }}" @if(in_array($groupKey, ['templates', 'music'])) enctype="multipart/form-data" @endif>@csrf
 @include('admin.store-fields', ['fields'=>$group['fields'],'record'=>$record,'editor'=>$groupKey.'-'.$record->id])
 </form></details>@empty<p class="hint">Записей пока нет.</p>@endforelse</div></div>
 </section>@endforeach</div>
