@@ -258,8 +258,9 @@ class InvitationStoreTest extends TestCase
         $this->post('/i/'.$slug.'/rsvp', ['guest_name' => '<script>alert(1)</script>', 'attendance_status' => 'yes', 'guest_count' => 3, 'message' => 'Рақмет!'])->assertRedirect();
         $this->get('/responses/'.$order->responses_token)->assertOk()->assertSee('&lt;script&gt;', false)->assertDontSee('<script>alert(1)</script>', false)->assertSee('Рақмет!');
         $this->post('/i/'.$slug.'/rsvp', ['guest_name' => 'Айдос', 'attendance_status' => 'no', 'guest_count' => 2])->assertRedirect();
-        $this->assertDatabaseCount('rsvps', 1);
-        $this->assertDatabaseHas('rsvps', ['attendance_status' => 'no', 'guest_count' => 0]);
+        $this->assertDatabaseCount('rsvps', 2);
+        $this->assertDatabaseHas('rsvps', ['guest_name' => '<script>alert(1)</script>', 'attendance_status' => 'yes', 'guest_count' => 3]);
+        $this->assertDatabaseHas('rsvps', ['guest_name' => 'Айдос', 'attendance_status' => 'no', 'guest_count' => 0]);
     }
 
     public function test_rejection_releases_promo_once_and_prevents_confirmation(): void

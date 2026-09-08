@@ -199,10 +199,7 @@ class StorefrontController extends Controller
         if ($data['attendance_status'] === 'no') {
             $data['guest_count'] = 0;
         }
-        $key = 'rsvp.'.$invitation->id;
-        $existing = $request->session()->get($key);
-        $response = $invitation->rsvps()->updateOrCreate(['id' => $existing], $data);
-        $request->session()->put($key, $response->id);
+        $invitation->rsvps()->create($data);
 
         return back()->with('success', ($invitation->content_json['language'] ?? 'ru') === 'kk' ? 'Жауабыңыз сақталды. Рақмет!' : 'Спасибо! Ваш ответ сохранён.');
     }
