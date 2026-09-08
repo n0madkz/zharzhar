@@ -50,26 +50,43 @@
         'closing' => 'Разделите с нами этот счастливый день!',
     ];
     $templateCopy = $preview ? ($details['template_copy'] ?? []) : [];
-    if ($templateCopy) {
+    $customCopy = $preview ? $templateCopy : ($details['copy'] ?? []);
+    if ($customCopy) {
         $copy = array_replace($copy, array_filter([
-            'intro' => $templateCopy['intro_title'] ?? null,
-            'date_title' => $templateCopy['date_title'] ?? null,
-            'program' => $templateCopy['program_title'] ?? null,
-            'welcome' => $templateCopy['welcome_text'] ?? null,
-            'ceremony' => $templateCopy['ceremony_text'] ?? null,
-            'celebration' => $templateCopy['celebration_text'] ?? null,
-            'venue' => $templateCopy['venue_title'] ?? null,
-            'countdown' => $templateCopy['countdown_title'] ?? null,
-            'hosts' => $templateCopy['hosts_title'] ?? null,
-            'rsvp' => $templateCopy['rsvp_title'] ?? null,
-            'hint' => $templateCopy['rsvp_hint'] ?? null,
-            'closing' => $templateCopy['closing_text'] ?? null,
+            'event_label' => $customCopy['event_label'] ?? null,
+            'intro' => $customCopy['intro_title'] ?? ($customCopy['intro'] ?? null),
+            'date_title' => $customCopy['date_title'] ?? null,
+            'program' => $customCopy['program_title'] ?? ($customCopy['program'] ?? null),
+            'welcome' => $customCopy['welcome_text'] ?? ($customCopy['welcome'] ?? null),
+            'ceremony' => $customCopy['ceremony_text'] ?? ($customCopy['ceremony'] ?? null),
+            'celebration' => $customCopy['celebration_text'] ?? ($customCopy['celebration'] ?? null),
+            'venue' => $customCopy['venue_title'] ?? ($customCopy['venue'] ?? null),
+            'map' => $customCopy['map'] ?? null,
+            'countdown' => $customCopy['countdown_title'] ?? ($customCopy['countdown'] ?? null),
+            'days' => $customCopy['days'] ?? null,
+            'hours' => $customCopy['hours'] ?? null,
+            'minutes' => $customCopy['minutes'] ?? null,
+            'seconds' => $customCopy['seconds'] ?? null,
+            'hosts' => $customCopy['hosts_title'] ?? ($customCopy['hosts'] ?? null),
+            'rsvp' => $customCopy['rsvp_title'] ?? ($customCopy['rsvp'] ?? null),
+            'hint' => $customCopy['rsvp_hint'] ?? ($customCopy['hint'] ?? null),
+            'name' => $customCopy['name'] ?? null,
+            'answer' => $customCopy['answer'] ?? null,
+            'yes' => $customCopy['yes'] ?? null,
+            'no' => $customCopy['no'] ?? null,
+            'maybe' => $customCopy['maybe'] ?? null,
+            'count' => $customCopy['count'] ?? null,
+            'message' => $customCopy['message'] ?? null,
+            'send' => $customCopy['send'] ?? null,
+            'closing' => $customCopy['closing_text'] ?? ($customCopy['closing'] ?? null),
         ], fn ($value) => filled($value)));
     }
+    $copy['event_label'] ??= $templateCopy['event_label'] ?? ($eventLabels[$eventType] ?? $eventLabels['wedding']);
+    $programTimes = array_values($details['program_times'] ?? ['17:00', '18:00', '19:00']);
     $times = [
-        ['17:00', $copy['welcome']],
-        ['18:00', $copy['ceremony']],
-        ['19:00', $copy['celebration']],
+        [$programTimes[0] ?? '17:00', $copy['welcome']],
+        [$programTimes[1] ?? '18:00', $copy['ceremony']],
+        [$programTimes[2] ?? '19:00', $copy['celebration']],
     ];
     $monthNames = $kk
         ? ['қаңтар', 'ақпан', 'наурыз', 'сәуір', 'мамыр', 'маусым', 'шілде', 'тамыз', 'қыркүйек', 'қазан', 'қараша', 'желтоқсан']
@@ -103,7 +120,7 @@
         @if($image)<img class="invite-cover-image" src="{{ $image }}" alt="" fetchpriority="high">@endif
         <span class="invite-cover-shade" aria-hidden="true"></span>
         <div class="invite-cover-copy" data-reveal>
-            <p class="invite-overline">{{ $templateCopy['event_label'] ?? ($eventLabels[$eventType] ?? $eventLabels['wedding']) }}</p>
+            <p class="invite-overline">{{ $copy['event_label'] }}</p>
             <p class="invite-cover-date">{{ $eventDate->translatedFormat('d · m · Y') }}</p>
             @if($eventType === 'anniversary')<span class="jubilee-number" aria-hidden="true">60</span>@endif
             <h1>{{ $details['names'] }}</h1>

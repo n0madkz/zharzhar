@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\InvitationOrder;
 use App\Models\Music;
 use App\Models\PromoCode;
+use App\Models\Restaurant;
 use App\Models\Template;
 use App\Models\User;
 use Database\Seeders\InvitationCatalogSeeder;
@@ -82,6 +83,47 @@ class InvitationStoreTest extends TestCase
             'content_hosts_name' => 'Қуаныш иелері', 'content_rsvp_title' => 'Сізді күтеміз!',
             'content_rsvp_hint' => 'Қатысуыңызды растауыңызды сұраймыз.',
             'content_closing_text' => 'Қуанышымызға ортақ болыңыз!',
+        ], $overrides);
+    }
+
+    private function adminOrderData(InvitationOrder $order, array $overrides = []): array
+    {
+        $details = $order->details;
+
+        return array_replace([
+            'status' => $order->status,
+            'customer_name' => $order->customer_name,
+            'customer_phone' => $order->customer_phone,
+            'template_id' => $order->template_id,
+            'event_type' => $details['event_type'],
+            'names' => $details['names'],
+            'hosts' => $details['hosts'],
+            'event_date' => $details['event_date'],
+            'event_time' => $details['event_time'],
+            'restaurant_id' => $details['restaurant_id'] ?? null,
+            'venue_name' => $details['venue_name'],
+            'venue_address' => $details['venue_address'],
+            'language' => $details['language'],
+            'music_id' => $details['music_id'] ?? null,
+            'invitation_text' => $details['invitation_text'] ?? '',
+            'program_times' => ['17:00', '18:00', '19:00'],
+            'copy' => [
+                'event_label' => 'ҮЙЛЕНУ ТОЙЫ', 'intro' => 'ҚҰРМЕТТІ ҚОНАҚТАР!', 'date_title' => 'Той салтанаты',
+                'program' => 'Той бағдарламасы', 'welcome' => 'Қонақтардың жиналуы', 'ceremony' => 'Салтанатты рәсім',
+                'celebration' => 'Мерекелік кеш', 'venue' => 'Мекенжайымыз', 'map' => 'Картадан көру',
+                'countdown' => 'Салтанатқа дейін', 'days' => 'күн', 'hours' => 'сағат', 'minutes' => 'минут',
+                'seconds' => 'секунд', 'hosts' => 'Той иелері', 'rsvp' => 'Сізді күтеміз!',
+                'hint' => 'Қатысуыңызды растаңыз.', 'name' => 'Аты-жөніңіз', 'answer' => 'Тойға қатысасыз ба?',
+                'yes' => 'Иә, қатысамын', 'no' => 'Қатыса алмаймын', 'maybe' => 'Кейін айтамын',
+                'count' => 'Қонақ саны', 'message' => 'Ақ тілегіңіз', 'send' => 'Жауап жіберу',
+                'closing' => 'Қуанышымызға ортақ болыңыз!',
+            ],
+            'subtotal' => $order->subtotal,
+            'discount' => $order->discount,
+            'total' => $order->total,
+            'promo_code' => $order->promo_code,
+            'payment_reference' => $order->payment_reference,
+            'admin_note' => $order->admin_note,
         ], $overrides);
     }
 
@@ -282,6 +324,9 @@ class InvitationStoreTest extends TestCase
         $order = InvitationOrder::factory()->create();
         $this->actingAs(User::factory()->create(compact('role')));
         $this->get('/admin/store')->assertForbidden();
+        $this->get('/admin/store/orders/'.$order->id.'/edit')->assertForbidden();
+        $this->put('/admin/store/orders/'.$order->id)->assertForbidden();
+        $this->delete('/admin/store/orders/'.$order->id)->assertForbidden();
         foreach (['orders/'.$order->id.'/confirm', 'orders/'.$order->id.'/reject', 'templates', 'music', 'promos', 'restaurants'] as $path) {
             $this->post('/admin/store/'.$path)->assertForbidden();
         }
@@ -334,6 +379,71 @@ class InvitationStoreTest extends TestCase
         $this->assertStringStartsWith('ZHAR-', PromoCode::firstOrFail()->code);
         $this->post('/admin/store/restaurants', ['name' => 'Салтанат', 'city' => 'Алматы', 'address' => 'Абая 1', 'is_active' => 1])->assertRedirect();
         $this->get('/admin/store')->assertOk()->assertSee('Жаңарған ақ арман')->assertSee('Салтанат')->assertSee('Қыз ұзату')->assertSee('Главный заголовок превью');
+    }
+
+    public function test_admin_can_edit_every_order_field_sync_published_invitation_and_delete_it(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $promo = PromoCode::factory()->create(['uses' => 1]);
+        $order = InvitationOrder::factory()->create(['status' => 'review', 'promo_code_id' => $promo->id, 'promo_code' => $promo->code]);
+        $newTemplate = Template::factory()->create(['name' => 'Алтын өрнек', 'config_json' => ['theme' => 'royal']]);
+        $restaurant = Restaurant::create(['name' => 'Ақ Сарай', 'city' => 'Алматы', 'address' => 'Достық 10', 'status' => 'active']);
+        $music = Music::create(['name' => 'Ақ той', 'category' => 'Свадьба', 'categories' => ['wedding'], 'audio_url' => '/storage/music/ak-toi.mp3', 'is_active' => true]);
+
+        $this->actingAs($admin)->get('/admin/store/orders/'.$order->id.'/edit')
+            ->assertOk()
+            ->assertSee('Все тексты внутри приглашения')
+            ->assertSee('Удалить заказ навсегда');
+
+        $payload = $this->adminOrderData($order, [
+            'status' => 'paid',
+            'customer_name' => 'Жаңарған клиент',
+            'customer_phone' => '+7 777 111 22 33',
+            'template_id' => $newTemplate->id,
+            'names' => 'Арман & Аяла',
+            'hosts' => 'Нұрлан – Гүлнар',
+            'restaurant_id' => $restaurant->id,
+            'venue_name' => 'Ақ Сарай',
+            'venue_address' => 'Алматы, Достық 10',
+            'music_id' => $music->id,
+            'invitation_text' => 'Арнайы жаңартылған шақыру мәтіні.',
+            'program_times' => ['16:30', '18:15', '20:00'],
+            'subtotal' => 15990,
+            'discount' => 2000,
+            'total' => 13990,
+            'admin_note' => 'Клиентпен келісілді.',
+        ]);
+        $payload['copy']['event_label'] = 'АРМАН МЕН АЯЛАНЫҢ ТОЙЫ';
+        $payload['copy']['send'] = 'Жауабымды сақтау';
+        $payload['copy']['closing'] = 'Ақ тілегіңізбен келіңіз!';
+
+        $this->put('/admin/store/orders/'.$order->id, $payload)->assertRedirect('/admin/store/orders/'.$order->id.'/edit');
+        $order->refresh();
+        $this->assertSame('Жаңарған клиент', $order->customer_name);
+        $this->assertSame(13990, $order->total);
+        $this->assertSame('Арман & Аяла', $order->details['names']);
+        $this->assertSame(['16:30', '18:15', '20:00'], $order->details['program_times']);
+        $this->assertSame('Жауабымды сақтау', $order->details['copy']['send']);
+        $this->assertSame($newTemplate->id, $order->invitation->template_id);
+        $this->assertSame('Арман & Аяла', $order->invitation->event->title);
+        $this->assertSame($restaurant->id, $order->invitation->event->restaurant_id);
+        $invitationId = $order->invitation_id;
+        $eventId = $order->invitation->event_id;
+        $this->get('/i/'.$order->invitation->slug)
+            ->assertOk()
+            ->assertSee('АРМАН МЕН АЯЛАНЫҢ ТОЙЫ')
+            ->assertSee('Арнайы жаңартылған шақыру мәтіні.')
+            ->assertSee('Жауабымды сақтау')
+            ->assertSee('Ақ тілегіңізбен келіңіз!')
+            ->assertSee('16:30');
+        $this->post('/i/'.$order->invitation->slug.'/rsvp', ['guest_name' => 'Қонақ', 'attendance_status' => 'yes', 'guest_count' => 2])->assertRedirect();
+
+        $this->delete('/admin/store/orders/'.$order->id)->assertRedirect('/admin/store');
+        $this->assertDatabaseMissing('invitation_orders', ['id' => $order->id]);
+        $this->assertDatabaseMissing('invitations', ['id' => $invitationId]);
+        $this->assertDatabaseMissing('events', ['id' => $eventId]);
+        $this->assertDatabaseCount('rsvps', 0);
+        $this->assertSame(0, $promo->fresh()->uses);
     }
 
     public function test_partner_subdomain_opens_booking_service_and_restaurant_routes_are_isolated(): void

@@ -28,6 +28,9 @@ Route::post('/i/{slug}/rsvp', [StorefrontController::class, 'rsvp'])->middleware
 Route::get('/responses/{token}', [StorefrontController::class, 'responses'])->name('store.responses');
 Route::middleware(['auth', 'role:admin'])->prefix('admin/store')->name('admin.store.')->group(function () {
     Route::get('/', [StoreAdminController::class, 'index'])->name('index');
+    Route::get('/orders/{order}/edit', [StoreAdminController::class, 'editOrder'])->name('orders.edit');
+    Route::put('/orders/{order}', [StoreAdminController::class, 'updateOrder'])->name('orders.update');
+    Route::delete('/orders/{order}', [StoreAdminController::class, 'destroyOrder'])->name('orders.destroy');
     Route::post('/orders/{order}/confirm', [StoreAdminController::class, 'confirm'])->name('confirm');
     Route::post('/orders/{order}/reject', [StoreAdminController::class, 'reject'])->name('reject');
     Route::post('/templates/{template?}', [StoreAdminController::class, 'saveTemplate'])->name('templates');

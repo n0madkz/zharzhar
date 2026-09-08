@@ -19,6 +19,7 @@
 <details><summary>Отклонить заказ</summary><form method="POST" action="{{ route('admin.store.reject', $order) }}" class="stack">@csrf<label class="field">Причина для клиента<textarea name="admin_note" required maxlength="1000"></textarea></label><button class="button danger" type="submit">Отклонить заказ</button></form></details>
 @endif
 @if($order->admin_note)<p class="hint">{{ $order->admin_note }}</p>@endif
+<p><a class="button primary" href="{{ route('admin.store.orders.edit', $order) }}">Редактировать весь заказ →</a></p>
 <details><summary>Личная страница заказа</summary><div class="copy-row"><input readonly aria-label="Страница заказа {{ $order->id }}" value="{{ $order->publicUrl('orders/'.$order->token) }}"><button type="button" class="button outline" data-copy="{{ $order->publicUrl('orders/'.$order->token) }}">Копировать</button></div></details>
 </article>@empty<div class="empty-state">Заказов с таким статусом пока нет.</div>@endforelse
 <div class="pagination">@if($orders->previousPageUrl())<a href="{{ $orders->previousPageUrl() }}">← Назад</a>@endif<span>Страница {{ $orders->currentPage() }}</span>@if($orders->nextPageUrl())<a href="{{ $orders->nextPageUrl() }}">Далее →</a>@endif</div>

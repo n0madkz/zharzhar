@@ -58,6 +58,137 @@ class StoreAdminController extends Controller
         return back()->with('success', 'Оплата подтверждена. Обе ссылки созданы и доступны клиенту на странице заказа.');
     }
 
+    public function editOrder(InvitationOrder $order): View
+    {
+        $order->load(['invitation.event', 'template']);
+        $details = $order->details ?? [];
+        $musicId = $details['music_id'] ?? null;
+        if (! $musicId && ! empty($details['music_url'])) {
+            $musicId = Music::where('audio_url', $details['music_url'])->value('id');
+        }
+        $copy = array_replace(
+            $this->invitationCopyDefaults($details['language'] ?? 'kk', $details['event_type'] ?? 'wedding'),
+            $details['copy'] ?? [],
+        );
+
+        return view('admin.order-edit', [
+            'order' => $order,
+            'details' => $details,
+            'copy' => $copy,
+            'musicId' => $musicId,
+            'templates' => Template::orderBy('name')->get(),
+            'music' => Music::orderBy('name')->get(),
+            'restaurants' => Restaurant::orderBy('name')->get(),
+        ]);
+    }
+
+    public function updateOrder(Request $request, InvitationOrder $order): RedirectResponse
+    {
+        $data = $request->validate([
+            'status' => ['required', Rule::in(['pending', 'review', 'paid', 'rejected'])],
+            'customer_name' => ['required', 'string', 'max:120'],
+            'customer_phone' => ['required', 'regex:/^\\+?[0-9 ()-]{10,25}$/'],
+            'template_id' => ['required', 'integer', Rule::exists('templates', 'id')],
+            'event_type' => ['required', Rule::in(array_keys(config('store.event_types')))],
+            'names' => ['required', 'string', 'max:160'],
+            'hosts' => ['required', 'string', 'max:240'],
+            'event_date' => ['required', 'date_format:Y-m-d'],
+            'event_time' => ['required', 'date_format:H:i'],
+            'restaurant_id' => ['nullable', 'integer', Rule::exists('restaurants', 'id')],
+            'venue_name' => ['required', 'string', 'max:160'],
+            'venue_address' => ['required', 'string', 'max:255'],
+            'language' => ['required', Rule::in(['kk', 'ru'])],
+            'music_id' => ['nullable', 'integer', Rule::exists('music', 'id')],
+            'invitation_text' => ['nullable', 'string', 'max:2000'],
+            'program_times' => ['required', 'array', 'size:3'],
+            'program_times.*' => ['required', 'date_format:H:i'],
+            'copy' => ['required', 'array'],
+            'copy.*' => ['required', 'string', 'max:300'],
+            'subtotal' => ['required', 'integer', 'min:0', 'max:10000000'],
+            'discount' => ['required', 'integer', 'min:0', 'max:10000000', 'lte:subtotal'],
+            'total' => ['required', 'integer', 'min:0', 'max:10000000'],
+            'promo_code' => ['nullable', 'string', 'max:40'],
+            'payment_reference' => ['nullable', 'string', 'max:1000'],
+            'admin_note' => ['nullable', 'string', 'max:1000'],
+        ], [
+            'customer_phone.regex' => 'Укажите телефон, например +7 700 123 45 67.',
+            'copy.*.required' => 'Заполните все тексты приглашения.',
+            'program_times.size' => 'Укажите время для трёх пунктов программы.',
+        ]);
+
+        DB::transaction(function () use ($data, $order, $request): void {
+            $order = InvitationOrder::lockForUpdate()->findOrFail($order->id);
+            $oldStatus = $order->status;
+            $template = Template::findOrFail($data['template_id']);
+            $music = empty($data['music_id']) ? null : Music::findOrFail($data['music_id']);
+            $details = array_replace($order->details ?? [], [
+                'event_type' => $data['event_type'],
+                'names' => $data['names'],
+                'hosts' => $data['hosts'],
+                'event_date' => $data['event_date'],
+                'event_time' => $data['event_time'],
+                'restaurant_id' => $data['restaurant_id'] ?? null,
+                'venue_name' => $data['venue_name'],
+                'venue_address' => $data['venue_address'],
+                'language' => $data['language'],
+                'invitation_text' => $data['invitation_text'] ?? '',
+                'theme' => $template->config_json['theme'] ?? 'pearl',
+                'template_name' => $template->name,
+                'music_id' => $music?->id,
+                'music_url' => $music?->audio_url,
+                'music_name' => $music?->name,
+                'program_times' => array_values($data['program_times']),
+                'copy' => $data['copy'],
+            ]);
+
+            if ($oldStatus !== 'rejected' && $data['status'] === 'rejected' && $order->promo_code_id) {
+                PromoCode::whereKey($order->promo_code_id)->where('uses', '>', 0)->decrement('uses');
+            } elseif ($oldStatus === 'rejected' && $data['status'] !== 'rejected' && $order->promo_code_id) {
+                PromoCode::whereKey($order->promo_code_id)->increment('uses');
+            }
+
+            $order->update([
+                'template_id' => $template->id,
+                'customer_name' => $data['customer_name'],
+                'customer_phone' => $data['customer_phone'],
+                'details' => $details,
+                'subtotal' => $data['subtotal'],
+                'discount' => $data['discount'],
+                'total' => $data['total'],
+                'promo_code' => $data['promo_code'] ?? null,
+                'status' => $data['status'],
+                'payment_reference' => $data['payment_reference'] ?? null,
+                'admin_note' => $data['admin_note'] ?? null,
+                'paid_at' => $data['status'] === 'paid' ? ($order->paid_at ?? now()) : null,
+                'confirmed_by' => $data['status'] === 'paid' ? $request->user()->id : null,
+            ]);
+
+            $this->syncInvitation($order, $details, $template, $data['status'] === 'paid');
+        }, 3);
+
+        return redirect()->route('admin.store.orders.edit', $order)->with('success', 'Заказ и приглашение обновлены.');
+    }
+
+    public function destroyOrder(InvitationOrder $order): RedirectResponse
+    {
+        DB::transaction(function () use ($order): void {
+            $order = InvitationOrder::with('invitation.event')->lockForUpdate()->findOrFail($order->id);
+            if ($order->promo_code_id && $order->status !== 'rejected') {
+                PromoCode::whereKey($order->promo_code_id)->where('uses', '>', 0)->decrement('uses');
+            }
+            $invitation = $order->invitation;
+            $event = $invitation?->event;
+            $order->delete();
+            if ($event) {
+                $event->delete();
+            } else {
+                $invitation?->delete();
+            }
+        }, 3);
+
+        return redirect()->route('admin.store.index')->with('success', 'Заказ, приглашение и ответы гостей удалены.');
+    }
+
     public function reject(Request $request, InvitationOrder $order): RedirectResponse
     {
         $data = $request->validate(['admin_note' => ['required', 'string', 'max:1000']], ['admin_note.required' => 'Укажите причину отклонения для клиента.']);
@@ -216,6 +347,80 @@ class StoreAdminController extends Controller
         }
 
         return back()->with('success', 'Ресторан сохранён в каталоге.');
+    }
+
+    private function syncInvitation(InvitationOrder $order, array $details, Template $template, bool $published): void
+    {
+        $invitation = $order->invitation()->with('event')->first();
+        $eventValues = [
+            'restaurant_id' => $details['restaurant_id'] ?? null,
+            'event_type' => $details['event_type'],
+            'title' => $details['names'],
+            'event_date' => $details['event_date'],
+            'event_time' => $details['event_time'],
+            'venue_name' => $details['venue_name'],
+            'venue_address' => $details['venue_address'],
+            'language' => $details['language'],
+            'status' => $published ? 'active' : 'draft',
+        ];
+
+        if (! $invitation && ! $published) {
+            return;
+        }
+        if (! $invitation) {
+            $event = Event::create(['user_id' => null, ...$eventValues]);
+            $invitation = Invitation::create([
+                'event_id' => $event->id,
+                'template_id' => $template->id,
+                'slug' => $this->invitationSlug($details['names']),
+                'content_json' => $details,
+                'settings_json' => ['music_url' => $details['music_url'] ?? null, 'theme' => $details['theme']],
+                'status' => 'published',
+                'published_at' => now(),
+            ]);
+            $order->update(['invitation_id' => $invitation->id]);
+
+            return;
+        }
+
+        $invitation->event->update($eventValues);
+        $invitation->update([
+            'template_id' => $template->id,
+            'content_json' => $details,
+            'settings_json' => ['music_url' => $details['music_url'] ?? null, 'theme' => $details['theme']],
+            'status' => $published ? 'published' : 'draft',
+            'published_at' => $published ? ($invitation->published_at ?? now()) : null,
+        ]);
+    }
+
+    private function invitationCopyDefaults(string $language, string $eventType): array
+    {
+        if ($language === 'ru') {
+            return [
+                'event_label' => 'ТОРЖЕСТВО', 'intro' => 'ДОРОГИЕ РОДНЫЕ И ДРУЗЬЯ!', 'date_title' => 'Дата торжества',
+                'program' => 'Программа вечера', 'welcome' => 'Сбор гостей', 'ceremony' => 'Торжественная церемония',
+                'celebration' => 'Праздничный вечер', 'venue' => 'Место проведения', 'map' => 'Посмотреть на карте',
+                'countdown' => 'До торжества', 'days' => 'дней', 'hours' => 'часов', 'minutes' => 'минут', 'seconds' => 'секунд',
+                'hosts' => 'Хозяева торжества', 'rsvp' => 'Будем ждать вас!', 'hint' => 'Пожалуйста, сообщите, сможете ли вы прийти.',
+                'name' => 'Ваше имя', 'answer' => 'Вы придёте?', 'yes' => 'С удовольствием приду', 'no' => 'К сожалению, не смогу',
+                'maybe' => 'Сообщу позже', 'count' => 'Количество гостей', 'message' => 'Ваше пожелание', 'send' => 'Отправить ответ',
+                'closing' => 'Разделите с нами этот счастливый день!',
+            ];
+        }
+
+        return [
+            'event_label' => match ($eventType) {
+                'qyz_uzatu' => 'ҚЫЗ ҰЗАТУ', 'anniversary' => 'МЕРЕЙТОЙ', 'birthday' => 'ТУҒАН КҮН', default => 'ҮЙЛЕНУ ТОЙЫ'
+            },
+            'intro' => 'ҚҰРМЕТТІ АҒАЙЫН-ТУЫС, БАУЫРЛАР, ҚҰДА-ЖЕКЖАТ, ДОС-ЖАРАНДАР!', 'date_title' => 'Той салтанаты',
+            'program' => 'Той бағдарламасы', 'welcome' => 'Қонақтардың жиналуы', 'ceremony' => $eventType === 'qyz_uzatu' ? 'Қыз ұзату рәсімі' : 'Салтанатты рәсім',
+            'celebration' => 'Мерекелік кеш', 'venue' => 'Мекенжайымыз', 'map' => 'Картадан көру', 'countdown' => 'Салтанатқа дейін',
+            'days' => 'күн', 'hours' => 'сағат', 'minutes' => 'минут', 'seconds' => 'секунд', 'hosts' => 'Той иелері',
+            'rsvp' => 'Сізді күтеміз!', 'hint' => 'Тойға қатысуыңызды растауыңызды сұраймыз.', 'name' => 'Аты-жөніңіз',
+            'answer' => 'Тойға қатысасыз ба?', 'yes' => 'Иә, қуана қатысамын', 'no' => 'Өкінішке қарай, қатыса алмаймын',
+            'maybe' => 'Кейінірек айтамын', 'count' => 'Қонақ саны', 'message' => 'Ақ тілегіңіз', 'send' => 'Жауап жіберу',
+            'closing' => 'Қуанышымызға ортақ болыңыз!',
+        ];
     }
 
     private function invitationSlug(string $names): string
