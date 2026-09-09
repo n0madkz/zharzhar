@@ -40,7 +40,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const setMusicState = playing => {
     musicButton?.classList.toggle('is-playing', playing);
-    if (musicButton) musicButton.setAttribute('aria-label', playing ? musicButton.dataset.pauseLabel : musicButton.dataset.playLabel);
+    if (musicButton) {
+      musicButton.setAttribute('aria-label', playing ? musicButton.dataset.pauseLabel : musicButton.dataset.playLabel);
+      musicButton.setAttribute('aria-pressed', String(playing));
+    }
   };
 
   const playTone = () => {
@@ -93,5 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setMusicState(true);
   });
 
+  audio?.addEventListener('play', () => setMusicState(true));
+  audio?.addEventListener('pause', () => setMusicState(false));
   audio?.addEventListener('ended', () => setMusicState(false));
 });

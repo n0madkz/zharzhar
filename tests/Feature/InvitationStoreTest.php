@@ -170,6 +170,23 @@ class InvitationStoreTest extends TestCase
         $this->assertDatabaseHas('templates', ['slug' => 'altyn-nomad', 'preview_image' => '/invitation-assets/nomad-horse.webp']);
         $this->assertSame(5, Template::where('event_type', 'wedding')->where('is_active', true)->pluck('preview_image')->unique()->count());
 
+        foreach (Template::whereIn('slug', [
+            'ak-inju', 'royal-kesh', 'nazik-botanika', 'ak-zhibek',
+            'altyn-nomad', 'mereyli-shenber', 'aru-qyz-uzatu', 'dala-shattygy',
+        ])->get() as $design) {
+            $this->get('/designs/'.$design->id.'/preview')
+                ->assertOk()
+                ->assertSee('music-theme-'.$design->config_json['theme'], false)
+                ->assertSee('aria-pressed="false"', false)
+                ->assertSee('music-play-icon', false)
+                ->assertSee('music-pause-icon', false);
+        }
+
+        $musicStyles = file_get_contents(public_path('invitation.css'));
+        $this->assertStringContainsString('.music-orb{', $musicStyles);
+        $this->assertStringContainsString('position:fixed', $musicStyles);
+        $this->assertStringContainsString('right:max(16px,env(safe-area-inset-right))', $musicStyles);
+
         $qyzUzatu = Template::where('slug', 'aru-qyz-uzatu')->firstOrFail();
         $royal = Template::where('slug', 'royal-kesh')->firstOrFail();
 

@@ -202,11 +202,20 @@
         <small>ZharZhar · {{ $eventDate->format('Y') }}</small>
     </footer>
 
-    @if(!empty($details['music_url']))
-        <audio id="invite-audio" loop preload="none" src="{{ $details['music_url'] }}"></audio>
-    @endif
-    <button class="music-orb" type="button" data-invite-music @if(empty($details['music_url'])) data-preview-tone @endif aria-label="{{ $copy['music_play'] }}" data-play-label="{{ $copy['music_play'] }}" data-pause-label="{{ $copy['music_pause'] }}">
-        <span class="music-note" aria-hidden="true">♪</span><span class="music-bars" aria-hidden="true"><i></i><i></i><i></i></span>
-    </button>
 </article>
+
+@if(!empty($details['music_url']))
+    <audio id="invite-audio" loop preload="none" src="{{ $details['music_url'] }}"></audio>
+@endif
+<button class="music-orb music-theme-{{ $theme }}" type="button" data-invite-music @if(empty($details['music_url'])) data-preview-tone @endif aria-label="{{ $copy['music_play'] }}" aria-pressed="false" data-play-label="{{ $copy['music_play'] }}" data-pause-label="{{ $copy['music_pause'] }}">
+    <span class="music-ornament" aria-hidden="true"></span>
+    <span class="music-control-icon" aria-hidden="true">
+        <span class="music-play-icon"></span>
+        <span class="music-pause-icon"><i></i><i></i></span>
+    </span>
+    <span class="music-action" aria-hidden="true">
+        <span class="music-action-play">{{ $kk ? 'ҚОСУ' : 'ПЛЕЙ' }}</span>
+        <span class="music-action-pause">{{ $kk ? 'ҮЗІЛІС' : 'ПАУЗА' }}</span>
+    </span>
+</button>
 @endsection
