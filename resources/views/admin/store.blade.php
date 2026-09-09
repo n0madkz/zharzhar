@@ -5,7 +5,11 @@
 <nav class="admin-nav" aria-label="Разделы админки"><a href="#orders">Заказы и генерации</a><a href="#templates">Дизайны</a><a href="#music">Музыка</a><a href="#promos">Промокоды</a><a href="#restaurants">Рестораны</a><a href="{{ route('admin.dashboard') }}">Бронирования ↗</a></nav>
 <div class="stats"><div class="panel"><strong>{{ $totals['review'] }}</strong><span>Оплат на проверке</span></div><div class="panel"><strong>{{ $totals['paid'] }}</strong><span>Создано приглашений</span></div><div class="panel"><strong>{{ number_format($totals['revenue'], 0, ',', ' ') }} ₸</strong><span>Подтверждено оплат</span></div></div>
 <section id="orders" class="admin-section"><h2>Заказы <em>и приглашения</em></h2>
-<nav class="filters" aria-label="Статус заказов">@foreach([''=>'Все','pending'=>'Ожидают оплаты','review'=>'На проверке','paid'=>'Готовы','rejected'=>'Отклонены'] as $key=>$label)<a class="{{ $status === $key ? 'active' : '' }}" href="{{ route('admin.store.index', ['status'=>$key]) }}#orders">{{ $label }}</a>@endforeach</nav>
+<form class="order-search" method="GET" action="{{ route('admin.store.index') }}#orders" role="search">
+@if($status !== '')<input type="hidden" name="status" value="{{ $status }}">@endif
+<label for="order-search">Поиск заказов</label><div><input id="order-search" name="q" type="search" value="{{ $search }}" placeholder="Имя, телефон, № заказа или ресторан"><button class="button primary" type="submit">Найти</button>@if($search !== '')<a class="button outline" href="{{ route('admin.store.index', array_filter(['status'=>$status])) }}#orders">Сбросить</a>@endif</div>
+</form>
+<nav class="filters" aria-label="Статус заказов">@foreach([''=>'Все','pending'=>'Ожидают оплаты','review'=>'На проверке','paid'=>'Готовы','rejected'=>'Отклонены'] as $key=>$label)<a class="{{ $status === $key ? 'active' : '' }}" href="{{ route('admin.store.index', array_filter(['status'=>$key,'q'=>$search])) }}#orders">{{ $label }}</a>@endforeach</nav>
 @forelse($orders as $order)<article class="panel order-card"><div class="order-head"><div><p class="eyebrow">ЗАКАЗ №{{ $order->id }} · {{ $order->created_at->format('d.m.Y H:i') }}</p><h3>{{ $order->details['names'] }}</h3><p class="hint">{{ $order->customer_name }} · {{ $order->customer_phone }}</p></div><div><strong>{{ number_format($order->total, 0, ',', ' ') }} ₸</strong><br><span class="badge badge-{{ $order->status }}">{{ $order->statusLabel() }}</span></div></div>
 <p class="hint">{{ $order->details['template_name'] }} · {{ $order->details['event_date'] }} {{ $order->details['event_time'] }} · {{ $order->details['venue_name'] }}<br>Той иелері: {{ $order->details['hosts'] }}<br>{{ $order->details['venue_address'] }} · {{ $order->details['music_name'] ?? 'Без музыки' }}</p>
 @if($order->promo_code)<p class="hint">Промокод <strong>{{ $order->promo_code }}</strong> · скидка {{ number_format($order->discount, 0, ',', ' ') }} ₸ · исходная цена {{ number_format($order->subtotal, 0, ',', ' ') }} ₸</p>@endif
@@ -21,8 +25,8 @@
 @if($order->admin_note)<p class="hint">{{ $order->admin_note }}</p>@endif
 <p><a class="button primary" href="{{ route('admin.store.orders.edit', $order) }}">Редактировать весь заказ →</a></p>
 <details><summary>Личная страница заказа</summary><div class="copy-row"><input readonly aria-label="Страница заказа {{ $order->id }}" value="{{ $order->publicUrl('orders/'.$order->token) }}"><button type="button" class="button outline" data-copy="{{ $order->publicUrl('orders/'.$order->token) }}">Копировать</button></div></details>
-</article>@empty<div class="empty-state">Заказов с таким статусом пока нет.</div>@endforelse
-<div class="pagination">@if($orders->previousPageUrl())<a href="{{ $orders->previousPageUrl() }}">← Назад</a>@endif<span>Страница {{ $orders->currentPage() }}</span>@if($orders->nextPageUrl())<a href="{{ $orders->nextPageUrl() }}">Далее →</a>@endif</div>
+</article>@empty<div class="empty-state">@if($search !== '')По запросу «{{ $search }}» заказов не найдено.@elseЗаказов с таким статусом пока нет.@endif</div>@endforelse
+@if($orders->hasPages())<div class="pagination">@if($orders->previousPageUrl())<a href="{{ $orders->previousPageUrl() }}#orders">← Назад</a>@else<span></span>@endif<span>Страница {{ $orders->currentPage() }} из {{ $orders->lastPage() }}</span>@if($orders->nextPageUrl())<a href="{{ $orders->nextPageUrl() }}#orders">Далее →</a>@else<span></span>@endif</div>@endif
 </section>
 @php
 $templateTextDefaults = [

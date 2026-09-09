@@ -342,6 +342,41 @@ class InvitationStoreTest extends TestCase
         $this->get('http://admin.zharzhar.kz/')->assertRedirect('/admin/store');
     }
 
+    public function test_admin_orders_are_paginated_and_searchable(): void
+    {
+        $this->actingAs(User::factory()->create(['role' => 'admin']));
+        $template = Template::factory()->create();
+        InvitationOrder::factory()->count(11)->create(['template_id' => $template->id]);
+        $target = InvitationOrder::factory()->make([
+            'template_id' => $template->id,
+            'customer_name' => 'Мария Касымова',
+            'customer_phone' => '+7 777 555 66 77',
+            'status' => 'review',
+        ]);
+        $target->details = array_replace($target->details, [
+            'names' => 'Арман и Аяла',
+            'venue_name' => 'Алтын Сарай',
+        ]);
+        $target->save();
+
+        $firstPage = $this->get(route('admin.store.index'));
+        $firstPage->assertOk()->assertViewHas('orders', fn ($orders) => $orders->perPage() === 10 && $orders->count() === 10 && $orders->lastPage() === 2);
+        $this->get(route('admin.store.index', ['page' => 2]))
+            ->assertOk()
+            ->assertViewHas('orders', fn ($orders) => $orders->count() === 2);
+
+        foreach (['Мария', '77775556677', 'Алтын Сарай', (string) $target->id] as $search) {
+            $this->get(route('admin.store.index', ['q' => $search]))
+                ->assertOk()
+                ->assertSee('Мария Касымова')
+                ->assertViewHas('orders', fn ($orders) => $orders->total() === 1 && $orders->first()->is($target));
+        }
+
+        $this->get(route('admin.store.index', ['status' => 'pending', 'q' => 'Мария']))
+            ->assertOk()
+            ->assertViewHas('orders', fn ($orders) => $orders->isEmpty());
+    }
+
     public function test_admin_can_manage_catalog_and_generate_codes_with_validation(): void
     {
         Storage::fake('public');

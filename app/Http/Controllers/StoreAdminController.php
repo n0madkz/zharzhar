@@ -22,10 +22,37 @@ class StoreAdminController extends Controller
     public function index(Request $request): View
     {
         $status = $request->string('status')->toString();
-        $orders = InvitationOrder::with('invitation')->when(in_array($status, ['pending', 'review', 'paid', 'rejected']), fn ($q) => $q->where('status', $status))->latest()->paginate(20)->withQueryString();
+        $search = trim(mb_substr($request->string('q')->toString(), 0, 100));
+        $phoneSearch = preg_replace('/\D+/', '', $search);
+        $orderIdSearch = ctype_digit($search) && strlen($search) <= 6 ? (int) $search : null;
+        if (preg_match('/^(?:заказ\s*)?[№#]\s*(\d+)$/ui', $search, $matches)) {
+            $orderIdSearch = (int) $matches[1];
+        }
+        $orders = InvitationOrder::with('invitation')
+            ->when(in_array($status, ['pending', 'review', 'paid', 'rejected']), fn ($query) => $query->where('status', $status))
+            ->when($search !== '', function ($query) use ($search, $phoneSearch, $orderIdSearch): void {
+                $query->where(function ($query) use ($search, $phoneSearch, $orderIdSearch): void {
+                    if ($orderIdSearch !== null) {
+                        $query->whereKey($orderIdSearch);
+
+                        return;
+                    }
+                    $query->where('customer_name', 'like', '%'.$search.'%')
+                        ->orWhere('customer_phone', 'like', '%'.$search.'%')
+                        ->orWhere('details->names', 'like', '%'.$search.'%')
+                        ->orWhere('details->hosts', 'like', '%'.$search.'%')
+                        ->orWhere('details->venue_name', 'like', '%'.$search.'%');
+                    if ($phoneSearch !== '') {
+                        $query->orWhereRaw("REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(customer_phone, '+', ''), ' ', ''), '-', ''), '(', ''), ')', '') LIKE ?", ['%'.$phoneSearch.'%']);
+                    }
+                });
+            })
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
 
         return view('admin.store', [
-            'orders' => $orders, 'status' => $status,
+            'orders' => $orders, 'status' => $status, 'search' => $search,
             'totals' => ['review' => InvitationOrder::where('status', 'review')->count(), 'paid' => InvitationOrder::where('status', 'paid')->count(), 'revenue' => InvitationOrder::where('status', 'paid')->sum('total')],
             'templates' => Template::orderBy('price')->get(), 'music' => Music::latest()->get(),
             'promos' => PromoCode::latest()->get(), 'restaurants' => Restaurant::orderBy('name')->get(),
