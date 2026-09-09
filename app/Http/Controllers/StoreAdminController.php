@@ -148,6 +148,7 @@ class StoreAdminController extends Controller
             $oldStatus = $order->status;
             $template = Template::findOrFail($data['template_id']);
             $music = empty($data['music_id']) ? null : Music::findOrFail($data['music_id']);
+            $restaurant = empty($data['restaurant_id']) ? null : Restaurant::findOrFail($data['restaurant_id']);
             $details = array_replace($order->details ?? [], [
                 'event_type' => $data['event_type'],
                 'names' => $data['names'],
@@ -157,6 +158,7 @@ class StoreAdminController extends Controller
                 'restaurant_id' => $data['restaurant_id'] ?? null,
                 'venue_name' => $data['venue_name'],
                 'venue_address' => $data['venue_address'],
+                'two_gis_url' => $restaurant?->two_gis_url,
                 'language' => $data['language'],
                 'invitation_text' => $data['invitation_text'] ?? '',
                 'theme' => $template->config_json['theme'] ?? 'pearl',

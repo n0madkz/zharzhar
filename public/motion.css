@@ -389,3 +389,314 @@
         transition: none !important;
     }
 }
+
+/* One horizontal collection with a genuinely different composition for every design. */
+.catalog-grid {
+    display: flex;
+    grid-template-columns: none;
+    gap: 24px;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    padding: 8px 3px 30px;
+    scroll-padding-inline: 3px;
+    scroll-snap-type: inline mandatory;
+    scrollbar-color: var(--accent) var(--border);
+    scrollbar-width: thin;
+}
+
+.catalog-grid:focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset: 6px;
+}
+
+.catalog-grid .design-card {
+    flex: 0 0 clamp(242px, 22vw, 282px);
+    scroll-snap-align: start;
+    text-align: center;
+}
+
+.catalog-grid .design-preview {
+    min-height: 354px;
+}
+
+.card-design-name,
+.design-card-title {
+    width: 100%;
+    text-align: center;
+}
+
+.card-design-name span,
+.design-card-title span {
+    display: block;
+}
+
+.card-design-name span {
+    white-space: nowrap;
+}
+
+.design-info {
+    justify-content: center;
+    flex-direction: column;
+    text-align: center;
+}
+
+.card-theme-mark {
+    position: absolute !important;
+    z-index: 2;
+    inset: 0;
+    pointer-events: none;
+}
+
+.card-theme-mark i,
+.card-theme-mark b {
+    position: absolute;
+    display: block;
+}
+
+.invite-card-pearl {
+    border-radius: 150px 150px 24px 24px;
+}
+
+.invite-card-pearl .card-theme-mark i {
+    top: 54px;
+    left: 50%;
+    width: 92px;
+    height: 92px;
+    border: 1px solid rgba(106, 153, 158, 0.65);
+    border-radius: 50%;
+    transform: translateX(-50%);
+}
+
+.invite-card-pearl .card-theme-mark i + i {
+    top: 61px;
+    width: 78px;
+    height: 78px;
+    border-style: dashed;
+}
+
+.invite-card-pearl .card-theme-mark b::before {
+    content: '✦';
+    position: absolute;
+    top: 87px;
+    left: calc(50% - 5px);
+    color: #6d999d;
+}
+
+.invite-card-royal {
+    border-radius: 8px;
+    clip-path: polygon(8% 0, 92% 0, 100% 8%, 100% 92%, 92% 100%, 8% 100%, 0 92%, 0 8%);
+}
+
+.invite-card-royal::before {
+    inset: 12px;
+    border: 3px double #b88b49;
+    border-radius: 0;
+}
+
+.invite-card-royal .card-ring {
+    width: 84px;
+    height: 84px;
+    border: 2px double #b88b49;
+    border-radius: 4px;
+    transform: rotate(45deg);
+}
+
+.invite-card-royal .card-design-name {
+    border-radius: 4px !important;
+}
+
+.invite-card-botanical {
+    border-radius: 48% 52% 44% 56% / 42% 46% 54% 58%;
+}
+
+.invite-card-botanical::before {
+    inset: 12px;
+    border-radius: 48% 52% 44% 56% / 42% 46% 54% 58%;
+}
+
+.invite-card-botanical .card-theme-mark::before,
+.invite-card-botanical .card-theme-mark::after {
+    content: '❧';
+    position: absolute;
+    color: #617858;
+    font: 52px/1 Georgia, serif;
+    opacity: 0.58;
+}
+
+.invite-card-botanical .card-theme-mark::before {
+    top: 34px;
+    left: 20px;
+    transform: rotate(42deg);
+}
+
+.invite-card-botanical .card-theme-mark::after {
+    right: 20px;
+    bottom: 52px;
+    transform: rotate(220deg);
+}
+
+.invite-card-silk {
+    border-radius: 112px 10px 112px 10px;
+}
+
+.invite-card-silk::before {
+    border-radius: 100px 7px 100px 7px;
+}
+
+.invite-card-silk .card-ring {
+    width: 112px;
+    height: 58px;
+    border-color: #7696a4;
+    border-radius: 50%;
+    transform: rotate(-18deg);
+}
+
+.invite-card-silk .card-theme-mark i {
+    top: 30px;
+    right: -24px;
+    width: 105px;
+    height: 105px;
+    border: 1px solid rgba(112, 148, 162, 0.55);
+    border-radius: 50%;
+}
+
+.invite-card-nomad {
+    border-radius: 4px;
+    clip-path: polygon(50% 0, 96% 10%, 100% 88%, 50% 100%, 0 88%, 4% 10%);
+}
+
+.invite-card-nomad::before {
+    inset: 13px 16px;
+    border: 2px solid #ad7b3f;
+    border-radius: 0;
+    clip-path: polygon(50% 0, 96% 10%, 100% 88%, 50% 100%, 0 88%, 4% 10%);
+}
+
+.invite-card-nomad .card-theme-mark::before,
+.invite-card-nomad .card-theme-mark::after {
+    content: '⌁ ◇ ⌁';
+    position: absolute;
+    right: 0;
+    left: 0;
+    color: #9a682f;
+    font-size: 14px;
+    letter-spacing: 8px;
+}
+
+.invite-card-nomad .card-theme-mark::before { top: 36px; }
+.invite-card-nomad .card-theme-mark::after { bottom: 48px; transform: rotate(180deg); }
+
+.invite-card-jubilee {
+    min-height: 282px !important;
+    margin-top: 36px;
+    border-radius: 50%;
+    aspect-ratio: 1;
+}
+
+.invite-card-jubilee::before {
+    inset: 12px;
+    border: 3px double #aa8150;
+    border-radius: 50%;
+}
+
+.invite-card-jubilee .card-ring {
+    width: 104px;
+    height: 104px;
+    border: 1px dashed #aa8150;
+}
+
+.invite-card-qyz {
+    border-radius: 150px 150px 42px 42px;
+}
+
+.invite-card-qyz::before {
+    border: 2px solid rgba(180, 129, 91, 0.58);
+    border-radius: 140px 140px 34px 34px;
+    box-shadow: inset 0 0 0 6px rgba(255, 255, 255, 0.32);
+}
+
+.invite-card-qyz .card-theme-mark::before,
+.invite-card-qyz .card-theme-mark::after {
+    content: '❀';
+    position: absolute;
+    top: 66px;
+    color: #b47f68;
+    font-size: 28px;
+}
+
+.invite-card-qyz .card-theme-mark::before { left: 28px; }
+.invite-card-qyz .card-theme-mark::after { right: 28px; }
+
+.invite-card-birthday {
+    border-radius: 34px 118px 34px 118px;
+}
+
+.invite-card-birthday::before {
+    border: 2px dotted #d69342;
+    border-radius: 28px 106px 28px 106px;
+}
+
+.invite-card-birthday .card-ring {
+    width: 94px;
+    height: 94px;
+    border: 2px dotted #d69342;
+}
+
+.invite-card-birthday .card-theme-mark::before,
+.invite-card-birthday .card-theme-mark::after {
+    content: '✷';
+    position: absolute;
+    color: #d69342;
+    font-size: 30px;
+}
+
+.invite-card-birthday .card-theme-mark::before { top: 32px; right: 28px; }
+.invite-card-birthday .card-theme-mark::after { bottom: 44px; left: 28px; }
+
+/* Theme-specific invitation geometry, typography and location cards. */
+.invite-theme-pearl .invite-name { letter-spacing: -1px; }
+.invite-theme-royal .invite-name { font-style: normal; letter-spacing: 1px; text-transform: uppercase; }
+.invite-theme-royal .date-orb { border: 3px double var(--iv-accent); border-radius: 18px; }
+.invite-theme-royal .venue-location { border-radius: 5px; border-style: double; border-width: 3px; }
+.invite-theme-botanical .invite-name { font-size: 60px; }
+.invite-theme-botanical .date-orb { border-radius: 46% 54% 44% 56% / 52% 42% 58% 48%; }
+.invite-theme-botanical .venue-location { border-radius: 34px 10px 34px 10px; }
+.invite-theme-silk .invite-name { font-weight: 400; letter-spacing: 0; }
+.invite-theme-silk .date-orb { width: 245px; border-radius: 28px 110px 28px 110px; }
+.invite-theme-silk .venue-location { border-radius: 30px 8px 30px 8px; }
+.invite-theme-nomad .invite-name { font-style: normal; font-weight: 600; letter-spacing: 1px; }
+.invite-theme-nomad .date-orb { border-radius: 0; clip-path: polygon(50% 0, 92% 14%, 100% 86%, 50% 100%, 0 86%, 8% 14%); }
+.invite-theme-nomad .venue-location { border-radius: 3px; clip-path: polygon(4% 0, 96% 0, 100% 18%, 100% 82%, 96% 100%, 4% 100%, 0 82%, 0 18%); }
+.invite-theme-jubilee .invite-name { font-size: 50px; }
+.invite-theme-jubilee .date-orb { border: 3px double var(--iv-accent); }
+.invite-theme-jubilee .venue-location { border-radius: 999px; }
+.invite-theme-qyz .invite-name { font-size: 62px; line-height: 0.88; }
+.invite-theme-qyz .invite-name-preview span:last-child { font-size: 0.76em; }
+.invite-theme-qyz .date-orb { border-radius: 50% 50% 32px 32px; }
+.invite-theme-qyz .venue-location { border-radius: 28px 28px 8px 8px; }
+.invite-theme-birthday .invite-name { font-style: normal; font-weight: 650; }
+.invite-theme-birthday .date-orb { border: 2px dotted var(--iv-accent); border-radius: 34px 96px 34px 96px; }
+.invite-theme-birthday .venue-location { border-radius: 10px 30px 10px 30px; }
+
+@media (max-width: 700px) {
+    .catalog-grid {
+        width: calc(100vw - 18px);
+        margin-right: -18px;
+        gap: 16px;
+        padding-right: 18px;
+    }
+
+    .catalog-grid .design-card {
+        flex-basis: min(78vw, 286px);
+    }
+
+    .catalog-grid .design-preview {
+        min-height: 346px;
+        padding: 28px 20px;
+        gap: 20px;
+    }
+
+    .catalog-grid .design-preview strong {
+        font-size: 30px;
+    }
+}

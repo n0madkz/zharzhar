@@ -46,6 +46,9 @@
         'apply' => 'Применить', 'discount' => 'Скидка', 'total' => 'Итого',
         'price_hint' => 'Разовая оплата через Kaspi. Итоговая сумма фиксируется при оформлении заказа.',
     ];
+    $templateTitleWords = preg_split('/\s+/u', trim($template->name), -1, PREG_SPLIT_NO_EMPTY);
+    $templateTitleFirstLine = array_shift($templateTitleWords);
+    $templateTitleSecondLine = implode(' ', $templateTitleWords);
 @endphp
 
 @extends('layouts.store', ['title' => $t['title']])
@@ -82,7 +85,7 @@
 </div></fieldset>
 <button class="button primary full" type="submit">{{ $t['submit'] }} →</button><p class="hint">{{ $t['submit_hint'] }}</p>
 </div>
-<aside class="panel summary-panel"><p class="eyebrow">{{ $t['choice'] }}</p><div class="design-preview invite-card-{{ $template->config_json['theme'] ?? 'sage' }}"><img src="{{ $template->preview_image }}" alt=""><span class="card-shade"></span><strong>{{ $template->name }}</strong></div>
+<aside class="panel summary-panel"><p class="eyebrow">{{ $t['choice'] }}</p><div class="design-preview invite-card-{{ $template->config_json['theme'] ?? 'sage' }}"><img src="{{ $template->preview_image }}" alt=""><span class="card-shade"></span><span class="card-theme-mark" aria-hidden="true"><i></i><i></i><b></b></span><strong class="card-design-name"><span>{{ $templateTitleFirstLine }}</span>@if($templateTitleSecondLine)<span>{{ $templateTitleSecondLine }}</span>@endif</strong></div>
 <div class="summary-row"><span>{{ $template->name }}</span><strong>{{ number_format($template->price, 0, ',', ' ') }} ₸</strong></div>
 <label class="field" for="promo_code">{{ $t['promo'] }}</label><div class="promo-control field"><input id="promo_code" name="promo_code" value="{{ old('promo_code') }}" maxlength="40" placeholder="{{ $t['promo_placeholder'] }}" style="text-transform:uppercase"><button class="button outline" type="button" id="apply-promo" data-template="{{ $template->id }}" data-price="{{ $template->price }}" data-url="{{ route('store.quote') }}">{{ $t['apply'] }}</button></div>
 <p class="hint" id="promo-result" aria-live="polite"></p>@error('promo_code')<p class="error">{{ $message }}</p>@enderror

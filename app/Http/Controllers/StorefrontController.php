@@ -61,6 +61,7 @@ class StorefrontController extends Controller
                 'event_time' => $content['event_time'],
                 'venue_name' => $content['venue_name'],
                 'venue_address' => $content['venue_address'],
+                'two_gis_url' => $content['two_gis_url'] ?? null,
                 'hosts' => $content['hosts_name'],
                 'invitation_text' => $content['invitation_text'],
                 'language' => 'kk',
@@ -130,6 +131,7 @@ class StorefrontController extends Controller
                 throw ValidationException::withMessages(['event_type' => app()->isLocale('kk') ? 'Бұл дизайн басқа мерекеге арналған.' : 'Этот дизайн предназначен для другого события.']);
             }
             $music = empty($data['music_id']) ? null : Music::where('is_active', true)->findOrFail($data['music_id']);
+            $restaurant = empty($data['restaurant_id']) ? null : Restaurant::where('status', 'active')->findOrFail($data['restaurant_id']);
             if ($music && ! $music->supportsCategory($data['event_type'])) {
                 throw ValidationException::withMessages(['music_id' => app()->isLocale('kk') ? 'Бұл музыка таңдалған мерекеге қолжетімсіз.' : 'Эта музыка недоступна для выбранного события.']);
             }
@@ -138,6 +140,7 @@ class StorefrontController extends Controller
             $details['template_name'] = $template->name;
             $details['music_url'] = $music?->audio_url;
             $details['music_name'] = $music?->name;
+            $details['two_gis_url'] = $restaurant?->two_gis_url;
             $order = InvitationOrder::create([
                 'template_id' => $template->id, 'promo_code_id' => $promo?->id,
                 'token' => Str::random(64), 'responses_token' => Str::random(64), 'request_key' => $data['request_key'],

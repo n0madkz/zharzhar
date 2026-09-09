@@ -186,6 +186,9 @@ class InvitationStoreTest extends TestCase
         $this->assertStringContainsString('.music-orb{', $musicStyles);
         $this->assertStringContainsString('position:fixed', $musicStyles);
         $this->assertStringContainsString('right:max(16px,env(safe-area-inset-right))', $musicStyles);
+        $catalogStyles = file_get_contents(public_path('motion.css'));
+        $this->assertStringContainsString('.catalog-grid {', $catalogStyles);
+        $this->assertStringContainsString('scroll-snap-type: inline mandatory', $catalogStyles);
 
         $qyzUzatu = Template::where('slug', 'aru-qyz-uzatu')->firstOrFail();
         $royal = Template::where('slug', 'royal-kesh')->firstOrFail();
@@ -198,7 +201,11 @@ class InvitationStoreTest extends TestCase
             ->assertOk()
             ->assertSee('Шаблондарға қайту')
             ->assertSee('data-invite-music', false)
-            ->assertSee('invite-theme-qyz', false);
+            ->assertSee('invite-theme-qyz', false)
+            ->assertSee('<span>Ару</span><span>қыз ұзату</span>', false)
+            ->assertSee('two-gis-logo', false)
+            ->assertSee('2GIS-те ашу')
+            ->assertDontSee('round-map', false);
 
         $this->get('/designs/'.$royal->id.'/preview')
             ->assertOk()
@@ -219,12 +226,17 @@ class InvitationStoreTest extends TestCase
     {
         $template = Template::factory()->create();
         $promo = PromoCode::factory()->create(['code' => 'ZHAR10', 'max_uses' => 1]);
-        $data = [...$this->checkoutData($template), 'promo_code' => 'zhar10', 'total' => 1, 'status' => 'paid'];
+        $restaurant = Restaurant::create([
+            'name' => 'Ақ Отау', 'city' => 'Алматы', 'address' => 'Абай 50',
+            'two_gis_url' => 'https://2gis.kz/almaty/firm/123456', 'phone' => '+7 700 111 22 33', 'status' => 'active',
+        ]);
+        $data = [...$this->checkoutData($template), 'restaurant_id' => $restaurant->id, 'promo_code' => 'zhar10', 'total' => 1, 'status' => 'paid'];
         $this->placeOrder($data)->assertRedirect();
         $order = InvitationOrder::firstOrFail();
         $this->assertSame(7191, $order->total);
         $this->assertSame(799, $order->discount);
         $this->assertSame('pending', $order->status);
+        $this->assertSame($restaurant->two_gis_url, $order->details['two_gis_url']);
         $this->assertDatabaseCount('invitations', 0);
         $this->assertSame(1, $promo->fresh()->uses);
         $this->placeOrder($data)->assertRedirect('/orders/'.$order->token);

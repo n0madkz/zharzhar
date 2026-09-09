@@ -20,7 +20,8 @@
         'ceremony' => $eventType === 'qyz_uzatu' ? 'Қыз ұзату рәсімі' : 'Салтанатты рәсім',
         'celebration' => 'Мерекелік кеш',
         'venue' => 'Мекенжайымыз',
-        'map' => 'Картадан көру',
+        'address_label' => 'Мекенжай',
+        'map' => '2GIS-те ашу',
         'countdown' => 'Салтанатқа дейін',
         'days' => 'күн', 'hours' => 'сағат', 'minutes' => 'минут', 'seconds' => 'секунд',
         'hosts' => 'Той иелері',
@@ -37,7 +38,7 @@
         'intro' => 'ДОРОГИЕ РОДНЫЕ И ДРУЗЬЯ!',
         'date_title' => 'Дата торжества', 'program' => 'Программа вечера',
         'welcome' => 'Сбор гостей', 'ceremony' => 'Торжественная церемония', 'celebration' => 'Праздничный вечер',
-        'venue' => 'Место проведения', 'map' => 'Посмотреть на карте', 'countdown' => 'До торжества',
+        'venue' => 'Место проведения', 'address_label' => 'Адрес', 'map' => 'Открыть в 2GIS', 'countdown' => 'До торжества',
         'days' => 'дней', 'hours' => 'часов', 'minutes' => 'минут', 'seconds' => 'секунд',
         'hosts' => 'Хозяева торжества', 'rsvp' => 'Будем ждать вас!',
         'hint' => 'Пожалуйста, сообщите, сможете ли вы прийти.',
@@ -81,6 +82,7 @@
             'closing' => $customCopy['closing_text'] ?? ($customCopy['closing'] ?? null),
         ], fn ($value) => filled($value)));
     }
+    $copy['map'] = $kk ? '2GIS-те ашу' : 'Открыть в 2GIS';
     $copy['event_label'] ??= $templateCopy['event_label'] ?? ($eventLabels[$eventType] ?? $eventLabels['wedding']);
     $programTimes = array_values($details['program_times'] ?? ['17:00', '18:00', '19:00']);
     $times = [
@@ -98,6 +100,17 @@
     $monogram = $eventType === 'anniversary'
         ? '60'
         : collect($nameParts)->take(2)->map(fn ($name) => mb_strtoupper(mb_substr(trim($name), 0, 1)))->implode(' · ');
+    $displayNameLines = $nameParts;
+    if ($preview) {
+        $previewNameWords = preg_split('/\s+/u', trim($details['names']), -1, PREG_SPLIT_NO_EMPTY);
+        $displayNameLines = count($previewNameWords) > 1
+            ? [array_shift($previewNameWords), implode(' ', $previewNameWords)]
+            : $previewNameWords;
+    }
+    $providedTwoGisUrl = $details['two_gis_url'] ?? null;
+    $twoGisUrl = is_string($providedTwoGisUrl) && str_starts_with($providedTwoGisUrl, 'https://')
+        ? $providedTwoGisUrl
+        : 'https://2gis.kz/search/'.rawurlencode(trim($details['venue_name'].' '.$details['venue_address']));
 @endphp
 
 @extends('layouts.store', [
@@ -123,7 +136,7 @@
             <p class="invite-overline">{{ $copy['event_label'] }}</p>
             <p class="invite-cover-date">{{ $eventDate->translatedFormat('d · m · Y') }}</p>
             @if($eventType === 'anniversary')<span class="jubilee-number" aria-hidden="true">60</span>@endif
-            <h1>{{ $details['names'] }}</h1>
+            <h1 class="invite-name{{ $preview ? ' invite-name-preview' : '' }}">@foreach($displayNameLines as $nameLine)<span>{{ $nameLine }}</span>@endforeach</h1>
             <span class="invite-monogram" aria-hidden="true">{{ $monogram }}</span>
         </div>
     </header>
@@ -157,8 +170,11 @@
         <span class="venue-rings" aria-hidden="true"></span>
         <p class="invite-overline">{{ $copy['venue'] }}</p>
         <h2>{{ $details['venue_name'] }}</h2>
-        <p>{{ $details['venue_address'] }}</p>
-        <a class="round-map" href="https://www.google.com/maps/search/?api=1&amp;query={{ urlencode($details['venue_name'].' '.$details['venue_address']) }}" target="_blank" rel="noopener">{{ $copy['map'] }} <span aria-hidden="true">↗</span></a>
+        <a class="venue-location" href="{{ $twoGisUrl }}" target="_blank" rel="noopener" aria-label="{{ $copy['map'] }}: {{ $details['venue_address'] }}">
+            <span class="two-gis-logo" aria-hidden="true">2GIS</span>
+            <span class="venue-location-copy"><small>{{ $copy['address_label'] }}</small><strong>{{ $details['venue_address'] }}</strong><span>{{ $copy['map'] }}</span></span>
+            <span class="venue-location-arrow" aria-hidden="true">↗</span>
+        </a>
     </section>
 
     <section class="invite-section countdown-section" data-countdown="{{ $eventDate->format('Y-m-d').'T'.($details['event_time'] ?? '18:00') }}" data-reveal>
