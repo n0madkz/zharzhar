@@ -47,12 +47,8 @@ class RestaurantController extends Controller
             'prepayment' => (float) $booking->prepayment,
             'phone' => $booking->phone,
             'note' => $booking->note,
-            'qr' => $this->qrSvg($restaurant, $booking),
             'whatsapp' => 'https://wa.me/77067160199?text='.rawurlencode($this->supportMessage($restaurant, $booking)),
         ])->values();
-        $qrImages = $allBookings->mapWithKeys(fn (Booking $booking) => [
-            $booking->id => $this->qrSvg($restaurant, $booking),
-        ]);
         $reportPeriod = $request->input('report_period', 'all');
         $reportFrom = $request->input('report_from');
         $reportTo = $request->input('report_to');
@@ -66,7 +62,7 @@ class RestaurantController extends Controller
         ])->values();
         $reportPeriods = $restaurant->slots->map(fn ($slot) => ['key' => $slot->slot_key, 'label' => $slot->label])->values();
 
-        return view('restaurant.framework', compact('restaurant', 'bookings', 'allBookings', 'selectedBookings', 'selectedDate', 'month', 'calendarDays', 'supportMessages', 'calendarBookingData', 'qrImages', 'reportBookings', 'reportPeriod', 'reportFrom', 'reportTo', 'reportRows', 'reportPeriods'));
+        return view('restaurant.framework', compact('restaurant', 'bookings', 'allBookings', 'selectedBookings', 'selectedDate', 'month', 'calendarDays', 'supportMessages', 'calendarBookingData', 'reportBookings', 'reportPeriod', 'reportFrom', 'reportTo', 'reportRows', 'reportPeriods'));
     }
 
     public function exportReports(Request $request): mixed
@@ -93,8 +89,11 @@ class RestaurantController extends Controller
 
     public function calendarData(Request $request): mixed
     {
+        $data = $request->validate([
+            'month' => ['nullable', 'date_format:Y-m'],
+        ]);
         $restaurant = $request->user()->restaurant()->with('slots')->firstOrFail();
-        $month = $request->month ? Carbon::createFromFormat('Y-m', $request->month)->startOfMonth() : Carbon::today()->startOfMonth();
+        $month = isset($data['month']) ? Carbon::createFromFormat('Y-m', $data['month'])->startOfMonth() : Carbon::today()->startOfMonth();
         $start = $month->copy()->startOfWeek(Carbon::MONDAY);
         $end = $month->copy()->endOfMonth()->endOfWeek(Carbon::SUNDAY);
         $bookings = Booking::where('restaurant_id', $restaurant->id)->with('slot')
@@ -106,6 +105,7 @@ class RestaurantController extends Controller
 
         return response()->json([
             'month' => $month->translatedFormat('F Y'),
+            'value' => $month->format('Y-m'),
             'days' => $days,
             'slots' => $restaurant->slots->map(fn ($slot) => ['id' => $slot->id, 'label' => $slot->label, 'color' => $slot->color]),
             'bookings' => $bookings->map(fn (Booking $booking) => [
@@ -113,7 +113,7 @@ class RestaurantController extends Controller
                 'eventType' => $booking->event_type, 'slotId' => $booking->restaurant_slot_id, 'slot' => $booking->slot?->label,
                 'status' => $booking->status, 'statusLabel' => $booking->statusLabel(), 'guests' => $booking->guest_count, 'pricePerGuest' => (float) $booking->price_per_guest,
                 'prepayment' => (float) $booking->prepayment, 'phone' => $booking->phone, 'note' => $booking->note,
-                'qr' => $this->qrSvg($restaurant, $booking), 'whatsapp' => 'https://wa.me/77067160199?text='.rawurlencode($this->supportMessage($restaurant, $booking)),
+                'whatsapp' => 'https://wa.me/77067160199?text='.rawurlencode($this->supportMessage($restaurant, $booking)),
             ])->values(),
         ]);
     }

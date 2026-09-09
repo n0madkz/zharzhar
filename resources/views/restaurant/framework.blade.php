@@ -17,8 +17,11 @@
     .restaurant-nav a { border-radius:10px; transition:background .18s ease, color .18s ease; }
     .restaurant-nav a .nav-icon { display:inline-grid; width:20px; height:20px; place-items:center; margin-right:8px; vertical-align:middle; }
     .restaurant-nav a .nav-icon svg { width:18px; height:18px; stroke:currentColor; fill:none; stroke-width:1.8; }
-    .month-actions { display:flex; align-items:center; gap:10px; }
-    .month-actions a { width:42px; height:42px; display:inline-flex; align-items:center; justify-content:center; box-sizing:border-box; padding:0; font-size:20px; line-height:1; border-radius:10px; }
+    .month-actions { display:grid; grid-template-columns:44px minmax(92px,auto) 44px; align-items:center; gap:8px; }
+    .month-actions a { height:44px; display:inline-flex; align-items:center; justify-content:center; box-sizing:border-box; color:var(--ui-ink); text-decoration:none; border:1px solid #dce5df; background:#fff; }
+    .month-arrow { width:44px; border-radius:50%; }
+    .month-arrow svg { display:block; width:22px; height:22px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+    .calendar-today { min-width:92px; padding:0 14px; border-radius:999px; font-size:13px; font-weight:700; }
     .restaurant-nav a.active { background:#17332a; }
     .restaurant-nav a.active { background:transparent; color:var(--ui-ink); }
     .restaurant-nav a.current { background:#17332a; color:#fff; }
@@ -29,14 +32,25 @@
     .restaurant-main h2 { font-size:22px; font-weight:800; }
     .button { border-radius:10px; font-weight:700; transition:transform .18s ease, box-shadow .18s ease, background .18s ease; }
     .button:hover { background:#b85741; box-shadow:0 8px 16px rgba(201,105,82,.22); transform:translateY(-1px); }
-    .calendar-heading h2 { font-size:26px; letter-spacing:-.03em; }
-    .month-actions a { border-radius:9px; background:#fff; transition:background .18s ease, transform .18s ease; }
-    .month-actions a:hover { background:#eef3ef; transform:translateY(-1px); }
-    .calendar-grid { gap:5px; border:0; }
-    .day { min-height:88px; padding:11px; border:1px solid #e7ebe8; border-radius:11px; background:#fff; transition:border-color .18s ease, box-shadow .18s ease, transform .18s ease; }
+    .calendar-panel { position:relative; overflow:hidden; background:linear-gradient(145deg,#fff 0%,#fbfdfb 100%); }
+    .calendar-heading { gap:18px; }
+    .calendar-title span { display:block; margin-bottom:5px; color:var(--ui-muted); font-size:11px; font-weight:800; letter-spacing:.12em; text-transform:uppercase; }
+    .calendar-heading h2 { margin:0; font-size:26px; letter-spacing:-.03em; text-transform:capitalize; }
+    .month-actions a { transition:background .18s ease, border-color .18s ease, transform .18s ease; }
+    .month-actions a:hover { border-color:#a9bdb1; background:#eef5f0; transform:translateY(-1px); }
+    .month-actions a:focus-visible { outline:3px solid rgba(23,51,42,.18); outline-offset:2px; }
+    .calendar-live { min-height:18px; margin:8px 0 -8px; color:var(--ui-muted); font-size:12px; }
+    .calendar-panel.is-loading .calendar-grid { opacity:.55; pointer-events:none; }
+    .calendar-panel.is-loading .calendar-heading h2:after { content:' '; display:inline-block; width:12px; height:12px; margin-left:9px; border:2px solid #cbd8d0; border-top-color:var(--ui-ink); border-radius:50%; animation:calendar-spin .7s linear infinite; }
+    @keyframes calendar-spin { to { transform:rotate(360deg); } }
+    .weekdays { margin-top:18px; padding:0 4px; font-weight:700; }
+    .weekdays span:nth-child(6), .weekdays span:nth-child(7) { color:#bd604b; }
+    .calendar-grid { gap:7px; border:0; transition:opacity .16s ease; }
+    .day { min-height:88px; padding:11px; border:1px solid #e7ebe8; border-radius:12px; background:#fff; transition:border-color .18s ease, box-shadow .18s ease, transform .18s ease; }
     .day:hover { border-color:#9bb3a4; box-shadow:0 5px 12px rgba(23,51,42,.08); transform:translateY(-1px); }
     .day.muted-day { background:#fafbfa; border-color:#eef1ef; }
-    .day.selected { background:#eff6f1; outline:2px solid #17332a; }
+    .day.selected { background:#eff6f1; outline:2px solid #17332a; outline-offset:-2px; }
+    .day:nth-child(7n + 6):not(.muted-day) .day-number, .day:nth-child(7n + 7):not(.muted-day) .day-number { color:#bd604b; }
     .day-number { font-size:14px; }
     .field input,.field select,.field textarea { border-radius:10px; border-color:#dfe6e1; background:#fbfcfb; transition:border-color .18s ease, box-shadow .18s ease; }
     .field input:focus,.field select:focus,.field textarea:focus { outline:none; border-color:#789c87; box-shadow:0 0 0 4px rgba(120,156,135,.14); }
@@ -77,15 +91,6 @@
     .booking-support a { text-decoration:none; }
     .button-secondary { background:#fff; color:var(--ui-ink); border:1px solid #d8e1dc; }
     .button-whatsapp { background:#e8f5ed; color:#16653d; border:1px solid #b9ddc6; }
-    .booking-qr { display:none; width:180px; height:180px; margin:8px 0 18px; padding:10px; background:#fff; border:1px solid #e7ebe8; border-radius:12px; }
-    .booking-qr.is-visible { display:block; }
-    /* QR-код не показываем в событиях */
-    .booking-list .booking-qr,
-    .booking-list .qr-toggle,
-    .booking-list .selected-qr-toggle,
-    .day-modal .booking-qr,
-    .day-modal .qr-toggle,
-    .day-modal .selected-qr-toggle { display:none !important; }
     .mobile-logout { display:none; }
     .mobile-logout button { width:100%; height:100%; border:0; background:transparent; color:var(--ui-ink); cursor:pointer; font:inherit; }
     .settings-logout { display:block; margin-top:20px; }
@@ -127,9 +132,31 @@
         .mobile-logout .nav-icon{display:grid;place-items:center;width:20px;height:20px;margin:0 auto}
         .mobile-logout svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8}
         .settings-logout{display:block;margin:14px 0 0}.settings-logout .button{width:100%}
-        .day{min-height:72px;padding:8px;border-radius:10px}.slot-bars{margin-top:11px}
+        .calendar-panel{padding:15px 12px 18px}
+        .calendar-heading{display:grid;grid-template-columns:1fr;align-items:stretch;gap:14px}
+        .calendar-title{text-align:center}
+        .calendar-title span{margin-bottom:3px;font-size:10px}
+        .month-actions{grid-template-columns:46px minmax(0,1fr) 46px;width:100%;gap:9px}
+        .month-actions a{height:46px}
+        .month-arrow{width:46px}
+        .month-arrow svg{width:23px;height:23px}
+        .calendar-today{width:100%;font-size:13px}
+        .calendar-live{text-align:center;margin:5px 0 -5px}
+        .weekdays{margin-top:15px;padding:0;font-size:10px}
+        .calendar-grid{gap:4px}
+        .day{aspect-ratio:1;min-height:0;padding:7px 5px;border-radius:9px}
+        .day:hover{transform:none;box-shadow:none}
+        .day-number{font-size:12px}
+        .slot-bars{gap:3px;margin-top:7px}
+        .slot-bar{width:7px;height:7px}
         .settings-row{align-items:flex-start;flex-direction:column;gap:10px}.settings-row>span:last-child{width:100%;justify-content:space-between}.settings-row input[type=time]{flex:1;min-width:0}
-        .restaurant-top{padding:14px 0}.restaurant-main h1{font-size:30px;margin:24px 0 10px}.panel{padding:16px;border-radius:14px}.calendar-heading h2{font-size:22px}.weekdays{font-size:11px}.booking-row{gap:10px}.booking-support a,.booking-support button{width:100%;text-align:center}
+        .restaurant-top{padding:14px 0}.restaurant-main h1{font-size:30px;margin:24px 0 10px}.panel{padding:16px;border-radius:14px}.calendar-heading h2{font-size:23px}.booking-row{gap:10px}.booking-support a,.booking-support button{width:100%;text-align:center}
+    }
+    @media(max-width:380px){
+        .calendar-panel{padding-left:9px;padding-right:9px}
+        .calendar-grid{gap:3px}
+        .day{padding:6px 4px;border-radius:8px}
+        .slot-bars{gap:2px}
     }
 </style>
 
@@ -167,13 +194,21 @@
         @if($errors->any())<div class="error">{{ $errors->first() }}</div>@endif
 
         <div class="calendar-layout">
-            <section class="panel" id="schedule">
-                <div class="calendar-heading"><h2>{{ $month->translatedFormat('F Y') }}</h2><div class="month-actions"><a data-step="-12" aria-label="Предыдущий год" href="{{ route('restaurant.dashboard', ['month' => $month->copy()->subYear()->format('Y-m'), 'date' => $selectedDate->format('Y-m-d')]) }}">«</a><a data-step="-1" aria-label="Предыдущий месяц" href="{{ route('restaurant.dashboard', ['month' => $month->copy()->subMonth()->format('Y-m'), 'date' => $selectedDate->format('Y-m-d')]) }}">←</a><a data-step="1" aria-label="Следующий месяц" href="{{ route('restaurant.dashboard', ['month' => $month->copy()->addMonth()->format('Y-m'), 'date' => $selectedDate->format('Y-m-d')]) }}">→</a><a data-step="12" aria-label="Следующий год" href="{{ route('restaurant.dashboard', ['month' => $month->copy()->addYear()->format('Y-m'), 'date' => $selectedDate->format('Y-m-d')]) }}">»</a></div></div>
+            <section class="panel calendar-panel" id="schedule" data-calendar-month="{{ $month->format('Y-m') }}">
+                <div class="calendar-heading">
+                    <div class="calendar-title"><span>Календарь бронирований</span><h2 data-calendar-heading aria-live="polite">{{ $month->translatedFormat('F Y') }}</h2></div>
+                    <div class="month-actions" aria-label="Переключение месяца">
+                        <a class="month-arrow" data-step="-1" aria-label="Предыдущий месяц" href="{{ route('restaurant.dashboard', ['month' => $month->copy()->subMonth()->format('Y-m'), 'date' => $month->copy()->subMonth()->startOfMonth()->format('Y-m-d')]) }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></a>
+                        <a class="calendar-today" data-calendar-today href="{{ route('restaurant.dashboard', ['month' => today()->format('Y-m'), 'date' => today()->format('Y-m-d')]) }}">Сегодня</a>
+                        <a class="month-arrow" data-step="1" aria-label="Следующий месяц" href="{{ route('restaurant.dashboard', ['month' => $month->copy()->addMonth()->format('Y-m'), 'date' => $month->copy()->addMonth()->startOfMonth()->format('Y-m-d')]) }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></a>
+                    </div>
+                </div>
+                <p class="calendar-live" data-calendar-live aria-live="polite"></p>
                 <div class="weekdays"><span>Пн</span><span>Вт</span><span>Ср</span><span>Чт</span><span>Пт</span><span>Сб</span><span>Вс</span></div>
                 <div class="calendar-grid">
                     @foreach($calendarDays as $day)
                         @php($dayBookings = $allBookings->filter(fn ($booking) => $booking->booking_date->isSameDay($day)))
-                        <a class="day {{ $day->month !== $month->month ? 'muted-day' : '' }} {{ $day->isSameDay($selectedDate) ? 'selected' : '' }}" href="{{ route('restaurant.dashboard', ['month' => $month->format('Y-m'), 'date' => $day->format('Y-m-d')]) }}"><span class="day-number">{{ $day->day }}</span><div class="slot-bars">@foreach($restaurant->slots as $slot)<span class="slot-bar {{ $dayBookings->where('restaurant_slot_id', $slot->id)->where('status', '!=', 'cancelled')->isNotEmpty() ? 'busy' : '' }}" style="--slot-color:{{ $slot->color }}" title="{{ $slot->label }}"></span>@endforeach</div></a>
+                        <a class="day {{ $day->month !== $month->month ? 'muted-day' : '' }} {{ $day->isSameDay($selectedDate) ? 'selected' : '' }}" data-date="{{ $day->format('Y-m-d') }}" href="{{ route('restaurant.dashboard', ['month' => $month->format('Y-m'), 'date' => $day->format('Y-m-d')]) }}"><span class="day-number">{{ $day->day }}</span><div class="slot-bars">@foreach($restaurant->slots as $slot)<span class="slot-bar {{ $dayBookings->where('restaurant_slot_id', $slot->id)->where('status', '!=', 'cancelled')->isNotEmpty() ? 'busy' : '' }}" style="--slot-color:{{ $slot->color }}" title="{{ $slot->label }}"></span>@endforeach</div></a>
                     @endforeach
                 </div>
                 <div class="legend">@foreach($restaurant->slots as $slot)<span class="legend-item"><i class="legend-mark" style="--slot-color:{{ $slot->color }}"></i>{{ $slot->label }}</span><span class="legend-item"><i class="legend-mark busy" style="--slot-color:{{ $slot->color }}"></i>занято</span>@endforeach</div>
@@ -192,7 +227,7 @@
             </section>
         </div>
 
-        <section class="panel booking-list"><h2>Ближайшие записи</h2>@forelse($bookings->sortBy('booking_date')->take(12) as $booking)<details class="booking-card" id="booking-{{ $booking->id }}"><summary><i class="booking-color" style="--booking-color:{{ $booking->color }}"></i><span><strong>{{ $booking->visitor_name }}</strong><small>{{ $booking->booking_date->format('d.m.Y') }} · {{ $booking->slot?->label ?? 'Период не выбран' }} · {{ $booking->guest_count }} гостей</small></span><span class="status">{{ $booking->statusLabel() }}</span></summary><form method="POST" action="{{ route('restaurant.bookings.update', $booking) }}" class="booking-edit-form">@csrf @method('PUT')<div class="form-grid"><label class="field">Имя посетителя<input name="visitor_name" value="{{ $booking->visitor_name }}" required></label><label class="field">Телефон<input name="phone" value="{{ $booking->phone }}"></label><label class="field">Дата<input type="date" name="booking_date" value="{{ $booking->booking_date->format('Y-m-d') }}" required></label><label class="field">Гостей<input type="number" name="guest_count" min="1" value="{{ $booking->guest_count }}" required></label></div><label class="field">Период<select name="restaurant_slot_id" required>@foreach($restaurant->slots as $slot)<option value="{{ $slot->id }}" @selected($booking->restaurant_slot_id === $slot->id)>{{ $slot->label }} · {{ $slot->start_time }}–{{ $slot->end_time }}</option>@endforeach</select></label><label class="field">Статус<select name="status"><option value="pending" @selected($booking->status === 'pending')>Ожидает</option><option value="confirmed" @selected($booking->status === 'confirmed')>Подтверждено</option><option value="cancelled" @selected($booking->status === 'cancelled')>Отменено</option></select></label><label class="field">Примечания<textarea name="note" rows="3">{{ $booking->note }}</textarea></label><div class="booking-actions"><button class="button" type="submit">Сохранить изменения</button></div></form><div class="booking-support"><button type="button" class="button button-secondary qr-toggle" data-qr-target="qr-{{ $booking->id }}">Показать QR</button><a class="button button-whatsapp" target="_blank" rel="noopener" href="https://wa.me/77067160199?text={{ rawurlencode($supportMessages[$booking->id]) }}">Написать службе поддержки в WhatsApp</a></div><img id="qr-{{ $booking->id }}" class="booking-qr" src="{{ $qrImages[$booking->id] }}" alt="QR-код бронирования"><form method="POST" action="{{ route('restaurant.bookings.destroy', $booking) }}" onsubmit="return confirm('Удалить это бронирование?')">@csrf @method('DELETE')<button class="button button-danger" type="submit">Удалить</button></form></details>@empty<p class="muted">На выбранный месяц записей пока нет.</p>@endforelse</section>
+        <section class="panel booking-list"><h2>Ближайшие записи</h2>@forelse($bookings->sortBy('booking_date')->take(12) as $booking)<details class="booking-card" id="booking-{{ $booking->id }}"><summary><i class="booking-color" style="--booking-color:{{ $booking->color }}"></i><span><strong>{{ $booking->visitor_name }}</strong><small>{{ $booking->booking_date->format('d.m.Y') }} · {{ $booking->slot?->label ?? 'Период не выбран' }} · {{ $booking->guest_count }} гостей</small></span><span class="status">{{ $booking->statusLabel() }}</span></summary><form method="POST" action="{{ route('restaurant.bookings.update', $booking) }}" class="booking-edit-form">@csrf @method('PUT')<div class="form-grid"><label class="field">Имя посетителя<input name="visitor_name" value="{{ $booking->visitor_name }}" required></label><label class="field">Телефон<input name="phone" value="{{ $booking->phone }}"></label><label class="field">Дата<input type="date" name="booking_date" value="{{ $booking->booking_date->format('Y-m-d') }}" required></label><label class="field">Гостей<input type="number" name="guest_count" min="1" value="{{ $booking->guest_count }}" required></label></div><label class="field">Период<select name="restaurant_slot_id" required>@foreach($restaurant->slots as $slot)<option value="{{ $slot->id }}" @selected($booking->restaurant_slot_id === $slot->id)>{{ $slot->label }} · {{ $slot->start_time }}–{{ $slot->end_time }}</option>@endforeach</select></label><label class="field">Статус<select name="status"><option value="pending" @selected($booking->status === 'pending')>Ожидает</option><option value="confirmed" @selected($booking->status === 'confirmed')>Подтверждено</option><option value="cancelled" @selected($booking->status === 'cancelled')>Отменено</option></select></label><label class="field">Примечания<textarea name="note" rows="3">{{ $booking->note }}</textarea></label><div class="booking-actions"><button class="button" type="submit">Сохранить изменения</button></div></form><div class="booking-support"><a class="button button-whatsapp" target="_blank" rel="noopener" href="https://wa.me/77067160199?text={{ rawurlencode($supportMessages[$booking->id]) }}">Написать службе поддержки в WhatsApp</a></div><form method="POST" action="{{ route('restaurant.bookings.destroy', $booking) }}" onsubmit="return confirm('Удалить это бронирование?')">@csrf @method('DELETE')<button class="button button-danger" type="submit">Удалить</button></form></details>@empty<p class="muted">На выбранный месяц записей пока нет.</p>@endforelse</section>
 
         <section class="panel info-panel" id="bonuses"><h2>Бонусы</h2><p class="muted">Здесь будет отображаться история начислений и доступный баланс ресторана.</p><div class="settings-row"><strong>Доступный баланс</strong><span>0 ₸</span></div></section>
         <section class="panel info-panel" id="settings"><h2>Настройки ресторана</h2><p class="muted">Настройте время доступных периодов ресторана.</p><form method="POST" action="{{ route('restaurant.settings.slots') }}">@csrf @method('PUT')@foreach($restaurant->slots as $slot)<div class="settings-row"><span><strong>{{ $slot->label }}</strong><small style="display:block;color:var(--ui-muted)">Время периода</small></span><span style="display:flex;gap:7px;align-items:center"><input type="time" name="slots[{{ $slot->slot_key }}][start_time]" value="{{ $slot->start_time }}" required style="padding:9px;border:1px solid #dfe6e1;border-radius:8px"><b>—</b><input type="time" name="slots[{{ $slot->slot_key }}][end_time]" value="{{ $slot->end_time }}" required style="padding:9px;border:1px solid #dfe6e1;border-radius:8px"></span></div>@endforeach<button class="button" type="submit" style="margin-top:16px">Сохранить время</button></form></section>
@@ -305,8 +340,7 @@
         const listTitle = selectedDayList.querySelector('h2');
         if (listTitle) listTitle.textContent = 'События выбранного дня · ' + dateForForm(normalizedDate);
         selectedDayList.querySelectorAll('.booking-card, .muted').forEach((item) => item.remove());
-        selectedDayList.insertAdjacentHTML('beforeend', events.length ? events.map((booking) => '<details class="booking-card" id="booking-' + booking.id + '"><summary><i class="booking-color" style="--booking-color:#c46b58"></i><span><strong>' + escapeHtml(booking.name) + '</strong><small>' + escapeHtml(booking.eventType || 'Мероприятие') + ' · ' + escapeHtml(booking.slot || 'Период не выбран') + ' · ' + booking.guests + ' гостей</small></span><span class="status">' + escapeHtml(booking.statusLabel) + '</span></summary><div class="booking-preview"><p><strong>Тип мероприятия:</strong> ' + escapeHtml(booking.eventType || 'Не указан') + '</p><p><strong>Телефон:</strong> ' + (booking.phone ? '<a class="booking-phone" href="' + whatsappHref(booking.phone) + '" target="_blank" rel="noopener">' + escapeHtml(booking.phone) + '</a>' : 'Не указан') + '</p><p><strong>Количество гостей:</strong> ' + escapeHtml(booking.guests || 0) + '</p><p><strong>Цена за 1 гостя:</strong> ' + money(booking.pricePerGuest || 0) + ' ₸</p><p><strong>Предоплата:</strong> ' + money(booking.prepayment || 0) + ' ₸</p><p><strong>Итого:</strong> ' + money(Number(booking.pricePerGuest || 0) * Number(booking.guests || 0)) + ' ₸</p><p><strong>Примечания:</strong> ' + escapeHtml(booking.note || 'Нет') + '</p><div class="booking-actions"><button type="button" class="button selected-booking-edit" data-booking-id="' + booking.id + '">Изменить</button><form method="POST" action="/restaurant/bookings/' + booking.id + '" onsubmit="return confirm(\'Удалить это бронирование?\')"><input type="hidden" name="_token" value="' + (document.querySelector('input[name=_token]')?.value || '') + '"><input type="hidden" name="_method" value="DELETE"><button type="submit" class="button button-danger">Удалить</button></form></div><div class="booking-support"><button type="button" class="button button-secondary selected-qr-toggle">Показать QR</button><a class="button button-whatsapp" href="' + booking.whatsapp + '" target="_blank" rel="noopener">Написать в WhatsApp</a></div><img class="booking-qr selected-booking-qr" src="' + booking.qr + '" alt="QR-код бронирования"></div></details>').join('') : '<p class="muted">На этот день мероприятий нет.</p>');
-        selectedDayList.querySelectorAll('.selected-qr-toggle').forEach((button) => button.addEventListener('click', () => { const qr = button.closest('.booking-preview').querySelector('.selected-booking-qr'); const visible = qr.classList.toggle('is-visible'); button.textContent = visible ? 'Скрыть QR' : 'Показать QR'; }));
+        selectedDayList.insertAdjacentHTML('beforeend', events.length ? events.map((booking) => '<details class="booking-card" id="booking-' + booking.id + '"><summary><i class="booking-color" style="--booking-color:#c46b58"></i><span><strong>' + escapeHtml(booking.name) + '</strong><small>' + escapeHtml(booking.eventType || 'Мероприятие') + ' · ' + escapeHtml(booking.slot || 'Период не выбран') + ' · ' + booking.guests + ' гостей</small></span><span class="status">' + escapeHtml(booking.statusLabel) + '</span></summary><div class="booking-preview"><p><strong>Тип мероприятия:</strong> ' + escapeHtml(booking.eventType || 'Не указан') + '</p><p><strong>Телефон:</strong> ' + (booking.phone ? '<a class="booking-phone" href="' + whatsappHref(booking.phone) + '" target="_blank" rel="noopener">' + escapeHtml(booking.phone) + '</a>' : 'Не указан') + '</p><p><strong>Количество гостей:</strong> ' + escapeHtml(booking.guests || 0) + '</p><p><strong>Цена за 1 гостя:</strong> ' + money(booking.pricePerGuest || 0) + ' ₸</p><p><strong>Предоплата:</strong> ' + money(booking.prepayment || 0) + ' ₸</p><p><strong>Итого:</strong> ' + money(Number(booking.pricePerGuest || 0) * Number(booking.guests || 0)) + ' ₸</p><p><strong>Примечания:</strong> ' + escapeHtml(booking.note || 'Нет') + '</p><div class="booking-actions"><button type="button" class="button selected-booking-edit" data-booking-id="' + booking.id + '">Изменить</button><form method="POST" action="/restaurant/bookings/' + booking.id + '" onsubmit="return confirm(\'Удалить это бронирование?\')"><input type="hidden" name="_token" value="' + (document.querySelector('input[name=_token]')?.value || '') + '"><input type="hidden" name="_method" value="DELETE"><button type="submit" class="button button-danger">Удалить</button></form></div><div class="booking-support"><a class="button button-whatsapp" href="' + booking.whatsapp + '" target="_blank" rel="noopener">Написать в WhatsApp</a></div></div></details>').join('') : '<p class="muted">На этот день мероприятий нет.</p>');
         selectedDayList.querySelectorAll('.selected-booking-edit').forEach((button) => button.addEventListener('click', () => { const booking = calendarBookingData.find((item) => item.id === Number(button.dataset.bookingId)); const day = [...document.querySelectorAll('.day')].find((item) => new URL(item.href).searchParams.get('date') === booking?.date); day?.click(); const eventElement = dayModalEvents.querySelector('[data-booking-id="' + booking?.id + '"]'); eventElement?.click(); }));
     };
     const bindCalendarDays = () => document.querySelectorAll('.day').forEach((day) => day.addEventListener('click', (event) => {
@@ -318,9 +352,11 @@
         const events = calendarBookingData.filter((booking) => String(booking.date).slice(0, 10) === String(date).slice(0, 10) && booking.status !== 'cancelled');
         renderSelectedDayEvents(date);
         const currentUrl = new URL(window.location.href);
-        const requestedMonth = currentUrl.searchParams.get('month');
-        const currentMonth = /^\\d{4}-\\d{2}$/.test(requestedMonth || '') ? requestedMonth : '{{ $month->format('Y-m') }}';
-        history.replaceState(null, '', window.location.pathname + '?month=' + currentMonth + '&date=' + date + '#schedule');
+        const renderedMonth = document.getElementById('schedule')?.dataset.calendarMonth || '{{ $month->format('Y-m') }}';
+        currentUrl.searchParams.set('month', renderedMonth);
+        currentUrl.searchParams.set('date', date);
+        currentUrl.hash = '#schedule';
+        history.replaceState(null, '', currentUrl);
         dayModalBackdrop.querySelector('#day-modal-title').textContent = formatDay(date);
         dayModalEvents.style.display = 'block';
         dayModalForm.style.display = 'none';
@@ -404,44 +440,137 @@
     const initialDateUrl = new URL(window.location.href);
     const initialCalendarDate = document.querySelector('.day.selected') ? new URL(document.querySelector('.day.selected').href).searchParams.get('date') : null;
     renderSelectedDayEvents(initialDateUrl.searchParams.get('date') || initialCalendarDate || newBookingPanel?.querySelector('input[name="booking_date"]')?.value);
-    let calendarMonthRequest = 0;
+    const calendarPanel = document.getElementById('schedule');
+    const calendarGrid = calendarPanel?.querySelector('.calendar-grid');
+    const calendarHeading = calendarPanel?.querySelector('[data-calendar-heading]');
+    const calendarLive = calendarPanel?.querySelector('[data-calendar-live]');
     const monthLinks = [...document.querySelectorAll('.month-actions a[data-step]')];
+    const todayLink = document.querySelector('[data-calendar-today]');
+    const todayDate = '{{ today()->format('Y-m-d') }}';
+    const todayMonth = todayDate.slice(0, 7);
+    const calendarCache = new Map();
+    let displayedMonth = calendarPanel?.dataset.calendarMonth || '{{ $month->format('Y-m') }}';
+    let renderedMonth = displayedMonth;
+    let calendarRequest = 0;
+    let calendarAbortController = null;
     const monthValue = (date) => date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0');
-    monthLinks.forEach((link) => link.addEventListener('click', async (event) => {
-        event.preventDefault();
-        const currentUrl = new URL(window.location.href);
-        const requestedMonth = currentUrl.searchParams.get('month');
-        const currentValue = /^\\d{4}-\\d{2}$/.test(requestedMonth || '') ? requestedMonth : '{{ $month->format('Y-m') }}';
-        const [year, month] = currentValue.split('-').map(Number);
-        const targetDate = new Date(year, month - 1 + Number(link.dataset.step), 1);
-        const targetMonth = monthValue(targetDate);
-        const requestId = ++calendarMonthRequest;
-        const calendarGrid = document.querySelector('.calendar-grid');
-        const heading = document.querySelector('.calendar-heading h2');
-        link.disabled = true;
-        const response = await fetch('{{ route('restaurant.calendar.data') }}?month=' + targetMonth, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
-        if (requestId !== calendarMonthRequest) return;
-        if (!response.ok) return;
-        const data = await response.json();
-        calendarBookingData = data.bookings;
-        heading.textContent = data.month;
-        calendarGrid.innerHTML = data.days.map((day) => {
-            const classes = ['day'];
-            if (!day.inMonth) classes.push('muted-day');
-            const dayBookings = data.bookings.filter((booking) => booking.date === day.date && booking.status !== 'cancelled');
-            return '<a class="' + classes.join(' ') + '" href="?month=' + targetMonth + '&date=' + day.date + '#schedule"><span class="day-number">' + day.day + '</span><div class="slot-bars">' + data.slots.map((slot) => '<span class="slot-bar ' + (dayBookings.some((booking) => booking.slotId === slot.id) ? 'busy' : '') + '" style="--slot-color:' + slot.color + '" title="' + slot.label + '"></span>').join('') + '</div></a>';
-        }).join('');
-        bindCalendarDays();
-        const selectedDate = data.days.find((day) => day.inMonth)?.date || '';
-        renderSelectedDayEvents(selectedDate);
-        history.replaceState(null, '', currentUrl.pathname + '?month=' + targetMonth + '&date=' + selectedDate + '#schedule');
-        monthLinks.forEach((monthLink) => {
-            const next = new Date(targetDate.getFullYear(), targetDate.getMonth() + Number(monthLink.dataset.step), 1);
-            monthLink.dataset.month = monthValue(next);
-            monthLink.href = '?month=' + monthLink.dataset.month + '&date=' + selectedDate + '#schedule';
-            monthLink.removeAttribute('aria-disabled');
+    const shiftMonth = (value, step) => {
+        const [year, month] = value.split('-').map(Number);
+        return monthValue(new Date(year, month - 1 + step, 1));
+    };
+    const monthLabel = (value) => new Intl.DateTimeFormat('ru-RU', { month:'long', year:'numeric' }).format(new Date(value + '-01T12:00:00'));
+    const updateMonthLinks = (value, selectedDate) => {
+        monthLinks.forEach((link) => {
+            const target = shiftMonth(value, Number(link.dataset.step));
+            link.href = '?month=' + target + '&date=' + target + '-01#schedule';
         });
+        if (todayLink) todayLink.href = '?month=' + todayMonth + '&date=' + todayDate + '#schedule';
+    };
+    const renderCalendarMonth = (data, requestedDate, historyMode = 'push') => {
+        const value = data.value || displayedMonth;
+        const occupiedSlots = new Set(data.bookings
+            .filter((booking) => booking.status !== 'cancelled')
+            .map((booking) => booking.date + ':' + booking.slotId));
+        const fragment = document.createDocumentFragment();
+        data.days.forEach((day) => {
+            const link = document.createElement('a');
+            link.className = 'day' + (day.inMonth ? '' : ' muted-day');
+            link.dataset.date = day.date;
+            link.href = '?month=' + value + '&date=' + day.date + '#schedule';
+            const number = document.createElement('span');
+            number.className = 'day-number';
+            number.textContent = day.day;
+            const bars = document.createElement('div');
+            bars.className = 'slot-bars';
+            data.slots.forEach((slot) => {
+                const bar = document.createElement('span');
+                bar.className = 'slot-bar' + (occupiedSlots.has(day.date + ':' + slot.id) ? ' busy' : '');
+                bar.style.setProperty('--slot-color', slot.color);
+                bar.title = slot.label;
+                bars.appendChild(bar);
+            });
+            link.append(number, bars);
+            fragment.appendChild(link);
+        });
+        calendarGrid.replaceChildren(fragment);
+        calendarBookingData = data.bookings;
+        renderedMonth = value;
+        displayedMonth = value;
+        calendarPanel.dataset.calendarMonth = value;
+        calendarHeading.textContent = data.month;
+        const selectedDate = requestedDate?.startsWith(value + '-')
+            ? requestedDate
+            : (value === todayMonth ? todayDate : value + '-01');
+        const selectedDay = calendarGrid.querySelector('[data-date="' + selectedDate + '"]');
+        selectedDay?.classList.add('selected');
+        activeModalDate = selectedDate;
+        const formDate = newBookingPanel?.querySelector('input[name="booking_date"]');
+        if (formDate) formDate.value = selectedDate;
+        renderSelectedDayEvents(selectedDate);
+        bindCalendarDays();
+        updateMonthLinks(value, selectedDate);
+        const targetUrl = new URL(window.location.href);
+        targetUrl.searchParams.set('month', value);
+        targetUrl.searchParams.set('date', selectedDate);
+        targetUrl.hash = '#schedule';
+        if (historyMode === 'push') history.pushState({ calendarMonth:value }, '', targetUrl);
+        if (historyMode === 'replace') history.replaceState({ calendarMonth:value }, '', targetUrl);
+    };
+    const loadCalendarMonth = async (targetMonth, requestedDate = targetMonth + '-01', historyMode = 'push') => {
+        if (!/^\d{4}-\d{2}$/.test(targetMonth)) return;
+        displayedMonth = targetMonth;
+        calendarHeading.textContent = monthLabel(targetMonth);
+        calendarPanel.classList.add('is-loading');
+        calendarLive.textContent = 'Загружаем календарь…';
+        calendarAbortController?.abort();
+        const requestId = ++calendarRequest;
+        if (calendarCache.has(targetMonth)) {
+            renderCalendarMonth(calendarCache.get(targetMonth), requestedDate, historyMode);
+            calendarPanel.classList.remove('is-loading');
+            calendarLive.textContent = '';
+            return;
+        }
+        calendarAbortController = new AbortController();
+        try {
+            const response = await fetch('{{ route('restaurant.calendar.data') }}?month=' + encodeURIComponent(targetMonth), {
+                headers: { 'Accept':'application/json', 'X-Requested-With':'XMLHttpRequest' },
+                signal: calendarAbortController.signal
+            });
+            if (!response.ok) throw new Error('Calendar request failed');
+            const data = await response.json();
+            if (requestId !== calendarRequest) return;
+            calendarCache.set(targetMonth, data);
+            renderCalendarMonth(data, requestedDate, historyMode);
+            calendarLive.textContent = '';
+        } catch (error) {
+            if (error.name === 'AbortError' || requestId !== calendarRequest) return;
+            displayedMonth = renderedMonth;
+            calendarHeading.textContent = monthLabel(renderedMonth);
+            calendarLive.textContent = 'Не удалось загрузить месяц. Попробуйте ещё раз.';
+        } finally {
+            if (requestId === calendarRequest) calendarPanel.classList.remove('is-loading');
+        }
+    };
+    monthLinks.forEach((link) => link.addEventListener('click', (event) => {
+        event.preventDefault();
+        const targetMonth = shiftMonth(displayedMonth, Number(link.dataset.step));
+        loadCalendarMonth(targetMonth, targetMonth + '-01');
     }));
+    todayLink?.addEventListener('click', (event) => {
+        event.preventDefault();
+        if (renderedMonth === todayMonth) {
+            document.querySelector('.day[data-date="' + todayDate + '"]')?.click();
+            return;
+        }
+        loadCalendarMonth(todayMonth, todayDate);
+    });
+    window.addEventListener('popstate', () => {
+        const url = new URL(window.location.href);
+        const month = url.searchParams.get('month');
+        const date = url.searchParams.get('date');
+        if (/^\d{4}-\d{2}$/.test(month || '') && month !== renderedMonth) loadCalendarMonth(month, date, 'none');
+    });
+    updateMonthLinks(renderedMonth, activeModalDate || renderedMonth + '-01');
     document.querySelectorAll('input[name="guest_count"]').forEach((input) => {
         const label = input.closest('label');
         if (label?.firstChild) label.firstChild.textContent = 'Количество гостей';
@@ -500,13 +629,6 @@
         guestCountField.value = '';
         guestCountField.dispatchEvent(new Event('input', { bubbles: true }));
     }
-    document.querySelectorAll('.qr-toggle').forEach((button) => {
-        button.addEventListener('click', () => {
-            const qr = document.getElementById(button.dataset.qrTarget);
-            const visible = qr.classList.toggle('is-visible');
-            button.textContent = visible ? 'Скрыть QR' : 'Показать QR';
-        });
-    });
     if (false) {
     const reportsLink = document.createElement('a');
     reportsLink.href = '#reports';
@@ -548,7 +670,7 @@
             settings: '<svg class="figma-icon" viewBox="0 0 19 19" aria-hidden="true"><path fill="currentColor" fill-rule="evenodd" d="M16.014 9.075c.01.303-.006.607-.046.908l2.043 1.498a.61.61 0 0 1 .093.59l-1.857 3.131a.61.61 0 0 1-.557.092l-2.321-.908a6.9 6.9 0 0 1-1.578.908l-.372 2.4a.61.61 0 0 1-.464.363H7.238a.61.61 0 0 1-.464-.363l-.371-2.4a6.9 6.9 0 0 1-1.578-.908l-2.312.914a.61.61 0 0 1-.557-.182L.099 12.077a.61.61 0 0 1 .093-.59l1.949-1.5a6.9 6.9 0 0 1 0-1.816L.141 6.671a.61.61 0 0 1-.093-.59L1.905 2.95a.61.61 0 0 1 .557-.092l2.321.908a6.9 6.9 0 0 1 1.578-.908L6.732.368A.61.61 0 0 1 7.196.005h3.713a.61.61 0 0 1 .464.363l.325 2.4a6.9 6.9 0 0 1 1.578.908l2.321-.908a.61.61 0 0 1 .557.182l1.856 3.127a.61.61 0 0 1-.093.59l-1.949 1.5c.04.301.056.605.046.908Zm-10.067-.047a3.05 3.05 0 1 0 6.1.097 3.05 3.05 0 0 0-6.1-.097Z"/></svg>'
         };
         const updateActiveNav = () => {
-            const current = sections.includes(window.location.hash.slice(1)) ? window.location.hash.slice(1) : 'new-booking';
+            const current = sections.includes(window.location.hash.slice(1)) ? window.location.hash.slice(1) : 'schedule';
             navLinks.forEach((link) => {
                 link.classList.remove('active');
                 link.classList.remove('current');
@@ -568,7 +690,7 @@
         const settingsLogout = document.querySelector('.settings-logout');
         if (settingsLogout) settings.appendChild(settingsLogout);
         const setSection = (section) => {
-            const current = sections.includes(section) ? section : 'new-booking';
+            const current = sections.includes(section) ? section : 'schedule';
             const calendarTab = current === 'schedule' || current === 'new-booking';
             calendarLayout.style.display = calendarTab ? 'grid' : 'none';
             schedule.style.display = current === 'schedule' ? 'block' : 'none';
