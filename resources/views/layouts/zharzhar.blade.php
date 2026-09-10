@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ru">
+<html lang="{{ request()->routeIs('restaurant.*') ? app()->getLocale() : 'ru' }}">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light"><title>{{ $title ?? 'ZharZhar' }}</title>
 <link rel="stylesheet" href="{{ asset('fonts.css') }}?v={{ filemtime(public_path('fonts.css')) }}">

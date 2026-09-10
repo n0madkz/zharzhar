@@ -57,6 +57,57 @@ class PartnerCalendarTest extends TestCase
             ->assertDontSee('data-step="12"', false);
     }
 
+    public function test_partner_dashboard_is_rendered_in_saved_language_without_client_side_translation(): void
+    {
+        [$partner] = $this->partnerFixture();
+        $partner->update(['preferred_language' => 'kk']);
+
+        $response = $this->actingAs($partner)
+            ->get('http://partner.zharzhar.kz/restaurant?month=2026-04&date=2026-04-01');
+
+        $response->assertOk()
+            ->assertSee('<html lang="kk">', false)
+            ->assertSee('Бронь күнтізбесі')
+            ->assertSee('сәуір 2026')
+            ->assertSee('Қазақша')
+            ->assertSee('Русский')
+            ->assertSee('English')
+            ->assertDontSee('Календарь бронирований');
+    }
+
+    public function test_partner_can_save_each_supported_dashboard_language(): void
+    {
+        [$partner] = $this->partnerFixture();
+
+        foreach (['kk', 'ru', 'en'] as $locale) {
+            $this->actingAs($partner)
+                ->put('http://partner.zharzhar.kz/restaurant/settings/language', [
+                    'preferred_language' => $locale,
+                ])
+                ->assertRedirect('http://partner.zharzhar.kz/restaurant#settings');
+
+            $this->assertSame($locale, $partner->fresh()->preferred_language);
+        }
+
+        $this->get('http://partner.zharzhar.kz/restaurant')
+            ->assertOk()
+            ->assertSee('<html lang="en">', false)
+            ->assertSee('Booking calendar')
+            ->assertDontSee('Календарь бронирований');
+    }
+
+    public function test_partner_language_rejects_unsupported_values(): void
+    {
+        [$partner] = $this->partnerFixture();
+
+        $this->actingAs($partner)
+            ->from('http://partner.zharzhar.kz/restaurant#settings')
+            ->put('http://partner.zharzhar.kz/restaurant/settings/language', [
+                'preferred_language' => 'de',
+            ])
+            ->assertSessionHasErrors('preferred_language');
+    }
+
     private function partnerFixture(): array
     {
         $partner = User::factory()->create(['role' => 'partner']);

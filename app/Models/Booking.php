@@ -21,10 +21,12 @@ class Booking extends Model
 
     public function statusLabel(): string
     {
+        $locale = request()->routeIs('restaurant.*') ? app()->getLocale() : 'ru';
+
         return match ($this->status) {
-            'confirmed' => 'Подтверждено',
-            'cancelled' => 'Отменено',
-            default => 'Ожидает подтверждения',
+            'confirmed' => trans('partner.status.confirmed', [], $locale),
+            'cancelled' => trans('partner.status.cancelled', [], $locale),
+            default => trans('partner.status.pending', [], $locale),
         };
     }
 

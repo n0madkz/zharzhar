@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\RestaurantController;
 use App\Http\Controllers\StoreAdminController;
 use App\Http\Controllers\StorefrontController;
+use App\Http\Middleware\SetPartnerLocale;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/language/{locale}', function (string $locale) {
@@ -49,7 +50,7 @@ Route::post('/admin/restaurants', [AdminController::class, 'storeRestaurant'])->
 Route::put('/admin/restaurants/{restaurant}', [AdminController::class, 'updateRestaurant'])->middleware(['auth', 'role:admin'])->name('admin.restaurants.update');
 Route::get('/admin/bookings/{booking}', [AdminController::class, 'showBooking'])->middleware(['auth', 'role:admin'])->name('admin.bookings.show');
 Route::get('/admin/bookings/{booking}/pdf', [AdminController::class, 'bookingPdf'])->middleware(['auth', 'role:admin'])->name('admin.bookings.pdf');
-Route::domain(config('store.partner_domain'))->middleware(['partner.domain', 'auth', 'role:partner'])->group(function () {
+Route::domain(config('store.partner_domain'))->middleware(['partner.domain', 'auth', 'role:partner', SetPartnerLocale::class])->group(function () {
     Route::get('/restaurant', [RestaurantController::class, 'index'])->name('restaurant.dashboard');
     Route::get('/restaurant/calendar-data', [RestaurantController::class, 'calendarData'])->name('restaurant.calendar.data');
     Route::get('/restaurant/reports/export', [RestaurantController::class, 'exportReports'])->name('restaurant.reports.export');
@@ -58,6 +59,7 @@ Route::domain(config('store.partner_domain'))->middleware(['partner.domain', 'au
     Route::delete('/restaurant/bookings/{booking}', [RestaurantController::class, 'destroyBooking'])->name('restaurant.bookings.destroy');
     Route::get('/restaurant/bookings/{booking}/qr', [RestaurantController::class, 'qr'])->name('restaurant.bookings.qr');
     Route::put('/restaurant/settings/slots', [RestaurantController::class, 'updateSlots'])->name('restaurant.settings.slots');
+    Route::put('/restaurant/settings/language', [RestaurantController::class, 'updateLanguage'])->name('restaurant.settings.language');
 });
 Route::get('/dashboard', function () {
     return redirect(auth()->user()?->isRole('partner') ? '/restaurant' : '/admin');

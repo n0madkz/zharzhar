@@ -37,9 +37,9 @@ class RestaurantController extends Controller
             'id' => $booking->id,
             'date' => $booking->booking_date->format('Y-m-d'),
             'name' => $booking->visitor_name,
-            'eventType' => $booking->event_type,
+            'eventType' => $this->eventTypeLabel($booking->event_type),
             'slotId' => $booking->restaurant_slot_id,
-            'slot' => $booking->slot?->label,
+            'slot' => $this->slotLabel($booking->slot),
             'status' => $booking->status,
             'statusLabel' => $booking->statusLabel(),
             'guests' => $booking->guest_count,
@@ -58,9 +58,9 @@ class RestaurantController extends Controller
             ->latest('booking_date')->latest()->paginate(10)->withQueryString();
         $reportRows = $reportBookings->map(fn (Booking $booking) => [
             'date' => $booking->booking_date->format('d.m.Y'), 'event' => $booking->event_type, 'name' => $booking->visitor_name,
-            'slot' => $booking->slot?->label ?? '—', 'guests' => $booking->guest_count, 'total' => number_format($booking->total_amount, 2, ',', ' ').' ₸', 'status' => $booking->statusLabel(),
+            'slot' => $this->slotLabel($booking->slot), 'guests' => $booking->guest_count, 'total' => number_format($booking->total_amount, 2, ',', ' ').' ₸', 'status' => $booking->statusLabel(),
         ])->values();
-        $reportPeriods = $restaurant->slots->map(fn ($slot) => ['key' => $slot->slot_key, 'label' => $slot->label])->values();
+        $reportPeriods = $restaurant->slots->map(fn ($slot) => ['key' => $slot->slot_key, 'label' => $this->slotLabel($slot)])->values();
 
         return view('restaurant.framework', compact('restaurant', 'bookings', 'allBookings', 'selectedBookings', 'selectedDate', 'month', 'calendarDays', 'supportMessages', 'calendarBookingData', 'reportBookings', 'reportPeriod', 'reportFrom', 'reportTo', 'reportRows', 'reportPeriods'));
     }
@@ -104,13 +104,13 @@ class RestaurantController extends Controller
         }
 
         return response()->json([
-            'month' => $month->translatedFormat('F Y'),
+            'month' => $month->locale(app()->getLocale())->translatedFormat('F Y'),
             'value' => $month->format('Y-m'),
             'days' => $days,
-            'slots' => $restaurant->slots->map(fn ($slot) => ['id' => $slot->id, 'label' => $slot->label, 'color' => $slot->color]),
+            'slots' => $restaurant->slots->map(fn ($slot) => ['id' => $slot->id, 'label' => $this->slotLabel($slot), 'color' => $slot->color]),
             'bookings' => $bookings->map(fn (Booking $booking) => [
                 'id' => $booking->id, 'date' => $booking->booking_date->format('Y-m-d'), 'name' => $booking->visitor_name,
-                'eventType' => $booking->event_type, 'slotId' => $booking->restaurant_slot_id, 'slot' => $booking->slot?->label,
+                'eventType' => $this->eventTypeLabel($booking->event_type), 'slotId' => $booking->restaurant_slot_id, 'slot' => $this->slotLabel($booking->slot),
                 'status' => $booking->status, 'statusLabel' => $booking->statusLabel(), 'guests' => $booking->guest_count, 'pricePerGuest' => (float) $booking->price_per_guest,
                 'prepayment' => (float) $booking->prepayment, 'phone' => $booking->phone, 'note' => $booking->note,
                 'whatsapp' => 'https://wa.me/77067160199?text='.rawurlencode($this->supportMessage($restaurant, $booking)),
@@ -132,14 +132,14 @@ class RestaurantController extends Controller
             'prepayment' => ['nullable', 'numeric', 'min:0'],
             'note' => ['nullable', 'string', 'max:2000'],
         ]);
-        abort_unless($restaurant->slots->contains('id', (int) $data['restaurant_slot_id']), 422, 'Период не принадлежит этому ресторану.');
+        abort_unless($restaurant->slots->contains('id', (int) $data['restaurant_slot_id']), 422, __('partner.messages.slot_foreign'));
         $data['prepayment'] = $data['prepayment'] ?? 0;
         if ((float) $data['prepayment'] > ((float) $data['price_per_guest'] * (int) $data['guest_count'])) {
-            return back()->withInput()->withErrors(['prepayment' => 'Предоплата не может быть больше итоговой суммы.']);
+            return back()->withInput()->withErrors(['prepayment' => __('partner.messages.prepayment_high')]);
         }
         $occupied = Booking::where('restaurant_id', $restaurant->id)->whereDate('booking_date', $data['booking_date'])->where('restaurant_slot_id', $data['restaurant_slot_id'])->where('status', '!=', 'cancelled')->exists();
         if ($occupied) {
-            return back()->withInput()->withErrors(['restaurant_slot_id' => 'Этот период уже забронирован на выбранную дату.']);
+            return back()->withInput()->withErrors(['restaurant_slot_id' => __('partner.messages.slot_occupied')]);
         }
         $slot = $restaurant->slots->firstWhere('id', (int) $data['restaurant_slot_id']);
         $booking = Booking::create([...$data, 'restaurant_id' => $restaurant->id, 'color' => $slot->color, 'status' => 'pending']);
@@ -147,7 +147,7 @@ class RestaurantController extends Controller
         return redirect()->to(route('restaurant.dashboard', [
             'month' => Carbon::parse($booking->booking_date)->format('Y-m'),
             'date' => Carbon::parse($booking->booking_date)->format('Y-m-d'),
-        ]).'#schedule')->with('success', 'Бронирование добавлено.');
+        ]).'#schedule')->with('success', __('partner.messages.booking_added'));
     }
 
     public function updateSlots(Request $request): RedirectResponse
@@ -175,7 +175,21 @@ class RestaurantController extends Controller
             }
         });
 
-        return redirect()->to(route('restaurant.dashboard').'#settings')->with('success', 'Время периодов обновлено.');
+        return redirect()->to(route('restaurant.dashboard').'#settings')->with('success', __('partner.messages.settings_saved'));
+    }
+
+    public function updateLanguage(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'preferred_language' => ['required', 'in:kk,ru,en'],
+        ]);
+
+        $request->user()->update(['preferred_language' => $data['preferred_language']]);
+        app()->setLocale($data['preferred_language']);
+        Carbon::setLocale($data['preferred_language']);
+
+        return redirect()->to(route('restaurant.dashboard').'#settings')
+            ->with('success', __('partner.messages.language_saved'));
     }
 
     public function updateBooking(Request $request, Booking $booking): RedirectResponse
@@ -197,7 +211,7 @@ class RestaurantController extends Controller
         ]);
         $data['prepayment'] = $data['prepayment'] ?? 0;
         if ((float) $data['prepayment'] > ((float) $data['price_per_guest'] * (int) $data['guest_count'])) {
-            return back()->withInput()->withErrors(['prepayment' => 'Предоплата не может быть больше итоговой суммы.']);
+            return back()->withInput()->withErrors(['prepayment' => __('partner.messages.prepayment_high')]);
         }
         abort_unless($restaurant->slots->contains('id', (int) $data['restaurant_slot_id']), 422);
 
@@ -208,13 +222,13 @@ class RestaurantController extends Controller
             ->where('status', '!=', 'cancelled')
             ->exists();
         if ($occupied) {
-            return back()->withInput()->withErrors(['restaurant_slot_id' => 'Этот период уже занят на выбранную дату.']);
+            return back()->withInput()->withErrors(['restaurant_slot_id' => __('partner.messages.slot_occupied')]);
         }
 
         $slot = $restaurant->slots->firstWhere('id', (int) $data['restaurant_slot_id']);
         $booking->update([...$data, 'color' => $slot->color]);
 
-        return redirect()->to(route('restaurant.dashboard', ['date' => $data['booking_date']]).'#booking-'.$booking->id)->with('success', 'Бронирование обновлено.');
+        return redirect()->to(route('restaurant.dashboard', ['date' => $data['booking_date']]).'#booking-'.$booking->id)->with('success', __('partner.messages.booking_updated'));
     }
 
     public function qr(Request $request, Booking $booking): mixed
@@ -285,6 +299,30 @@ class RestaurantController extends Controller
         abort_unless($booking->restaurant_id === $restaurant->id, 404);
         $booking->delete();
 
-        return back()->with('success', 'Бронирование удалено.');
+        return back()->with('success', __('partner.messages.booking_deleted'));
+    }
+
+    private function slotLabel($slot): string
+    {
+        if ($slot === null) {
+            return __('partner.booking.not_selected');
+        }
+
+        $key = 'partner.slots.'.$slot->slot_key;
+        $translated = __($key);
+
+        return $translated === $key ? $slot->label : $translated;
+    }
+
+    private function eventTypeLabel(?string $eventType): string
+    {
+        if (! $eventType) {
+            return __('partner.booking.not_specified');
+        }
+
+        $key = 'partner.event_types.'.$eventType;
+        $translated = __($key);
+
+        return $translated === $key ? $eventType : $translated;
     }
 }
