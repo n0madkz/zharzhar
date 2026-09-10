@@ -225,13 +225,12 @@
 @endif
 <button class="music-orb music-theme-{{ $theme }}" type="button" data-invite-music @if(empty($details['music_url'])) data-preview-tone @endif aria-label="{{ $copy['music_play'] }}" aria-pressed="false" data-play-label="{{ $copy['music_play'] }}" data-pause-label="{{ $copy['music_pause'] }}">
     <span class="music-ornament" aria-hidden="true"></span>
+    <span class="music-ethno-ring" aria-hidden="true">
+        <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+    </span>
     <span class="music-control-icon" aria-hidden="true">
         <span class="music-play-icon"></span>
         <span class="music-pause-icon"><i></i><i></i></span>
-    </span>
-    <span class="music-action" aria-hidden="true">
-        <span class="music-action-play">{{ $kk ? 'ҚОСУ' : 'ПЛЕЙ' }}</span>
-        <span class="music-action-pause">{{ $kk ? 'ҮЗІЛІС' : 'ПАУЗА' }}</span>
     </span>
 </button>
 @endsection

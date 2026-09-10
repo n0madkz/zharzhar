@@ -28,3 +28,219 @@ body.invitation-shell{margin:0;background:#e6e2dc;color:#28231f;font-family:Manr
 
 /* Светлая казахская этно-коллекция */
 .invite-cover-copy{color:var(--iv-ink);text-shadow:0 1px 0 #fff,0 2px 16px rgba(255,255,255,.95)}.invite-cover h1{font-weight:500}.invite-cover-shade,.invite-theme-royal .invite-cover-shade,.invite-theme-silk .invite-cover-shade,.invite-theme-nomad .invite-cover-shade,.invite-theme-jubilee .invite-cover-shade,.invite-theme-qyz .invite-cover-shade{background:linear-gradient(180deg,rgba(255,255,255,.01) 30%,rgba(255,252,245,.94) 100%)}.invite-cover-image,.invite-theme-royal .invite-cover-image,.invite-theme-botanical .invite-cover-image,.invite-theme-silk .invite-cover-image,.invite-theme-nomad .invite-cover-image,.invite-theme-jubilee .invite-cover-image,.invite-theme-qyz .invite-cover-image{opacity:1;filter:saturate(.94) brightness(1.04)}.countdown-section,.invite-theme-royal .countdown-section,.invite-theme-jubilee .countdown-section{background:#e7d7b9;color:#493d31}.countdown-grid>div{border-color:rgba(73,61,49,.38)}.round-map,.invite-theme-royal .round-map{background:#b08a50;color:#fff}.invite-theme-royal{--iv-bg:#f4eadb;--iv-paper:#fffdf8;--iv-ink:#4b3d2e;--iv-accent:#b78d50;--iv-soft:#dac8aa}.invite-theme-botanical{--iv-bg:#eff3e8;--iv-paper:#fffefa;--iv-ink:#394533;--iv-accent:#80966f;--iv-soft:#cbd8c0}.invite-theme-silk{--iv-bg:#f5eee3;--iv-paper:#fffdf8;--iv-ink:#51463b;--iv-accent:#91a9b4;--iv-soft:#d9d2c5}.invite-theme-nomad{--iv-bg:#eef5f7;--iv-paper:#fffdf7;--iv-ink:#40505a;--iv-accent:#ad8651;--iv-soft:#c9dce3}.invite-theme-jubilee{--iv-bg:#eaf5f3;--iv-paper:#fffdf8;--iv-ink:#3f5753;--iv-accent:#ae8750;--iv-soft:#c8ddd8}.invite-theme-qyz{--iv-bg:#edf7f5;--iv-paper:#fffdf8;--iv-ink:#405954;--iv-accent:#af8952;--iv-soft:#c8ded8}
+
+/* Layered Kazakh ornament and tactile controls for the fixed music button. */
+.music-orb {
+    width: 78px;
+    height: 78px;
+    border: 0;
+    background:
+        radial-gradient(circle at 31% 22%, rgba(255,255,255,.98) 0 8%, transparent 25%),
+        radial-gradient(circle at 50% 48%, color-mix(in srgb, var(--music-bg) 84%, white), var(--music-bg) 70%);
+    box-shadow:
+        0 18px 36px color-mix(in srgb, var(--music-ink) 28%, transparent),
+        0 5px 12px rgba(32, 27, 22, .18),
+        inset 0 0 0 1px color-mix(in srgb, var(--music-accent) 78%, white),
+        inset 0 0 0 7px rgba(255,255,255,.52),
+        inset 0 -8px 13px color-mix(in srgb, var(--music-accent) 18%, transparent);
+}
+
+.music-orb::before {
+    inset: -9px;
+    border: 1px solid color-mix(in srgb, var(--music-ring) 78%, var(--music-accent));
+    background: color-mix(in srgb, var(--music-bg) 88%, transparent);
+    box-shadow:
+        0 0 0 3px color-mix(in srgb, var(--music-bg) 74%, transparent),
+        0 0 0 5px color-mix(in srgb, var(--music-accent) 24%, transparent);
+}
+
+.music-orb::after {
+    inset: 8px;
+    border: 1px solid color-mix(in srgb, var(--music-accent) 42%, white);
+    background: radial-gradient(circle at 33% 24%, rgba(255,255,255,.88), transparent 34%);
+    box-shadow: inset 0 0 13px color-mix(in srgb, var(--music-accent) 12%, transparent);
+}
+
+.music-orb:hover {
+    transform: translateY(-3px);
+    box-shadow:
+        0 22px 42px color-mix(in srgb, var(--music-ink) 32%, transparent),
+        0 7px 15px rgba(32, 27, 22, .2),
+        inset 0 0 0 1px color-mix(in srgb, var(--music-accent) 82%, white),
+        inset 0 0 0 7px rgba(255,255,255,.58),
+        inset 0 -8px 13px color-mix(in srgb, var(--music-accent) 20%, transparent);
+}
+
+.music-orb:active {
+    transform: translateY(1px) scale(.97);
+}
+
+.music-ornament {
+    z-index: 1;
+    inset: -5px;
+    border: 1px dashed color-mix(in srgb, var(--music-accent) 72%, transparent);
+    opacity: .75;
+}
+
+.music-orb .music-ornament::before {
+    content: '';
+    position: absolute;
+    inset: 5px;
+    border: 1px solid color-mix(in srgb, var(--music-ring) 74%, transparent);
+    border-radius: 50%;
+    transform: none;
+}
+
+.music-ethno-ring {
+    position: absolute;
+    z-index: 3;
+    inset: -12px;
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.music-ethno-ring > i {
+    --ring-step: 0;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 8px;
+    height: 8px;
+    margin: -4px;
+    border: 1.5px solid var(--music-accent);
+    background: var(--music-bg);
+    box-shadow: 0 2px 4px color-mix(in srgb, var(--music-ink) 18%, transparent);
+    transform: rotate(calc(var(--ring-step) * 45deg)) translateY(-50px) rotate(45deg);
+}
+
+.music-ethno-ring > i:nth-child(2) { --ring-step: 1; }
+.music-ethno-ring > i:nth-child(3) { --ring-step: 2; }
+.music-ethno-ring > i:nth-child(4) { --ring-step: 3; }
+.music-ethno-ring > i:nth-child(5) { --ring-step: 4; }
+.music-ethno-ring > i:nth-child(6) { --ring-step: 5; }
+.music-ethno-ring > i:nth-child(7) { --ring-step: 6; }
+.music-ethno-ring > i:nth-child(8) { --ring-step: 7; }
+
+.music-control-icon {
+    z-index: 4;
+    width: 44px;
+    height: 44px;
+    margin: 0;
+    border: 1px solid color-mix(in srgb, var(--music-accent) 72%, white);
+    background: linear-gradient(145deg, color-mix(in srgb, var(--music-accent) 54%, white), var(--music-accent));
+    box-shadow:
+        0 8px 14px color-mix(in srgb, var(--music-ink) 27%, transparent),
+        inset 0 2px 2px rgba(255,255,255,.78),
+        inset 0 -4px 7px color-mix(in srgb, var(--music-ink) 20%, transparent);
+    transition: transform .18s ease, box-shadow .18s ease;
+}
+
+.music-orb:hover .music-control-icon {
+    transform: translateY(-1px);
+    box-shadow:
+        0 10px 17px color-mix(in srgb, var(--music-ink) 31%, transparent),
+        inset 0 2px 2px rgba(255,255,255,.82),
+        inset 0 -4px 7px color-mix(in srgb, var(--music-ink) 22%, transparent);
+}
+
+.music-orb:active .music-control-icon {
+    transform: translateY(2px);
+    box-shadow:
+        0 3px 7px color-mix(in srgb, var(--music-ink) 24%, transparent),
+        inset 0 2px 5px color-mix(in srgb, var(--music-ink) 16%, transparent);
+}
+
+.music-play-icon {
+    margin-left: 4px;
+    border-top-width: 8px;
+    border-bottom-width: 8px;
+    border-left: 13px solid #fff;
+    filter: drop-shadow(0 1px 1px color-mix(in srgb, var(--music-ink) 32%, transparent));
+}
+
+.music-pause-icon {
+    gap: 5px;
+}
+
+.music-pause-icon i {
+    width: 5px;
+    height: 17px;
+    background: #fff;
+    box-shadow: 0 1px 1px color-mix(in srgb, var(--music-ink) 28%, transparent);
+}
+
+.music-action {
+    display: none !important;
+}
+
+.music-theme-royal .music-ethno-ring > i,
+.music-theme-midnight .music-ethno-ring > i {
+    border-radius: 2px;
+    background: var(--music-accent);
+}
+
+.music-theme-botanical .music-ethno-ring > i,
+.music-theme-sage .music-ethno-ring > i {
+    width: 7px;
+    height: 11px;
+    border-radius: 8px 0 8px 0;
+}
+
+.music-theme-silk .music-ethno-ring > i {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+}
+
+.music-theme-nomad .music-ethno-ring > i,
+.music-theme-sand .music-ethno-ring > i {
+    border: 0;
+    background: var(--music-accent);
+    clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+    box-shadow: 0 0 0 2px var(--music-bg), 0 0 0 3px var(--music-accent);
+}
+
+.music-theme-jubilee .music-ethno-ring > i {
+    width: 9px;
+    height: 9px;
+    border-radius: 50% 0;
+}
+
+.music-theme-qyz .music-ethno-ring > i,
+.music-theme-rose .music-ethno-ring > i {
+    width: 9px;
+    height: 9px;
+    border-radius: 70% 0 70% 0;
+    background: color-mix(in srgb, var(--music-bg) 72%, white);
+}
+
+.music-theme-birthday .music-ethno-ring > i {
+    border-radius: 50%;
+    background: var(--music-accent);
+}
+
+.music-orb.is-playing .music-ethno-ring {
+    animation: music-ethno-turn 12s linear infinite;
+}
+
+@keyframes music-ethno-turn {
+    to { transform: rotate(360deg); }
+}
+
+@media(max-width:600px) {
+    .music-orb {
+        right: max(22px, env(safe-area-inset-right));
+        width: 74px;
+        height: 74px;
+    }
+
+    .music-ethno-ring > i {
+        transform: rotate(calc(var(--ring-step) * 45deg)) translateY(-48px) rotate(45deg);
+    }
+}
+
+@media(prefers-reduced-motion:reduce) {
+    .music-orb.is-playing .music-ethno-ring {
+        animation: none;
+    }
+}
