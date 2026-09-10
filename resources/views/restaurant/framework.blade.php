@@ -158,6 +158,59 @@
         .day{padding:6px 4px;border-radius:8px}
         .slot-bars{gap:2px}
     }
+    /* Современная палитра кабинета партнёра */
+    :root{--ui-ink:#172033;--ui-muted:#667085;--ui-line:#e4e7ec;--ui-soft:#f8fafc;--ui-accent:#2563eb}
+    body{background:radial-gradient(circle at 90% 0,#e7efff 0,transparent 25%),#f4f7fb !important;color:var(--ui-ink)}
+    .restaurant-app{max-width:1380px;gap:26px}
+    .restaurant-nav{border:0;border-radius:18px;background:#111827;box-shadow:0 14px 36px rgba(15,23,42,.16)}
+    .restaurant-nav .brand{color:#fff;letter-spacing:-.04em}
+    .restaurant-nav a{color:#cbd5e1;font-weight:650}
+    .restaurant-nav a:hover{background:#1f2937;color:#fff}
+    .restaurant-nav a.active{background:transparent !important;color:#cbd5e1 !important}
+    .restaurant-nav a.current{background:#2563eb !important;color:#fff !important;box-shadow:0 7px 18px rgba(37,99,235,.3)}
+    .restaurant-top{padding:17px 20px;border:1px solid #e4e7ec;border-radius:16px;background:rgba(255,255,255,.9);box-shadow:0 10px 30px rgba(15,23,42,.055);backdrop-filter:blur(12px)}
+    .restaurant-main h1,.restaurant-main h2{color:#101828}
+    .panel{border-color:#e4e7ec;border-radius:17px;background:#fff;box-shadow:0 10px 30px rgba(15,23,42,.06)}
+    .calendar-panel{background:linear-gradient(145deg,#fff 0%,#f7faff 100%)}
+    .month-actions a{border-color:#d0d5dd;color:#344054;background:#fff}
+    .month-actions a:hover{border-color:#84adff;background:#eff4ff;color:#1d4ed8}
+    .calendar-title span{color:#2563eb}
+    .weekdays{color:#667085}.weekdays span:nth-child(6),.weekdays span:nth-child(7){color:#e11d48}
+    .day{border-color:#e4e7ec;color:#344054;background:#fff;box-shadow:0 2px 4px rgba(15,23,42,.02)}
+    .day:hover{border-color:#84adff;box-shadow:0 6px 14px rgba(37,99,235,.09)}
+    .day.muted-day{border-color:#eef1f5;background:#f8fafc;color:#98a2b3}
+    .day.selected{outline-color:#2563eb;background:#eff4ff;color:#1d4ed8}
+    .day:nth-child(7n + 6):not(.muted-day) .day-number,.day:nth-child(7n + 7):not(.muted-day) .day-number{color:#e11d48}
+    .field input,.field select,.field textarea{border-color:#d0d5dd;border-radius:10px;background:#fff;color:#172033}
+    .field input:focus,.field select:focus,.field textarea:focus{border-color:#84adff;box-shadow:0 0 0 4px rgba(37,99,235,.11)}
+    .button{border-radius:10px;background:#2563eb;box-shadow:0 6px 16px rgba(37,99,235,.18)}
+    .button:hover{background:#1d4ed8;box-shadow:0 9px 22px rgba(37,99,235,.23)}
+    .button-secondary{border-color:#d0d5dd;background:#fff;color:#344054;box-shadow:none}
+    .button-secondary:hover{background:#f8fafc;color:#172033;box-shadow:none}
+    .button-whatsapp{border-color:#bbf7d0;background:#ecfdf3;color:#067647;box-shadow:none}
+    .button-whatsapp:hover{background:#dcfce7;color:#067647;box-shadow:none}
+    .button-danger{border-color:#fecaca;background:#fff;color:#b42318;box-shadow:none}
+    .button-danger:hover{background:#fef2f2;color:#b42318;box-shadow:none}
+    .notice{border:1px solid #bbf7d0;border-radius:10px;background:#f0fdf4;color:#166534}
+    .booking-total{background:#eff4ff;color:#1d4ed8}
+    .booking-card,.settings-row,.booking-modal-details p,.day-event{border-color:#eef1f5}
+    .day-modal-backdrop{background:rgba(15,23,42,.5);backdrop-filter:blur(4px)}
+    .day-modal{border:1px solid #e4e7ec;box-shadow:0 28px 80px rgba(15,23,42,.28)}
+    .day-modal-close{border-color:#e4e7ec;color:#344054;box-shadow:0 8px 20px rgba(15,23,42,.16)}
+    .day-event-mark{background:#2563eb}
+    .pagination a,.pagination span{border-color:#d0d5dd;color:#344054;background:#fff}
+    .pagination span[aria-current="page"]{border-color:#2563eb;background:#2563eb;color:#fff}
+    .report-table-wrap{border:1px solid #e4e7ec;border-radius:12px}.report-table-wrap th{background:#f8fafc;color:#667085}.report-table-wrap td{border-color:#eef1f5}
+    @media(max-width:850px){
+        body{background:#f4f7fb !important}
+        .restaurant-nav{border:1px solid #e4e7ec;background:rgba(255,255,255,.96);box-shadow:0 14px 34px rgba(15,23,42,.15)}
+        .restaurant-nav a{color:#667085}
+        .restaurant-nav a:hover{background:#eff4ff;color:#1d4ed8}
+        .restaurant-nav a.active{color:#667085 !important}
+        .restaurant-nav a.current{background:#2563eb !important;color:#fff !important}
+        .mobile-logout button{color:#667085}
+        .restaurant-top{padding:15px 16px}
+    }
 </style>
 
 <div class="restaurant-app">

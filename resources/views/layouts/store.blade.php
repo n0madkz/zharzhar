@@ -29,7 +29,7 @@
 <script src="{{ asset('store.js') }}?v={{ filemtime(public_path('store.js')) }}" defer></script>
 @if($invitationMode ?? false)<script src="{{ asset('invitation.js') }}?v={{ filemtime(public_path('invitation.js')) }}" defer></script>@endif
 </head>
-<body class="{{ ($invitationMode ?? false) ? 'invitation-shell' : '' }}">
+<body class="{{ ($invitationMode ?? false) ? 'invitation-shell' : '' }} {{ request()->routeIs('admin.*') ? 'admin-ui' : '' }}">
 <a class="skip-link" href="#main">{{ $layoutCopy['skip'] }}</a>
 @unless($invitationMode ?? false)
 <header class="store-header shell">
