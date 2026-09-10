@@ -6,11 +6,10 @@
 @media(max-width:850px){.restaurant-app{grid-template-columns:1fr}.restaurant-nav{border-right:0;border-bottom:1px solid #ddd8cc;padding:0 0 10px;display:flex;gap:4px;overflow:auto}.restaurant-nav a{white-space:nowrap}.calendar-layout{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr}.field.full{grid-column:auto}.day{min-height:64px;padding:6px}.slot-bars{gap:3px;margin-top:9px}.restaurant-top{gap:15px}}
 </style>
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
     :root { --ui-ink:#142b24; --ui-muted:#718078; --ui-line:#e7ece9; --ui-soft:#f7faf8; --ui-accent:#c96952; }
     html { scroll-behavior:smooth; }
     body { background:#fff !important; }
-    body, input, select, textarea, button { font-family:'Manrope', Arial, sans-serif; }
+    body, input, select, textarea, button { font-family:'Noto Sans', Arial, sans-serif; }
     h1, h2, h3, strong { letter-spacing:-.035em; }
     .restaurant-app { max-width:1320px; margin:0 auto; gap:34px; }
     .restaurant-nav { background:#f8faf9; border:1px solid #e6ebe7; border-radius:18px; padding:18px 12px; }
