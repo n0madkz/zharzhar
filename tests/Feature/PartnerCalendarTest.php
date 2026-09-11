@@ -38,6 +38,12 @@ class PartnerCalendarTest extends TestCase
             ->assertJsonMissingPath('bookings.0.qr');
         $this->assertSame('2026-09-28', $response->json('days.0.date'));
         $this->assertSame('2026-11-01', $response->json('days.'.(count($response->json('days')) - 1).'.date'));
+
+        $this->actingAs($partner)
+            ->get('http://partner.zharzhar.kz/restaurant?month=2026-10&date=2026-10-14')
+            ->assertOk()
+            ->assertDontSee('Написать в WhatsApp')
+            ->assertDontSee('booking-support', false);
     }
 
     public function test_partner_calendar_rejects_invalid_month_and_uses_svg_controls(): void

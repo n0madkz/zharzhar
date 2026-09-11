@@ -29,9 +29,6 @@ class RestaurantController extends Controller
         $bookings = Booking::where('restaurant_id', $restaurant->id)->with('slot')->whereBetween('booking_date', [$calendarStart->toDateString(), $calendarEnd->toDateString()])->latest('booking_date')->latest()->get();
         $allBookings = $bookings;
         $bookings = $bookings->filter(fn (Booking $booking) => $booking->booking_date->isSameDay($selectedDate));
-        $supportMessages = $bookings->mapWithKeys(fn (Booking $booking) => [
-            $booking->id => $this->supportMessage($restaurant, $booking),
-        ]);
         $selectedBookings = $bookings->filter(fn (Booking $booking) => $booking->booking_date->isSameDay($selectedDate));
         $calendarBookingData = $allBookings->map(fn (Booking $booking) => [
             'id' => $booking->id,
@@ -47,7 +44,6 @@ class RestaurantController extends Controller
             'prepayment' => (float) $booking->prepayment,
             'phone' => $booking->phone,
             'note' => $booking->note,
-            'whatsapp' => 'https://wa.me/77067160199?text='.rawurlencode($this->supportMessage($restaurant, $booking)),
         ])->values();
         $reportPeriod = $request->input('report_period', 'all');
         $reportFrom = $request->input('report_from');
@@ -62,7 +58,7 @@ class RestaurantController extends Controller
         ])->values();
         $reportPeriods = $restaurant->slots->map(fn ($slot) => ['key' => $slot->slot_key, 'label' => $this->slotLabel($slot)])->values();
 
-        return view('restaurant.framework', compact('restaurant', 'bookings', 'allBookings', 'selectedBookings', 'selectedDate', 'month', 'calendarDays', 'supportMessages', 'calendarBookingData', 'reportBookings', 'reportPeriod', 'reportFrom', 'reportTo', 'reportRows', 'reportPeriods'));
+        return view('restaurant.framework', compact('restaurant', 'bookings', 'allBookings', 'selectedBookings', 'selectedDate', 'month', 'calendarDays', 'calendarBookingData', 'reportBookings', 'reportPeriod', 'reportFrom', 'reportTo', 'reportRows', 'reportPeriods'));
     }
 
     public function exportReports(Request $request): mixed
@@ -113,7 +109,6 @@ class RestaurantController extends Controller
                 'eventType' => $this->eventTypeLabel($booking->event_type), 'slotId' => $booking->restaurant_slot_id, 'slot' => $this->slotLabel($booking->slot),
                 'status' => $booking->status, 'statusLabel' => $booking->statusLabel(), 'guests' => $booking->guest_count, 'pricePerGuest' => (float) $booking->price_per_guest,
                 'prepayment' => (float) $booking->prepayment, 'phone' => $booking->phone, 'note' => $booking->note,
-                'whatsapp' => 'https://wa.me/77067160199?text='.rawurlencode($this->supportMessage($restaurant, $booking)),
             ])->values(),
         ]);
     }
