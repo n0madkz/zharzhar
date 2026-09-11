@@ -415,13 +415,12 @@ const partnerI18n = @json($partnerI18n);
         selectedDayList.insertAdjacentHTML('beforeend', events.length ? events.map((booking) => '<details class="booking-card" id="booking-' + booking.id + '"><summary><i class="booking-color" style="--booking-color:#c46b58"></i><span><strong>' + escapeHtml(booking.name) + '</strong><small>' + escapeHtml(booking.eventType || partnerI18n.event) + ' · ' + escapeHtml(booking.slot || partnerI18n.periodMissing) + ' · ' + booking.guests + ' ' + partnerI18n.guests + '</small></span></summary><div class="booking-preview"><p><strong>' + partnerI18n.eventType + ':</strong> ' + escapeHtml(booking.eventType || partnerI18n.notSpecified) + '</p><p><strong>' + partnerI18n.phone + ':</strong> ' + (booking.phone ? '<a class="booking-phone" href="' + whatsappHref(booking.phone) + '" target="_blank" rel="noopener">' + escapeHtml(booking.phone) + '</a>' : partnerI18n.notSpecified) + '</p><p><strong>' + partnerI18n.guests + ':</strong> ' + escapeHtml(booking.guests || 0) + '</p><p><strong>' + partnerI18n.price + ':</strong> ' + money(booking.pricePerGuest || 0) + ' ₸</p><p><strong>' + partnerI18n.prepayment + ':</strong> ' + money(booking.prepayment || 0) + ' ₸</p><p><strong>' + partnerI18n.total + ':</strong> ' + money(Number(booking.pricePerGuest || 0) * Number(booking.guests || 0)) + ' ₸</p><p><strong>' + partnerI18n.notes + ':</strong> ' + escapeHtml(booking.note || partnerI18n.none) + '</p><div class="booking-actions"><button type="button" class="button selected-booking-edit" data-booking-id="' + booking.id + '">' + partnerI18n.change + '</button><form method="POST" action="/restaurant/bookings/' + booking.id + '" onsubmit="return window.confirm(this.dataset.confirm)" data-confirm="' + escapeHtml(partnerI18n.deleteConfirm) + '"><input type="hidden" name="_token" value="' + (document.querySelector('input[name=_token]')?.value || '') + '"><input type="hidden" name="_method" value="DELETE"><button type="submit" class="button button-danger">' + partnerI18n.delete + '</button></form></div></div></details>').join('') : '<p class="muted">' + partnerI18n.noDay + '</p>');
         selectedDayList.querySelectorAll('.selected-booking-edit').forEach((button) => button.addEventListener('click', () => { const booking = calendarBookingData.find((item) => item.id === Number(button.dataset.bookingId)); const day = [...document.querySelectorAll('.day')].find((item) => new URL(item.href).searchParams.get('date') === booking?.date); day?.click(); const eventElement = dayModalEvents.querySelector('[data-booking-id="' + booking?.id + '"]'); eventElement?.click(); }));
     };
-    const bindCalendarDays = () => document.querySelectorAll('.day').forEach((day) => day.addEventListener('click', (event) => {
-        event.preventDefault();
-        const date = new URL(day.href).searchParams.get('date');
+    const selectCalendarDay = (day, date) => {
         activeModalDate = date;
         document.querySelectorAll('.day.selected').forEach((selectedDay) => selectedDay.classList.remove('selected'));
         day.classList.add('selected');
-        const events = calendarBookingData.filter((booking) => String(booking.date).slice(0, 10) === String(date).slice(0, 10) && booking.status !== 'cancelled');
+        const formDate = newBookingPanel?.querySelector('input[name="booking_date"]');
+        if (formDate) formDate.value = date;
         renderSelectedDayEvents(date);
         const currentUrl = new URL(window.location.href);
         const renderedMonth = document.getElementById('schedule')?.dataset.calendarMonth || '{{ $month->format('Y-m') }}';
@@ -429,6 +428,12 @@ const partnerI18n = @json($partnerI18n);
         currentUrl.searchParams.set('date', date);
         currentUrl.hash = '#schedule';
         history.replaceState(null, '', currentUrl);
+    };
+    const bindCalendarDays = () => document.querySelectorAll('.day').forEach((day) => day.addEventListener('click', (event) => {
+        event.preventDefault();
+        const date = new URL(day.href).searchParams.get('date');
+        selectCalendarDay(day, date);
+        const events = calendarBookingData.filter((booking) => String(booking.date).slice(0, 10) === String(date).slice(0, 10) && booking.status !== 'cancelled');
         dayModalBackdrop.querySelector('#day-modal-title').textContent = formatDay(date);
         dayModalEvents.style.display = 'block';
         dayModalForm.style.display = 'none';
@@ -632,8 +637,10 @@ const partnerI18n = @json($partnerI18n);
         event.preventDefault();
         if (renderedMonth !== todayMonth) {
             await loadCalendarMonth(todayMonth, todayDate);
+            return;
         }
-        calendarGrid?.querySelector('.day[data-date="' + todayDate + '"]')?.click();
+        const todayDay = calendarGrid?.querySelector('.day[data-date="' + todayDate + '"]');
+        if (todayDay) selectCalendarDay(todayDay, todayDate);
     });
     window.addEventListener('popstate', () => {
         const url = new URL(window.location.href);

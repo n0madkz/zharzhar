@@ -188,7 +188,8 @@ class InvitationStoreTest extends TestCase
         $this->assertStringContainsString('right:max(16px,env(safe-area-inset-right))', $musicStyles);
         $catalogStyles = file_get_contents(public_path('motion.css'));
         $this->assertStringContainsString('.catalog-grid {', $catalogStyles);
-        $this->assertStringContainsString('scroll-snap-type: inline mandatory', $catalogStyles);
+        $this->assertStringContainsString('grid-template-columns: repeat(4, minmax(0, 1fr))', $catalogStyles);
+        $this->assertStringNotContainsString('scroll-snap-type: inline mandatory', $catalogStyles);
 
         $qyzUzatu = Template::where('slug', 'aru-qyz-uzatu')->firstOrFail();
         $royal = Template::where('slug', 'royal-kesh')->firstOrFail();

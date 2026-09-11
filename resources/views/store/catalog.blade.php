@@ -65,7 +65,7 @@
 <div class="occasion-band"><span>Үйлену той</span><b>✦</b><span>Қыз ұзату</span><b>✦</b><span>Мерейтой</span><b>✦</b><span>Туған күн</span><b>✦</b><span>{{ $copy['special'] }}</span></div>
 <section class="shell section" id="designs"><div class="section-title"><div><p class="eyebrow">{{ $copy['collection'] }}</p><h2>{{ $copy['find'] }} <em>{{ $copy['find_em'] }}</em></h2></div><p>{{ $copy['design_note'] }}</p></div>
 <nav class="filters" aria-label="{{ $kk ? 'Мереке түрі' : 'Тип события' }}"><a class="{{ !$category ? 'active' : '' }}" href="{{ route('store.catalog') }}#designs">{{ $copy['all'] }}</a>@foreach($eventLabels as $key => $label)<a class="{{ $category === $key ? 'active' : '' }}" href="{{ route('store.catalog', ['event' => $key]) }}#designs">{{ $label }}</a>@endforeach</nav>
-<div class="catalog-grid" role="region" tabindex="0" aria-label="{{ $kk ? 'Дизайндар қатары. Көлденең жылжытыңыз.' : 'Ряд дизайнов. Прокручивайте горизонтально.' }}">
+<div class="catalog-grid" role="region" aria-label="{{ $kk ? 'Дизайндар каталогы' : 'Каталог дизайнов' }}">
 @forelse($templates as $template)
 @php
     $theme = $template->config_json['theme'] ?? 'sage';
