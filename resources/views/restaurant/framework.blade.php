@@ -628,13 +628,12 @@ const partnerI18n = @json($partnerI18n);
         const targetMonth = shiftMonth(displayedMonth, Number(link.dataset.step));
         loadCalendarMonth(targetMonth, targetMonth + '-01');
     }));
-    todayLink?.addEventListener('click', (event) => {
+    todayLink?.addEventListener('click', async (event) => {
         event.preventDefault();
-        if (renderedMonth === todayMonth) {
-            document.querySelector('.day[data-date="' + todayDate + '"]')?.click();
-            return;
+        if (renderedMonth !== todayMonth) {
+            await loadCalendarMonth(todayMonth, todayDate);
         }
-        loadCalendarMonth(todayMonth, todayDate);
+        calendarGrid?.querySelector('.day[data-date="' + todayDate + '"]')?.click();
     });
     window.addEventListener('popstate', () => {
         const url = new URL(window.location.href);
