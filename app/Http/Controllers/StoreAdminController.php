@@ -330,15 +330,15 @@ class StoreAdminController extends Controller
         if ($request->hasFile('audio_file')) {
             $file = $request->file('audio_file');
             $path = $file->storePubliclyAs('music', Str::uuid().'.'.$file->extension(), 'public');
-            $values['audio_url'] = '/storage/'.$path;
+            $values['audio_url'] = '/media/'.$path;
         }
         if ($music) {
             $music->update($values);
         } else {
             Music::create($values);
         }
-        if (isset($values['audio_url']) && $oldAudioUrl && str_starts_with($oldAudioUrl, '/storage/music/')) {
-            Storage::disk('public')->delete(str_replace('/storage/', '', $oldAudioUrl));
+        if (isset($values['audio_url']) && $oldAudioUrl && (str_starts_with($oldAudioUrl, '/storage/music/') || str_starts_with($oldAudioUrl, '/media/music/'))) {
+            Storage::disk('public')->delete(preg_replace('#^/(?:storage|media)/#', '', $oldAudioUrl));
         }
 
         return back()->with('success', 'Музыка сохранена.');

@@ -75,6 +75,10 @@ body.invitation-shell{margin:0;background:#e6e2dc;color:#28231f;font-family:Manr
     transform: translateY(1px) scale(.97);
 }
 
+.music-orb.has-error {
+    animation: music-error-shake .28s ease-in-out 2;
+}
+
 .music-ornament {
     z-index: 1;
     inset: -5px;
@@ -225,6 +229,11 @@ body.invitation-shell{margin:0;background:#e6e2dc;color:#28231f;font-family:Manr
 
 @keyframes music-ethno-turn {
     to { transform: rotate(360deg); }
+}
+
+@keyframes music-error-shake {
+    25% { transform: translateX(-3px); }
+    75% { transform: translateX(3px); }
 }
 
 @media(max-width:600px) {

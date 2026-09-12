@@ -221,7 +221,7 @@
 </article>
 
 @if(!empty($details['music_url']))
-    <audio id="invite-audio" loop preload="none" src="{{ $details['music_url'] }}"></audio>
+    <audio id="invite-audio" loop preload="none" src="{{ \App\Models\Music::playbackUrlFor($details['music_url']) }}"></audio>
 @endif
 <button class="music-orb music-theme-{{ $theme }}" type="button" data-invite-music @if(empty($details['music_url'])) data-preview-tone @endif aria-label="{{ $copy['music_play'] }}" aria-pressed="false" data-play-label="{{ $copy['music_play'] }}" data-pause-label="{{ $copy['music_pause'] }}">
     <span class="music-ornament" aria-hidden="true"></span>

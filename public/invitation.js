@@ -40,6 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const setMusicState = playing => {
     musicButton?.classList.toggle('is-playing', playing);
+    musicButton?.classList.remove('has-error');
     if (musicButton) {
       musicButton.setAttribute('aria-label', playing ? musicButton.dataset.pauseLabel : musicButton.dataset.playLabel);
       musicButton.setAttribute('aria-pressed', String(playing));
@@ -71,6 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
           setMusicState(true);
         } catch {
           setMusicState(false);
+          musicButton.classList.add('has-error');
         }
       } else {
         audio.pause();
@@ -99,4 +101,8 @@ document.addEventListener('DOMContentLoaded', () => {
   audio?.addEventListener('play', () => setMusicState(true));
   audio?.addEventListener('pause', () => setMusicState(false));
   audio?.addEventListener('ended', () => setMusicState(false));
+  audio?.addEventListener('error', () => {
+    setMusicState(false);
+    musicButton?.classList.add('has-error');
+  });
 });

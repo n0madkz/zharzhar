@@ -22,6 +22,9 @@ Route::get('/designs/{template}/preview', [StorefrontController::class, 'preview
 Route::get('/checkout/{template}', [StorefrontController::class, 'checkout'])->name('store.checkout');
 Route::post('/checkout', [StorefrontController::class, 'store'])->middleware('throttle:10,1')->name('store.order');
 Route::post('/checkout/quote', [StorefrontController::class, 'quote'])->middleware('throttle:30,1')->name('store.quote');
+Route::get('/media/music/{filename}', [StorefrontController::class, 'musicFile'])
+    ->where('filename', '[A-Za-z0-9._-]+')
+    ->name('store.music');
 Route::get('/orders/{token}', [StorefrontController::class, 'payment'])->name('store.payment');
 Route::post('/orders/{token}/payment', [StorefrontController::class, 'submitPayment'])->middleware('throttle:5,1')->name('store.payment.submit');
 Route::get('/i/{slug}', [StorefrontController::class, 'invitation'])->name('store.invitation');

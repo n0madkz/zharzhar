@@ -75,7 +75,7 @@
 <label class="field wide">{{ $t['address'] }}<input id="venue_address" name="venue_address" value="{{ old('venue_address') }}" maxlength="255" required>@error('venue_address')<span class="error">{{ $message }}</span>@enderror</label>
 </div></fieldset>
 <fieldset class="form-section"><legend>{{ $t['mood'] }}</legend><div class="form-grid">
-<label class="field wide">{{ $t['music'] }}<select id="music_id" name="music_id"><option value="">{{ $t['without_music'] }}</option>@foreach($music as $track)<option value="{{ $track->id }}" data-url="{{ $track->audio_url }}" @selected((string)old('music_id') === (string)$track->id)>{{ $track->name }} · {{ $track->categoryLabel() }}</option>@endforeach</select><small>{{ $t['music_hint'] }}</small>@error('music_id')<span class="error">{{ $message }}</span>@enderror</label>
+<label class="field wide">{{ $t['music'] }}<select id="music_id" name="music_id"><option value="">{{ $t['without_music'] }}</option>@foreach($music as $track)<option value="{{ $track->id }}" data-url="{{ $track->playbackUrl() }}" @selected((string)old('music_id') === (string)$track->id)>{{ $track->name }} · {{ $track->categoryLabel() }}</option>@endforeach</select><small>{{ $t['music_hint'] }}</small>@error('music_id')<span class="error">{{ $message }}</span>@enderror</label>
 <audio class="wide" id="music-preview" controls preload="none" hidden aria-label="{{ $t['audio_label'] }}"></audio>
 <label class="field wide">{{ $t['invite_text'] }} <small>{{ $t['optional_text'] }}</small><textarea name="invitation_text" maxlength="2000" placeholder="{{ $t['text_placeholder'] }}">{{ old('invitation_text') }}</textarea>@error('invitation_text')<span class="error">{{ $message }}</span>@enderror</label>
 </div></fieldset>

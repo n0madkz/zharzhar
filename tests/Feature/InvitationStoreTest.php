@@ -137,6 +137,18 @@ class InvitationStoreTest extends TestCase
         $this->get('/checkout/'.$wedding->id)->assertOk()->assertSee('Той иелері');
     }
 
+    public function test_uploaded_music_is_served_without_a_public_storage_symlink(): void
+    {
+        Storage::fake('public');
+        Storage::disk('public')->put('music/invitation.mp3', 'fake-mp3-content');
+
+        $this->get('/media/music/invitation.mp3')
+            ->assertOk()
+            ->assertHeader('cache-control', 'max-age=86400, public');
+
+        $this->get('/media/music/missing.mp3')->assertNotFound();
+    }
+
     public function test_store_is_kazakh_by_default_and_language_switch_persists_russian(): void
     {
         $this->get('/')
@@ -432,8 +444,8 @@ class InvitationStoreTest extends TestCase
         ])->assertRedirect();
         $music = Music::firstOrFail();
         $this->assertSame(['wedding', 'qyz_uzatu', 'birthday'], $music->categories);
-        $this->assertStringStartsWith('/storage/music/', $music->audio_url);
-        Storage::disk('public')->assertExists(str_replace('/storage/', '', $music->audio_url));
+        $this->assertStringStartsWith('/media/music/', $music->audio_url);
+        Storage::disk('public')->assertExists(str_replace('/media/', '', $music->audio_url));
         $this->post('/admin/store/music', [
             'name' => 'Без категории',
             'categories' => [],

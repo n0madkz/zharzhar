@@ -14,12 +14,23 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class StorefrontController extends Controller
 {
+    public function musicFile(string $filename)
+    {
+        $relativePath = 'music/'.$filename;
+        abort_unless(Storage::disk('public')->exists($relativePath), 404);
+
+        return response()->file(Storage::disk('public')->path($relativePath), [
+            'Cache-Control' => 'public, max-age=86400',
+        ]);
+    }
+
     public function index(Request $request): View
     {
         $category = $request->string('event')->toString();

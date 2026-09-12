@@ -17,7 +17,7 @@ if (old('editor') === $editor) { $value = old($name, $value); }
 @elseif(($field['type'] ?? null) === 'file')
 <label class="field wide">{{ $field['label'] }}<input name="{{ $name }}" type="file" accept="{{ $field['accept'] ?? '' }}" @required(($field['required'] ?? false) && !$record)>
 @if(($field['preview'] ?? null) === 'image' && $record?->preview_image)<img src="{{ str_starts_with($record->preview_image, '/') ? asset(ltrim($record->preview_image, '/')) : $record->preview_image }}" alt="Текущая обложка {{ $record->name }}" style="width:100%;max-width:260px;aspect-ratio:4/5;object-fit:cover;margin-top:8px;border-radius:80px 80px 4px 4px"><small>Если файл не выбран, сохранится текущая обложка.</small>
-@elseif($record?->audio_url)<audio controls preload="none" src="{{ $record->audio_url }}" aria-label="Текущий аудиофайл"></audio><small>Если файл не выбран, сохранится текущая запись.</small>@elseif(isset($field['hint']))<small>{{ $field['hint'] }}</small>@endif
+@elseif($record?->audio_url)<audio controls preload="none" src="{{ $record->playbackUrl() }}" aria-label="Текущий аудиофайл"></audio><small>Если файл не выбран, сохранится текущая запись.</small>@elseif(isset($field['hint']))<small>{{ $field['hint'] }}</small>@endif
 @if(old('editor') === $editor)@error($name)<span class="error">{{ $message }}</span>@enderror @endif
 </label>
 @else

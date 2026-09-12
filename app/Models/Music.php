@@ -14,6 +14,20 @@ class Music extends Model
         return ['categories' => 'array', 'is_active' => 'boolean'];
     }
 
+    public static function playbackUrlFor(?string $url): ?string
+    {
+        if ($url && str_starts_with($url, '/storage/music/')) {
+            return '/media/music/'.rawurlencode(basename($url));
+        }
+
+        return $url;
+    }
+
+    public function playbackUrl(): string
+    {
+        return self::playbackUrlFor($this->audio_url) ?? '';
+    }
+
     public function categoryLabel(): string
     {
         $labels = config('store.music_categories');
