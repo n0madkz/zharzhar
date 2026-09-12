@@ -24,7 +24,7 @@ if (old('editor') === $editor) { $value = old($name, $value); }
 <label class="field {{ ($field['wide'] ?? false) ? 'wide' : '' }}">{{ $field['label'] }}
 @if(isset($field['options']))<select name="{{ $name }}">@foreach($field['options'] as $option => $label)<option value="{{ $option }}" @selected((string)$value === (string)$option)>{{ $label }}</option>@endforeach</select>
 @elseif(($field['type'] ?? null) === 'textarea')<textarea name="{{ $name }}" @required($field['required'] ?? false) maxlength="{{ $field['maxlength'] ?? 1500 }}">{{ $value }}</textarea>
-@else<input name="{{ $name }}" type="{{ $field['type'] ?? 'text' }}" value="{{ $value }}" @required($field['required'] ?? false) @if(isset($field['min'])) min="{{ $field['min'] }}" @endif @if(isset($field['max'])) max="{{ $field['max'] }}" @endif>@endif
+@else<input name="{{ $name }}" type="{{ $field['type'] ?? 'text' }}" value="{{ $value }}" @required($field['required'] ?? false) @if(isset($field['min'])) min="{{ $field['min'] }}" @endif @if(isset($field['max'])) max="{{ $field['max'] }}" @endif @if(isset($field['step'])) step="{{ $field['step'] }}" @endif>@endif
 @if(isset($field['hint']))<small>{{ $field['hint'] }}</small>@endif
 @if(old('editor') === $editor)@error($name)<span class="error">{{ $message }}</span>@enderror @endif
 </label>

@@ -94,7 +94,8 @@ $groups = [
 ]],
 'restaurants' => ['title'=>'Каталог ресторанов','records'=>$restaurants,'route'=>'restaurants','hint'=>'Справочник мест для приглашений. Кабинеты партнёров и бронирования доступны в отдельном разделе.','fields'=>[
 'name'=>['label'=>'Название','required'=>true],'city'=>['label'=>'Город','required'=>true],
-'address'=>['label'=>'Адрес','required'=>true],'phone'=>['label'=>'Телефон','type'=>'tel'],
+'address'=>['label'=>'Адрес','required'=>true],'two_gis_url'=>['label'=>'Ссылка 2GIS','type'=>'url','wide'=>true],'phone'=>['label'=>'Телефон','type'=>'tel'],
+'bonus_percent'=>['label'=>'Бонус партнёру с оплаченного заказа, %','type'=>'number','min'=>0,'max'=>100,'step'=>'0.01','default'=>0,'hint'=>'Начисляется один раз после подтверждения оплаты приглашения.'],
 ]],
 ];
 @endphp

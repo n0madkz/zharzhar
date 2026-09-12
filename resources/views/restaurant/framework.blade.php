@@ -227,6 +227,26 @@
         .mobile-logout button{color:#667085}
         .restaurant-top{padding:15px 16px}
     }
+    .day-modal-backdrop{padding:16px;overflow-y:auto}
+    .day-modal{display:flex;flex-direction:column;width:min(100%,560px);max-height:calc(100dvh - 32px);overflow:hidden}
+    .day-modal-head{flex:0 0 auto;padding-right:38px}
+    .day-modal-events,.day-modal-form{min-height:0;max-height:none;overflow-y:auto;overscroll-behavior:contain}
+    .day-modal-form #new-booking{margin:0;padding:18px 2px 2px;border:0;border-radius:0;box-shadow:none}
+    .day-modal-close{top:12px;right:12px}
+    .bonus-summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:22px}
+    .bonus-summary>div{display:flex;min-height:108px;padding:20px;flex-direction:column;justify-content:space-between;border:1px solid #dbe4ff;border-radius:14px;background:linear-gradient(145deg,#f8faff,#eef4ff)}
+    .bonus-summary small{color:#667085;font-weight:700}
+    .bonus-summary strong{color:#1d4ed8;font-size:26px}
+    .bonus-history{margin-top:18px;border-top:1px solid #eef1f5}
+    .bonus-row{display:flex;justify-content:space-between;gap:16px;align-items:center;padding:15px 2px;border-bottom:1px solid #eef1f5}
+    .bonus-row div{display:flex;flex-direction:column;gap:4px}.bonus-row small{color:#667085}.bonus-row>span{color:#067647;font-weight:800;white-space:nowrap}.bonus-empty{padding:18px 0}
+    @media(max-width:560px){
+        .day-modal-backdrop{align-items:stretch;padding:8px}
+        .day-modal{width:100%;max-height:calc(100dvh - 16px);padding:18px 14px;border-radius:16px}
+        .day-modal-head h2{font-size:22px}
+        .day-modal-form #new-booking{padding-top:14px}
+        .bonus-summary{grid-template-columns:1fr}.bonus-summary>div{min-height:94px}
+    }
 </style>
 
 <div class="restaurant-app">
@@ -298,7 +318,18 @@
 
         <section class="panel booking-list"><h2>{{ __('partner.booking.selected_day') }}</h2>@forelse($bookings->sortBy('booking_date')->take(12) as $booking)<details class="booking-card" id="booking-{{ $booking->id }}"><summary><i class="booking-color" style="--booking-color:{{ $booking->color }}"></i><span><strong>{{ $booking->visitor_name }}</strong><small>{{ $booking->booking_date->format('d.m.Y') }} · {{ $booking->slot?->label ?? __('partner.booking.not_selected') }} · {{ $booking->guest_count }} {{ __('partner.booking.guests') }}</small></span></summary><form method="POST" action="{{ route('restaurant.bookings.update', $booking) }}" class="booking-edit-form">@csrf @method('PUT')<div class="form-grid"><label class="field">{{ __('partner.booking.visitor') }}<input name="visitor_name" value="{{ $booking->visitor_name }}" required></label><label class="field">{{ __('partner.booking.phone') }}<input name="phone" value="{{ $booking->phone }}"></label><label class="field">{{ __('partner.booking.date') }}<input type="date" name="booking_date" value="{{ $booking->booking_date->format('Y-m-d') }}" required></label><label class="field">{{ __('partner.booking.guests') }}<input type="number" name="guest_count" min="1" value="{{ $booking->guest_count }}" required></label></div><label class="field">{{ __('partner.booking.period') }}<select name="restaurant_slot_id" required>@foreach($restaurant->slots as $slot)<option value="{{ $slot->id }}" @selected($booking->restaurant_slot_id === $slot->id)>{{ __('partner.slots.'.$slot->slot_key) !== 'partner.slots.'.$slot->slot_key ? __('partner.slots.'.$slot->slot_key) : $slot->label }} · {{ $slot->start_time }}–{{ $slot->end_time }}</option>@endforeach</select></label><label class="field">{{ __('partner.booking.status') }}<select name="status"><option value="pending" @selected($booking->status === 'pending')>{{ __('partner.status.pending_short') }}</option><option value="confirmed" @selected($booking->status === 'confirmed')>{{ __('partner.status.confirmed') }}</option><option value="cancelled" @selected($booking->status === 'cancelled')>{{ __('partner.status.cancelled') }}</option></select></label><label class="field">{{ __('partner.booking.notes') }}<textarea name="note" rows="3">{{ $booking->note }}</textarea></label><div class="booking-actions"><button class="button" type="submit">{{ __('partner.booking.save_changes') }}</button></div></form><form method="POST" action="{{ route('restaurant.bookings.destroy', $booking) }}" onsubmit="return window.confirm(this.dataset.confirm)" data-confirm="{{ __('partner.booking.delete_confirm') }}">@csrf @method('DELETE')<button class="button button-danger" type="submit">{{ __('partner.booking.delete') }}</button></form></details>@empty<p class="muted">{{ __('partner.booking.no_month') }}</p>@endforelse</section>
 
-        <section class="panel info-panel" id="bonuses"><h2>{{ __('partner.bonuses.title') }}</h2><p class="muted">{{ __('partner.bonuses.subtitle') }}</p><div class="settings-row"><strong>{{ __('partner.bonuses.balance') }}</strong><span>0 ₸</span></div></section>
+        <section class="panel info-panel" id="bonuses">
+            <h2>{{ __('partner.bonuses.title') }}</h2><p class="muted">{{ __('partner.bonuses.subtitle') }}</p>
+            <div class="bonus-summary">
+                <div><small>{{ __('partner.bonuses.rate') }}</small><strong>{{ rtrim(rtrim(number_format((float)$restaurant->bonus_percent, 2, '.', ''), '0'), '.') }}%</strong></div>
+                <div><small>{{ __('partner.bonuses.balance') }}</small><strong>{{ number_format($bonusBalance, 2, ',', ' ') }} ₸</strong></div>
+            </div>
+            <div class="bonus-history">
+                @forelse($bonusTransactions as $transaction)
+                    <article class="bonus-row"><div><strong>{{ __('partner.bonuses.order', ['number' => $transaction->invitation_order_id]) }}</strong><small>{{ $transaction->created_at?->format('d.m.Y H:i') }}</small></div><span>+{{ number_format((float)$transaction->amount, 2, ',', ' ') }} ₸</span></article>
+                @empty<p class="muted bonus-empty">{{ __('partner.bonuses.empty') }}</p>@endforelse
+            </div>
+        </section>
         <section class="panel info-panel" id="settings"><h2>{{ __('partner.settings.title') }}</h2><p class="muted">{{ __('partner.settings.subtitle') }}</p><form class="language-settings" method="POST" action="{{ route('restaurant.settings.language') }}">@csrf @method('PUT')<label class="field">{{ __('partner.language.label') }}<select name="preferred_language" required>@foreach(['kk','ru','en'] as $language)<option value="{{ $language }}" @selected(auth()->user()->preferred_language === $language)>{{ __('partner.language.'.$language) }}</option>@endforeach</select><small>{{ __('partner.language.hint') }}</small></label><button class="button button-secondary" type="submit">{{ __('partner.language.save') }}</button></form><hr class="settings-divider"><form method="POST" action="{{ route('restaurant.settings.slots') }}">@csrf @method('PUT')@foreach($restaurant->slots as $slot)<div class="settings-row"><span><strong>{{ __('partner.slots.'.$slot->slot_key) !== 'partner.slots.'.$slot->slot_key ? __('partner.slots.'.$slot->slot_key) : $slot->label }}</strong><small style="display:block;color:var(--ui-muted)">{{ __('partner.settings.slot_time') }}</small></span><span style="display:flex;gap:7px;align-items:center"><input type="time" name="slots[{{ $slot->slot_key }}][start_time]" value="{{ $slot->start_time }}" required style="padding:9px;border:1px solid #dfe6e1;border-radius:8px"><b>—</b><input type="time" name="slots[{{ $slot->slot_key }}][end_time]" value="{{ $slot->end_time }}" required style="padding:9px;border:1px solid #dfe6e1;border-radius:8px"></span></div>@endforeach<button class="button" type="submit" style="margin-top:16px">{{ __('partner.settings.save_time') }}</button></form></section>
         <form class="settings-logout" method="POST" action="{{ route('logout') }}">@csrf<button class="button button-danger" type="submit">{{ __('partner.settings.logout') }}</button></form>
     </main>

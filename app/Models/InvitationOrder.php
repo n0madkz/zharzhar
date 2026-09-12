@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class InvitationOrder extends Model
 {
@@ -27,6 +28,11 @@ class InvitationOrder extends Model
     public function invitation(): BelongsTo
     {
         return $this->belongsTo(Invitation::class);
+    }
+
+    public function bonusTransaction(): HasOne
+    {
+        return $this->hasOne(BonusTransaction::class);
     }
 
     public function statusLabel(): string

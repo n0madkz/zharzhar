@@ -52,11 +52,13 @@ class AdminBookingTest extends TestCase
             'email' => 'partner@example.com',
             'password' => 'SecurePass77',
             'max_seats' => 250,
+            'bonus_percent' => 8.5,
         ])->assertRedirect();
 
         $restaurant = Restaurant::where('name', 'Restaurant Altyn')->firstOrFail();
         $this->assertSame('https://2gis.kz/almaty/geo/700000010', $restaurant->two_gis_url);
         $this->assertSame('partner@example.com', $restaurant->partner?->email);
+        $this->assertSame('8.50', $restaurant->bonus_percent);
         $this->assertCount(3, $restaurant->slots);
     }
 
@@ -80,6 +82,7 @@ class AdminBookingTest extends TestCase
             'email' => 'new@example.com',
             'password' => 'NewSecure99',
             'max_seats' => 300,
+            'bonus_percent' => 12.25,
             'is_active' => '1',
         ])->assertRedirect();
 
@@ -87,6 +90,7 @@ class AdminBookingTest extends TestCase
         $partner->refresh();
         $this->assertSame('New name', $restaurant->name);
         $this->assertSame('https://2gis.kz/astana/geo/700000011', $restaurant->two_gis_url);
+        $this->assertSame('12.25', $restaurant->bonus_percent);
         $this->assertSame('new@example.com', $partner->email);
         $this->assertTrue(Hash::check('NewSecure99', $partner->password));
     }

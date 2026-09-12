@@ -8,11 +8,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Restaurant extends Model
 {
-    protected $fillable = ['name', 'city', 'address', 'two_gis_url', 'phone', 'max_seats', 'default_price_per_guest', 'status', 'partner_user_id'];
+    protected $fillable = ['name', 'city', 'address', 'two_gis_url', 'phone', 'max_seats', 'default_price_per_guest', 'bonus_percent', 'status', 'partner_user_id'];
 
     protected function casts(): array
     {
-        return ['default_price_per_guest' => 'decimal:2'];
+        return ['default_price_per_guest' => 'decimal:2', 'bonus_percent' => 'decimal:2'];
     }
 
     public function partner(): BelongsTo

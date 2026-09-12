@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Booking;
+use App\Models\BonusTransaction;
 use App\Models\Restaurant;
 use App\Models\RestaurantSlot;
 use App\Models\User;
@@ -113,6 +114,26 @@ class PartnerCalendarTest extends TestCase
                 'preferred_language' => 'de',
             ])
             ->assertSessionHasErrors('preferred_language');
+    }
+
+    public function test_partner_sees_bonus_rate_balance_and_history(): void
+    {
+        [$partner, $restaurant] = $this->partnerFixture();
+        $restaurant->update(['bonus_percent' => 9.5]);
+        BonusTransaction::create([
+            'restaurant_id' => $restaurant->id,
+            'amount' => 949.05,
+            'type' => 'accrual',
+            'status' => 'available',
+            'note' => 'Test accrual',
+        ]);
+
+        $this->actingAs($partner)
+            ->get('http://partner.zharzhar.kz/restaurant#bonuses')
+            ->assertOk()
+            ->assertSee('9.5%')
+            ->assertSee('949,05 ₸')
+            ->assertDontSee('Әзірге бонус есептелмеді.');
     }
 
     private function partnerFixture(): array

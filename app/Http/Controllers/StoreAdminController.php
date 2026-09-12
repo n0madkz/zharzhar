@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Event;
+use App\Models\BonusTransaction;
 use App\Models\Invitation;
 use App\Models\InvitationOrder;
 use App\Models\Music;
@@ -80,6 +81,7 @@ class StoreAdminController extends Controller
                 'status' => 'published', 'published_at' => now(),
             ]);
             $order->update(['status' => 'paid', 'paid_at' => now(), 'confirmed_by' => $request->user()->id, 'invitation_id' => $invitation->id, 'admin_note' => $data['admin_note'] ?? null]);
+            $this->syncRestaurantBonus($order->refresh());
         }, 3);
 
         return back()->with('success', 'Оплата подтверждена. Обе ссылки созданы и доступны клиенту на странице заказа.');
@@ -193,6 +195,7 @@ class StoreAdminController extends Controller
             ]);
 
             $this->syncInvitation($order, $details, $template, $data['status'] === 'paid');
+            $this->syncRestaurantBonus($order->refresh());
         }, 3);
 
         return redirect()->route('admin.store.orders.edit', $order)->with('success', 'Заказ и приглашение обновлены.');
@@ -367,7 +370,8 @@ class StoreAdminController extends Controller
 
     public function saveRestaurant(Request $request, ?Restaurant $restaurant = null): RedirectResponse
     {
-        $data = $request->validate(['name' => ['required', 'string', 'max:150'], 'city' => ['required', 'string', 'max:100'], 'address' => ['required', 'string', 'max:255'], 'phone' => ['nullable', 'string', 'max:30']]);
+        $data = $request->validate(['name' => ['required', 'string', 'max:150'], 'city' => ['required', 'string', 'max:100'], 'address' => ['required', 'string', 'max:255'], 'two_gis_url' => ['nullable', 'url:http,https', 'max:500'], 'phone' => ['nullable', 'string', 'max:30'], 'bonus_percent' => ['nullable', 'numeric', 'min:0', 'max:100']]);
+        $data['bonus_percent'] = $data['bonus_percent'] ?? 0;
         $data['status'] = $request->boolean('is_active') ? 'active' : 'inactive';
         if ($restaurant) {
             $restaurant->update($data);
@@ -376,6 +380,38 @@ class StoreAdminController extends Controller
         }
 
         return back()->with('success', 'Ресторан сохранён в каталоге.');
+    }
+
+    private function syncRestaurantBonus(InvitationOrder $order): void
+    {
+        $existing = BonusTransaction::where('invitation_order_id', $order->id)->first();
+        $restaurantId = data_get($order->details, 'restaurant_id');
+        $restaurant = $restaurantId ? Restaurant::find($restaurantId) : null;
+
+        if ($order->status !== 'paid' || ! $restaurant || (float) $restaurant->bonus_percent <= 0 || (int) $order->total <= 0) {
+            $existing?->delete();
+
+            return;
+        }
+
+        $amount = round(((int) $order->total * (float) $restaurant->bonus_percent) / 100, 2);
+        if ($amount <= 0) {
+            $existing?->delete();
+
+            return;
+        }
+
+        BonusTransaction::updateOrCreate(
+            ['invitation_order_id' => $order->id],
+            [
+                'restaurant_id' => $restaurant->id,
+                'invitation_id' => $order->invitation_id,
+                'amount' => $amount,
+                'type' => 'accrual',
+                'status' => 'available',
+                'note' => 'Бонус '.$restaurant->bonus_percent.'% за заказ №'.$order->id,
+            ],
+        );
     }
 
     private function syncInvitation(InvitationOrder $order, array $details, Template $template, bool $published): void

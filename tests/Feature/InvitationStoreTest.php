@@ -347,6 +347,32 @@ class InvitationStoreTest extends TestCase
         $this->assertDatabaseHas('rsvps', ['guest_name' => 'Айдос', 'attendance_status' => 'no', 'guest_count' => 0]);
     }
 
+    public function test_paid_invitation_accrues_restaurant_bonus_once(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $restaurant = Restaurant::create([
+            'name' => 'Bonus Hall',
+            'city' => 'Алматы',
+            'address' => 'Абая, 10',
+            'bonus_percent' => 7.5,
+            'status' => 'active',
+        ]);
+        $order = InvitationOrder::factory()->create(['status' => 'review', 'subtotal' => 10000, 'total' => 10000]);
+        $order->update(['details' => [...$order->details, 'restaurant_id' => $restaurant->id]]);
+
+        $this->actingAs($admin)->post('/admin/store/orders/'.$order->id.'/confirm')->assertRedirect();
+        $this->post('/admin/store/orders/'.$order->id.'/confirm')->assertRedirect();
+
+        $this->assertDatabaseCount('bonus_transactions', 1);
+        $this->assertDatabaseHas('bonus_transactions', [
+            'restaurant_id' => $restaurant->id,
+            'invitation_order_id' => $order->id,
+            'amount' => 750,
+            'type' => 'accrual',
+            'status' => 'available',
+        ]);
+    }
+
     public function test_rejection_releases_promo_once_and_prevents_confirmation(): void
     {
         $promo = PromoCode::factory()->create(['uses' => 1]);

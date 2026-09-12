@@ -37,6 +37,7 @@ class AdminController extends Controller
             'email' => ['required', 'email', 'unique:users,email'],
             'password' => ['required', 'string', 'min:8'],
             'max_seats' => ['nullable', 'integer', 'min:0', 'max:100000'],
+            'bonus_percent' => ['nullable', 'numeric', 'min:0', 'max:100'],
         ]);
 
         DB::transaction(function () use ($data): void {
@@ -44,7 +45,7 @@ class AdminController extends Controller
             $restaurant = Restaurant::create([
                 'name' => $data['name'], 'city' => $data['city'], 'address' => $data['address'] ?? null,
                 'two_gis_url' => $data['two_gis_url'] ?? null, 'phone' => $data['phone'],
-                'max_seats' => $data['max_seats'] ?? null, 'partner_user_id' => $partner->id,
+                'max_seats' => $data['max_seats'] ?? null, 'bonus_percent' => $data['bonus_percent'] ?? 0, 'partner_user_id' => $partner->id,
             ]);
             foreach ([['morning', 'Утро', '09:00', '12:00', '#6fa982'], ['day', 'День', '13:00', '17:00', '#d8b36a'], ['evening', 'Вечер', '18:00', '22:00', '#c46b58']] as [$key, $label, $start, $end, $color]) {
                 $restaurant->slots()->create(['slot_key' => $key, 'label' => $label, 'start_time' => $start, 'end_time' => $end, 'color' => $color]);
@@ -66,6 +67,7 @@ class AdminController extends Controller
             'email' => ['required', 'email', Rule::unique('users', 'email')->ignore($partner?->id)],
             'password' => ['nullable', 'string', 'min:8'],
             'max_seats' => ['nullable', 'integer', 'min:0', 'max:100000'],
+            'bonus_percent' => ['nullable', 'numeric', 'min:0', 'max:100'],
         ]);
         if (! $partner && empty($data['password'])) {
             throw ValidationException::withMessages(['password' => 'Для ресторана без аккаунта укажите новый пароль.']);
@@ -76,7 +78,7 @@ class AdminController extends Controller
             $restaurant->update([
                 'name' => $data['name'], 'city' => $data['city'], 'address' => $data['address'] ?? null,
                 'two_gis_url' => $data['two_gis_url'] ?? null, 'phone' => $data['phone'],
-                'max_seats' => $data['max_seats'] ?? null, 'status' => $isActive ? 'active' : 'inactive',
+                'max_seats' => $data['max_seats'] ?? null, 'bonus_percent' => $data['bonus_percent'] ?? 0, 'status' => $isActive ? 'active' : 'inactive',
             ]);
             $account = $partner ?? new User(['role' => 'partner']);
             $account->fill(['name' => $data['name'], 'email' => $data['email'], 'phone' => $data['phone']]);

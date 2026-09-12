@@ -57,8 +57,10 @@ class RestaurantController extends Controller
             'slot' => $this->slotLabel($booking->slot), 'guests' => $booking->guest_count, 'total' => number_format($booking->total_amount, 2, ',', ' ').' ₸', 'status' => $booking->statusLabel(),
         ])->values();
         $reportPeriods = $restaurant->slots->map(fn ($slot) => ['key' => $slot->slot_key, 'label' => $this->slotLabel($slot)])->values();
+        $bonusTransactions = $restaurant->bonuses()->with('order')->where('type', 'accrual')->latest()->limit(50)->get();
+        $bonusBalance = (float) $restaurant->bonuses()->where('type', 'accrual')->where('status', 'available')->sum('amount');
 
-        return view('restaurant.framework', compact('restaurant', 'bookings', 'allBookings', 'selectedBookings', 'selectedDate', 'month', 'calendarDays', 'calendarBookingData', 'reportBookings', 'reportPeriod', 'reportFrom', 'reportTo', 'reportRows', 'reportPeriods'));
+        return view('restaurant.framework', compact('restaurant', 'bookings', 'allBookings', 'selectedBookings', 'selectedDate', 'month', 'calendarDays', 'calendarBookingData', 'reportBookings', 'reportPeriod', 'reportFrom', 'reportTo', 'reportRows', 'reportPeriods', 'bonusTransactions', 'bonusBalance'));
     }
 
     public function exportReports(Request $request): mixed

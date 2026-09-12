@@ -22,6 +22,7 @@
             <label>Email для входа<input name="email" type="email" value="{{ old('email') }}" required></label>
             <label>Пароль кабинета<input name="password" type="password" required minlength="8"></label>
             <label>Количество мест<input name="max_seats" type="number" min="0" value="{{ old('max_seats') }}" placeholder="Можно указать 0"></label>
+            <label>Бонус с оплаченного приглашения, %<input name="bonus_percent" type="number" min="0" max="100" step="0.01" value="{{ old('bonus_percent', 0) }}"><small>Начисляется ресторану после подтверждения оплаты заказа.</small></label>
             <button class="button" type="submit">Добавить ресторан</button>
         </form>
     </section>
@@ -32,7 +33,7 @@
             <article class="card restaurant-card">
                 <div class="card-head"><div><h3>{{ $restaurant->name }}</h3><p>{{ $restaurant->city }} · {{ $restaurant->address ?? 'Адрес не указан' }}</p></div><span class="status status-{{ $restaurant->status }}">{{ $restaurant->status === 'active' ? 'Активен' : 'Отключён' }}</span></div>
                 <p>@if($restaurant->phone)<a href="tel:{{ $restaurant->phone }}">{{ $restaurant->phone }}</a>@else Телефон не указан @endif · {{ $restaurant->max_seats !== null ? $restaurant->max_seats.' мест' : 'Количество мест не указано' }}</p>
-                <p class="muted">{{ $restaurant->partner?->email ?? 'Email не указан' }} · {{ $restaurant->bookings_count }} бронирований</p>
+                <p class="muted">{{ $restaurant->partner?->email ?? 'Email не указан' }} · {{ $restaurant->bookings_count }} бронирований · бонус {{ rtrim(rtrim(number_format((float)$restaurant->bonus_percent, 2, '.', ''), '0'), '.') }}%</p>
                 @if($restaurant->two_gis_url)<p><a class="text-link" href="{{ $restaurant->two_gis_url }}" target="_blank" rel="noopener">Открыть ресторан в 2GIS ↗</a></p>@endif
                 <details>
                     <summary>Изменить ресторан и доступ</summary>
@@ -46,6 +47,7 @@
                         <label>Email партнёра<input name="email" type="email" value="{{ $restaurant->partner?->email }}" required></label>
                         <label>Новый пароль<input name="password" type="password" minlength="8"><small>Оставьте пустым, чтобы сохранить текущий пароль.</small></label>
                         <label>Количество мест<input name="max_seats" type="number" min="0" value="{{ $restaurant->max_seats }}"></label>
+                        <label>Бонус с оплаченного приглашения, %<input name="bonus_percent" type="number" min="0" max="100" step="0.01" value="{{ $restaurant->bonus_percent }}"><small>Можно установить отдельный процент для каждого ресторана.</small></label>
                         <label class="check"><input name="is_active" type="checkbox" value="1" @checked($restaurant->status === 'active')> Активен</label>
                         <button class="button" type="submit">Сохранить изменения</button>
                     </form>
