@@ -178,11 +178,25 @@ class InvitationStoreTest extends TestCase
         $this->assertDatabaseHas('templates', ['slug' => 'aru-qyz-uzatu', 'event_type' => 'qyz_uzatu']);
         $this->assertDatabaseHas('templates', ['slug' => 'royal-kesh', 'name' => 'Алтын салтанат']);
         $this->assertDatabaseHas('templates', ['slug' => 'altyn-nomad', 'name' => 'Дала мұрасы']);
-        $this->assertDatabaseHas('templates', ['slug' => 'gold-wedding', 'is_active' => false]);
+        $this->assertDatabaseHas('templates', ['slug' => 'gold-wedding', 'is_active' => true, 'preview_image' => '/invitation-assets/modern-evening-wedding.webp']);
+        $this->assertDatabaseHas('templates', ['slug' => 'sage-wedding', 'is_active' => true, 'preview_image' => '/invitation-assets/modern-sage-wedding.webp']);
+        $this->assertDatabaseHas('templates', ['slug' => 'rose-wedding', 'is_active' => true, 'preview_image' => '/invitation-assets/modern-rose-wedding.webp']);
+        $this->assertDatabaseHas('templates', ['slug' => 'classic-anniversary', 'is_active' => true, 'preview_image' => '/invitation-assets/modern-traditional-anniversary.webp']);
+        $this->assertDatabaseHas('templates', ['slug' => 'gold-anniversary', 'is_active' => true, 'preview_image' => '/invitation-assets/modern-gold-anniversary.webp']);
+        $this->assertDatabaseHas('templates', ['slug' => 'happy-birthday', 'is_active' => true, 'preview_image' => '/invitation-assets/modern-birthday.webp']);
+        $this->assertDatabaseHas('templates', ['slug' => 'aru-qyz-uzatu', 'preview_image' => '/invitation-assets/modern-qyz-uzatu.webp']);
         $this->assertDatabaseHas('templates', ['slug' => 'altyn-nomad', 'preview_image' => '/invitation-assets/nomad-horse.webp']);
-        $this->assertSame(5, Template::where('event_type', 'wedding')->where('is_active', true)->pluck('preview_image')->unique()->count());
+        $this->assertSame(8, Template::where('event_type', 'wedding')->where('is_active', true)->pluck('preview_image')->unique()->count());
+        $activeDesigns = Template::where('is_active', true)->get();
+        $this->assertSame($activeDesigns->count(), $activeDesigns->pluck('preview_image')->unique()->count());
+        $this->assertSame($activeDesigns->count(), $activeDesigns->pluck('config_json')->pluck('theme')->unique()->count());
+        foreach ($activeDesigns->pluck('preview_image') as $previewImage) {
+            $this->assertFileExists(dirname(__DIR__, 2).'/public/'.ltrim($previewImage, '/'));
+        }
 
         foreach (Template::whereIn('slug', [
+            'sage-wedding', 'rose-wedding', 'gold-wedding',
+            'classic-anniversary', 'gold-anniversary', 'happy-birthday',
             'ak-inju', 'royal-kesh', 'nazik-botanika', 'ak-zhibek',
             'altyn-nomad', 'mereyli-shenber', 'aru-qyz-uzatu', 'dala-shattygy',
         ])->get() as $design) {
@@ -214,7 +228,7 @@ class InvitationStoreTest extends TestCase
             ->assertOk()
             ->assertSee('Шаблондарға қайту')
             ->assertSee('data-invite-music', false)
-            ->assertSee('invite-theme-qyz', false)
+            ->assertSee('invite-theme-qyz-modern', false)
             ->assertSee('<span>Ару</span><span>қыз ұзату</span>', false)
             ->assertSee('two-gis-logo', false)
             ->assertSee('2GIS-те ашу')

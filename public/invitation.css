@@ -223,6 +223,19 @@ body.invitation-shell{margin:0;background:#e6e2dc;color:#28231f;font-family:Manr
     background: var(--music-accent);
 }
 
+.music-theme-sage-modern{--music-bg:#f4fbf1;--music-ink:#365344;--music-accent:#77906e;--music-ring:#c3d8bd}
+.music-theme-rose-modern{--music-bg:#fff4f3;--music-ink:#70464a;--music-accent:#bd7478;--music-ring:#edc7c4}
+.music-theme-evening-modern{--music-bg:#fff3d4;--music-ink:#67411e;--music-accent:#b07024;--music-ring:#e6c588}
+.music-theme-heritage-modern{--music-bg:#fff4e1;--music-ink:#63402d;--music-accent:#a65f38;--music-ring:#dcba98}
+.music-theme-golden-jubilee{--music-bg:#fff3d0;--music-ink:#68451d;--music-accent:#b67b2f;--music-ring:#e8c981}
+.music-theme-sky-birthday{--music-bg:#effbff;--music-ink:#285873;--music-accent:#e09631;--music-ring:#b8dfed}
+.music-theme-qyz-modern{--music-bg:#fff3ee;--music-ink:#71483e;--music-accent:#b86f55;--music-ring:#ecc8b9}
+.music-theme-evening-modern .music-ethno-ring>i,.music-theme-golden-jubilee .music-ethno-ring>i{border-radius:2px;background:var(--music-accent)}
+.music-theme-sage-modern .music-ethno-ring>i{width:7px;height:11px;border-radius:8px 0 8px 0}
+.music-theme-rose-modern .music-ethno-ring>i,.music-theme-qyz-modern .music-ethno-ring>i{width:9px;height:9px;border-radius:70% 0 70% 0}
+.music-theme-heritage-modern .music-ethno-ring>i{border:0;background:var(--music-accent);clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)}
+.music-theme-sky-birthday .music-ethno-ring>i{border-radius:50%;background:var(--music-accent)}
+
 .music-orb.is-playing .music-ethno-ring {
     animation: music-ethno-turn 12s linear infinite;
 }

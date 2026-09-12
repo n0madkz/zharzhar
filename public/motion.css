@@ -761,3 +761,262 @@
         grid-template-columns: minmax(0, 1fr);
     }
 }
+
+/* Individual compositions for the renewed collection. */
+.invite-card-sage-modern {
+    border-radius: 160px 160px 18px 18px;
+}
+.invite-card-sage-modern::before {
+    inset: 13px;
+    border: 1px solid #78927d;
+    border-radius: 148px 148px 12px 12px;
+    box-shadow: inset 0 0 0 5px rgba(255,255,255,.42);
+}
+.invite-card-sage-modern .card-ring {
+    width: 82px;
+    height: 82px;
+    border: 1px solid #66836d;
+    box-shadow: 15px 0 0 -1px rgba(255,255,255,.18), 15px 0 0 0 #9d855d;
+}
+.invite-card-sage-modern .card-theme-mark::before,
+.invite-card-sage-modern .card-theme-mark::after {
+    content: '❧';
+    position: absolute;
+    bottom: 52px;
+    color: #55745d;
+    font: 42px/1 Georgia, serif;
+}
+.invite-card-sage-modern .card-theme-mark::before { left: 24px; transform: rotate(18deg); }
+.invite-card-sage-modern .card-theme-mark::after { right: 24px; transform: scaleX(-1) rotate(18deg); }
+
+.invite-card-rose-modern {
+    border-radius: 46% 54% 20px 20px / 35% 35% 20px 20px;
+}
+.invite-card-rose-modern::before {
+    inset: 12px;
+    border: 2px solid rgba(177,105,110,.58);
+    border-radius: 48% 52% 16px 16px / 36% 36% 16px 16px;
+}
+.invite-card-rose-modern .card-ring {
+    width: 112px;
+    height: 62px;
+    border: 1px solid #a66b71;
+    border-radius: 50%;
+    transform: rotate(-12deg);
+}
+.invite-card-rose-modern .card-design-name { border-radius: 26px 6px 26px 6px !important; }
+.invite-card-rose-modern .card-theme-mark::before,
+.invite-card-rose-modern .card-theme-mark::after {
+    content: '✿';
+    position: absolute;
+    top: 38px;
+    color: #a96470;
+    font-size: 26px;
+}
+.invite-card-rose-modern .card-theme-mark::before { left: 28px; }
+.invite-card-rose-modern .card-theme-mark::after { right: 28px; }
+
+.invite-card-evening-modern {
+    border-radius: 12px;
+    clip-path: polygon(7% 0, 93% 0, 100% 7%, 100% 93%, 93% 100%, 7% 100%, 0 93%, 0 7%);
+}
+.invite-card-evening-modern::before {
+    inset: 12px;
+    border: 3px double #a76d24;
+    border-radius: 2px;
+    clip-path: polygon(7% 0, 93% 0, 100% 7%, 100% 93%, 93% 100%, 7% 100%, 0 93%, 0 7%);
+}
+.invite-card-evening-modern .card-design-name {
+    border: 1px solid #b47a2e !important;
+    border-radius: 4px !important;
+    background: rgba(255,248,224,.85) !important;
+}
+.invite-card-evening-modern .card-ring {
+    width: 74px;
+    height: 74px;
+    border: 3px double #a76d24;
+    border-radius: 8px;
+    transform: rotate(45deg);
+}
+.invite-card-evening-modern .card-theme-mark::before,
+.invite-card-evening-modern .card-theme-mark::after {
+    content: '◆  ◇  ◆';
+    position: absolute;
+    right: 0;
+    left: 0;
+    color: #a76d24;
+    font-size: 11px;
+    letter-spacing: 7px;
+}
+.invite-card-evening-modern .card-theme-mark::before { top: 28px; }
+.invite-card-evening-modern .card-theme-mark::after { bottom: 34px; }
+
+.invite-card-heritage-modern {
+    border-radius: 122px 122px 8px 8px;
+}
+.invite-card-heritage-modern::before {
+    inset: 11px 15px;
+    border: 2px solid #a1643e;
+    border-radius: 108px 108px 5px 5px;
+}
+.invite-card-heritage-modern .card-ring {
+    width: 98px;
+    height: 98px;
+    border: 2px dotted #9e6039;
+    box-shadow: inset 0 0 0 8px rgba(255,248,231,.4);
+}
+.invite-card-heritage-modern .card-design-name { border-radius: 5px !important; }
+.invite-card-heritage-modern .card-theme-mark::before,
+.invite-card-heritage-modern .card-theme-mark::after {
+    content: '⌁ ◈ ⌁';
+    position: absolute;
+    top: 112px;
+    color: #9e6039;
+    font-size: 12px;
+    letter-spacing: 4px;
+}
+.invite-card-heritage-modern .card-theme-mark::before { left: 15px; transform: rotate(-90deg); }
+.invite-card-heritage-modern .card-theme-mark::after { right: 15px; transform: rotate(90deg); }
+
+.invite-card-golden-jubilee {
+    border-radius: 50% 50% 24px 24px;
+}
+.invite-card-golden-jubilee::before {
+    inset: 11px;
+    border: 3px double #ad7830;
+    border-radius: 50% 50% 17px 17px;
+}
+.invite-card-golden-jubilee .card-ring {
+    width: 116px;
+    height: 116px;
+    border: 1px dashed #ad7830;
+    box-shadow: inset 0 0 0 9px rgba(255,248,229,.35);
+}
+.invite-card-golden-jubilee .card-design-name {
+    border-radius: 50% !important;
+    padding: 17px 22px !important;
+}
+.invite-card-golden-jubilee .card-theme-mark::before {
+    content: '50';
+    position: absolute;
+    top: 70px;
+    right: 0;
+    left: 0;
+    color: #8e5e22;
+    font: italic 52px/1 'Cormorant Garamond', Georgia, serif;
+    opacity: .42;
+}
+
+.invite-card-sky-birthday {
+    border-radius: 28px 128px 28px 92px;
+}
+.invite-card-sky-birthday::before {
+    inset: 11px;
+    border: 2px dotted #16799f;
+    border-radius: 22px 116px 22px 80px;
+}
+.invite-card-sky-birthday .card-ring {
+    width: 88px;
+    height: 104px;
+    border: 2px dotted #e89d32;
+    border-radius: 52% 48% 50% 50%;
+}
+.invite-card-sky-birthday .card-design-name { border-radius: 24px 74px 24px 74px !important; }
+.invite-card-sky-birthday .card-theme-mark::before,
+.invite-card-sky-birthday .card-theme-mark::after {
+    content: '✦';
+    position: absolute;
+    color: #e49629;
+    font-size: 28px;
+}
+.invite-card-sky-birthday .card-theme-mark::before { top: 31px; right: 27px; }
+.invite-card-sky-birthday .card-theme-mark::after { bottom: 49px; left: 28px; font-size: 19px; }
+
+.invite-card-qyz-modern {
+    border-radius: 170px 170px 48px 48px;
+}
+.invite-card-qyz-modern::before {
+    inset: 12px;
+    border: 2px solid rgba(183,101,76,.62);
+    border-radius: 158px 158px 38px 38px;
+    box-shadow: inset 0 0 0 6px rgba(255,255,255,.38);
+}
+.invite-card-qyz-modern .card-ring {
+    width: 78px;
+    height: 102px;
+    border: 2px solid #ae674e;
+    border-radius: 50% 50% 18px 18px;
+}
+.invite-card-qyz-modern .card-design-name { border-radius: 72px 72px 18px 18px !important; }
+.invite-card-qyz-modern .card-theme-mark::before,
+.invite-card-qyz-modern .card-theme-mark::after {
+    content: '❀';
+    position: absolute;
+    top: 58px;
+    color: #b56953;
+    font-size: 27px;
+}
+.invite-card-qyz-modern .card-theme-mark::before { left: 23px; }
+.invite-card-qyz-modern .card-theme-mark::after { right: 23px; }
+
+.invite-card-sage-modern .card-shade { background: linear-gradient(180deg,rgba(240,248,238,.02) 18%,rgba(239,246,235,.92) 100%); }
+.invite-card-rose-modern .card-shade { background: linear-gradient(180deg,rgba(255,241,241,.03) 20%,rgba(255,239,238,.91) 100%); }
+.invite-card-evening-modern .card-shade { background: linear-gradient(180deg,rgba(255,240,202,.01) 18%,rgba(255,239,202,.91) 100%); }
+.invite-card-heritage-modern .card-shade { background: linear-gradient(180deg,rgba(255,245,227,.02) 18%,rgba(249,233,209,.92) 100%); }
+.invite-card-golden-jubilee .card-shade { background: linear-gradient(180deg,rgba(255,246,219,.02) 18%,rgba(255,241,207,.91) 100%); }
+.invite-card-sky-birthday .card-shade { background: linear-gradient(180deg,rgba(230,249,255,.01) 20%,rgba(235,249,255,.9) 100%); }
+.invite-card-qyz-modern .card-shade { background: linear-gradient(180deg,rgba(255,241,235,.02) 20%,rgba(255,239,234,.92) 100%); }
+
+/* The full invitation keeps the same content blocks but changes their geometry and rhythm per design. */
+.invite-theme-sage-modern { --iv-bg:#e9f0e5;--iv-paper:#fffdf7;--iv-ink:#2f4b3a;--iv-accent:#77906e;--iv-soft:#c7d7bd; }
+.invite-theme-sage-modern .invite-cover-copy::before { border-radius:190px 190px 22px 22px;background:rgba(248,253,245,.86); }
+.invite-theme-sage-modern .date-section { background:radial-gradient(circle at 50% 42%,#fffdf8 0 25%,#e2eddd 70%); }
+.invite-theme-sage-modern .date-orb { border-radius:50% 50% 18px 18px; }
+.invite-theme-sage-modern .venue-location { border-radius:26px; }
+
+.invite-theme-rose-modern { --iv-bg:#f9e7e6;--iv-paper:#fffaf6;--iv-ink:#683e43;--iv-accent:#bd7478;--iv-soft:#edc7c4; }
+.invite-theme-rose-modern .invite-cover-copy::before { inset:44px 10px 25px;border-radius:48% 52% 38px 38px / 42% 42% 25px 25px;background:rgba(255,247,246,.86); }
+.invite-theme-rose-modern .invite-intro { background:linear-gradient(150deg,#fffaf6,#f9e3e4); }
+.invite-theme-rose-modern .date-orb { width:244px;border-radius:46% 54% 42% 58% / 54% 44% 56% 46%; }
+.invite-theme-rose-modern .venue-location { border-radius:28px 8px 28px 8px; }
+
+.invite-theme-evening-modern { --iv-bg:#f5ddb0;--iv-paper:#fffbef;--iv-ink:#563a22;--iv-accent:#b07024;--iv-soft:#e3bd7d; }
+.invite-theme-evening-modern .invite-cover-copy::before { border:3px double #b07024;border-radius:7px;background:rgba(255,247,222,.88);clip-path:polygon(8% 0,92% 0,100% 8%,100% 92%,92% 100%,8% 100%,0 92%,0 8%); }
+.invite-theme-evening-modern .invite-name { font-style:normal;letter-spacing:.03em; }
+.invite-theme-evening-modern .date-orb { border:3px double var(--iv-accent);border-radius:12px;transform:rotate(2deg); }
+.invite-theme-evening-modern .program-section { background:linear-gradient(180deg,#fffaf0,#f3d8a7); }
+.invite-theme-evening-modern .venue-location { border:3px double var(--iv-accent);border-radius:6px; }
+
+.invite-theme-heritage-modern { --iv-bg:#ead8bd;--iv-paper:#fff9ed;--iv-ink:#553a2b;--iv-accent:#a65f38;--iv-soft:#d8ae86; }
+.invite-theme-heritage-modern .invite-cover-copy::before { inset:50px 18px 24px;border:2px solid #a65f38;border-radius:150px 150px 6px 6px;background:rgba(255,248,231,.87);box-shadow:inset 0 0 0 7px rgba(255,255,255,.38),0 18px 55px rgba(98,57,35,.18); }
+.invite-theme-heritage-modern .invite-section::before { content:'⌁  ◈  ⌁';display:block;margin-bottom:30px;color:var(--iv-accent);font-size:11px;letter-spacing:8px; }
+.invite-theme-heritage-modern .date-orb { border-radius:10px;clip-path:polygon(50% 0,94% 12%,100% 88%,50% 100%,0 88%,6% 12%); }
+.invite-theme-heritage-modern .venue-location { border-radius:4px; }
+
+.invite-theme-golden-jubilee { --iv-bg:#f5dfad;--iv-paper:#fffaf0;--iv-ink:#5d3f21;--iv-accent:#b67b2f;--iv-soft:#e4c589; }
+.invite-theme-golden-jubilee .invite-cover-copy::before { inset:62px 22px 24px;border:3px double #b67b2f;border-radius:50%;background:rgba(255,248,223,.87); }
+.invite-theme-golden-jubilee .jubilee-number { color:#9b6220;opacity:.7; }
+.invite-theme-golden-jubilee .invite-name { font-size:49px; }
+.invite-theme-golden-jubilee .date-orb { border:3px double var(--iv-accent);box-shadow:inset 0 0 0 10px rgba(182,123,47,.08); }
+.invite-theme-golden-jubilee .countdown-section { background:linear-gradient(145deg,#b87929,#e0b25e);color:#fffdf7; }
+.invite-theme-golden-jubilee .venue-location { border-radius:999px; }
+
+.invite-theme-sky-birthday { --iv-bg:#e6f5fb;--iv-paper:#fffdf8;--iv-ink:#24516a;--iv-accent:#e09631;--iv-soft:#acd7e8; }
+.invite-theme-sky-birthday .invite-cover-copy::before { inset:49px 15px 25px;border:2px dotted #e09631;border-radius:32px 155px 32px 112px;background:rgba(242,252,255,.87); }
+.invite-theme-sky-birthday .invite-name { font-style:normal;font-weight:650; }
+.invite-theme-sky-birthday .invite-intro { background:linear-gradient(155deg,#fffdf8,#e6f7fc); }
+.invite-theme-sky-birthday .date-orb { border:2px dotted var(--iv-accent);border-radius:38px 105px 38px 105px; }
+.invite-theme-sky-birthday .countdown-grid>div { border-radius:18px 42px 18px 42px; }
+.invite-theme-sky-birthday .venue-location { border-radius:16px 38px 16px 38px; }
+
+.invite-theme-qyz-modern { --iv-bg:#f8e8e1;--iv-paper:#fffaf4;--iv-ink:#643f3a;--iv-accent:#b86f55;--iv-soft:#e9c4b7; }
+.invite-theme-qyz-modern .invite-cover-copy::before { inset:44px 14px 25px;border:2px solid #b86f55;border-radius:195px 195px 35px 35px;background:rgba(255,247,242,.87);box-shadow:inset 0 0 0 7px rgba(255,255,255,.45),0 18px 55px rgba(111,65,55,.16); }
+.invite-theme-qyz-modern .invite-name { font-size:60px;line-height:.9; }
+.invite-theme-qyz-modern .date-orb { border-radius:50% 50% 30px 30px; }
+.invite-theme-qyz-modern .date-orb::before { transform:translate(13px,-9px) rotate(12deg);border-style:dashed; }
+.invite-theme-qyz-modern .venue-location { border-radius:30px 30px 8px 8px; }
+
+@media (max-width: 600px) {
+    .invite-theme-golden-jubilee .invite-cover-copy::before { inset:56px 15px 22px; }
+    .invite-theme-qyz-modern .invite-name { font-size:54px; }
+}

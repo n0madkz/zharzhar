@@ -9,18 +9,6 @@ class InvitationCatalogSeeder extends Seeder
 {
     public function run(): void
     {
-        Template::whereIn('slug', [
-            'sage-wedding', 'rose-wedding', 'gold-wedding',
-            'classic-anniversary', 'gold-anniversary', 'happy-birthday',
-        ])->update(['is_active' => false]);
-        foreach ([
-            'sage-wedding' => 'Жұмсақ жасыл', 'rose-wedding' => 'Қызғылт бақ',
-            'gold-wedding' => 'Кешкі алтын', 'classic-anniversary' => 'Дәстүрлі мерейтой',
-            'gold-anniversary' => 'Алтын мерейтой', 'happy-birthday' => 'Шаттықты туған күн',
-        ] as $slug => $name) {
-            Template::where('slug', $slug)->update(['name' => $name]);
-        }
-
         $base = [
             'event_date' => '2026-11-08',
             'event_time' => '18:00',
@@ -41,6 +29,52 @@ class InvitationCatalogSeeder extends Seeder
         ];
 
         foreach ([
+            ['Жұмсақ жасыл', 'sage-wedding', 'wedding', 'sage-modern', 7990, '/invitation-assets/modern-sage-wedding.webp', [
+                'title' => 'Жұмсақ жасыл', 'event_label' => 'ҮЙЛЕНУ ТОЙЫ',
+                'intro_title' => 'ЖАҢА ӨМІРДІҢ ЖАРҚЫН БАСТАУЫ',
+                'invitation_text' => 'Ақ ниет пен нәзік сезім тоғысқан тойымыздың қадірлі қонағы болыңыз.',
+                'date_title' => 'Үйлену салтанаты', 'ceremony_text' => 'Неке қию рәсімі',
+                'venue_name' => 'Жасыл Сарай', 'hosts_name' => 'Ақ тілек иелері',
+            ]],
+            ['Қызғылт бақ', 'rose-wedding', 'wedding', 'rose-modern', 8990, '/invitation-assets/modern-rose-wedding.webp', [
+                'title' => 'Қызғылт бақ', 'event_label' => 'ҮЙЛЕНУ ТОЙЫ',
+                'intro_title' => 'ГҮЛДЕЙ ҚҰЛПЫРҒАН МАХАББАТ',
+                'invitation_text' => 'Қызғылт гүлдердей жайнаған қуанышымызды бірге бөлісуге шын жүректен шақырамыз.',
+                'date_title' => 'Махаббат салтанаты', 'ceremony_text' => 'Жас жұбайларды қарсы алу',
+                'venue_name' => 'Гүлзар мейрамханасы', 'hosts_name' => 'Қуаныш иелері',
+            ]],
+            ['Кешкі алтын', 'gold-wedding', 'wedding', 'evening-modern', 10990, '/invitation-assets/modern-evening-wedding.webp', [
+                'title' => 'Кешкі алтын', 'event_label' => 'ҮЙЛЕНУ ТОЙЫ',
+                'intro_title' => 'АЛТЫН ШУАҚТЫ САЛТАНАТТЫ КЕШ',
+                'invitation_text' => 'Шырақ сәулесі мен алтын өрнекке бөленген ерекше кешіміздің қадірлі қонағы болыңыз.',
+                'date_title' => 'Салтанатты кеш', 'ceremony_text' => 'Жас жұбайлардың ақ биі',
+                'venue_name' => 'Алтын Шаңырақ', 'hosts_name' => 'Той иелері',
+            ]],
+            ['Дәстүрлі мерейтой', 'classic-anniversary', 'anniversary', 'heritage-modern', 8990, '/invitation-assets/modern-traditional-anniversary.webp', [
+                'title' => 'Дәстүрлі мерейтой', 'event_label' => 'МЕРЕЙТОЙ',
+                'intro_title' => 'ДӘСТҮР МЕН БЕРЕКЕ ТОҒЫСҚАН МЕРЕЙ',
+                'invitation_text' => 'Ғибратты ғұмырдың мерейлі белесін ұлттық дәстүр мен ақ дастархан басында бірге атап өтуге шақырамыз.',
+                'date_title' => 'Мерейтой салтанаты', 'ceremony_text' => 'Құрмет иесін қарсы алу',
+                'venue_name' => 'Мирас салтанат сарайы', 'hosts_title' => 'Шақырушы отбасы',
+                'hosts_name' => 'Балалары мен немерелері', 'rsvp_hint' => 'Мерейтойға қатысуыңызды растауыңызды сұраймыз.',
+            ]],
+            ['Алтын мерейтой', 'gold-anniversary', 'anniversary', 'golden-jubilee', 11990, '/invitation-assets/modern-gold-anniversary.webp', [
+                'title' => 'Алтын мерейтой', 'event_label' => 'АЛТЫН МЕРЕЙТОЙ', 'jubilee_number' => '50',
+                'intro_title' => 'АЛТЫН БЕЛЕС — АЙШЫҚТЫ ӨМІР',
+                'invitation_text' => 'Елу жылдық өнегелі жолдың қуанышын жақындарымызбен бірге бөлісіп, ақ тілегіңізді қабыл алуға шақырамыз.',
+                'date_title' => 'Алтын мерейтой кеші', 'ceremony_text' => 'Мерейтой иесін қарсы алу',
+                'venue_name' => 'Алтын Ғасыр залы', 'hosts_title' => 'Шақырушы отбасы',
+                'hosts_name' => 'Балалары мен немерелері', 'rsvp_hint' => 'Мерейтойға қатысуыңызды растауыңызды сұраймыз.',
+            ]],
+            ['Шаттықты туған күн', 'happy-birthday', 'birthday', 'sky-birthday', 7990, '/invitation-assets/modern-birthday.webp', [
+                'title' => 'Шаттықты туған күн', 'event_label' => 'ТУҒАН КҮН',
+                'intro_title' => 'ҚУАНЫШҚА ТОЛЫ ЖАҢА ЖАС',
+                'invitation_text' => 'Ашық аспандай жарқын көңіл мен шат күлкіге толы туған күн кешінің қонағы болыңыз.',
+                'date_title' => 'Туған күн кеші', 'ceremony_text' => 'Туған күн иесін қарсы алу',
+                'venue_name' => 'Шаттық залы', 'hosts_title' => 'Шақырушы',
+                'hosts_name' => 'Туған күн иесі', 'rsvp_hint' => 'Кешке қатысуыңызды растауыңызды сұраймыз.',
+                'closing_text' => 'Шаттықты күнімізді бірге қарсы алайық!',
+            ]],
             ['Ақ інжу', 'ak-inju', 'wedding', 'pearl', 7990, '/invitation-assets/pearl-ethno.webp', [
                 'title' => 'Ақ інжу', 'event_label' => 'ҮЙЛЕНУ ТОЙЫ',
                 'intro_title' => 'АҚ ТІЛЕКПЕН БАСТАЛҒАН ӘСЕМ КҮН',
@@ -78,7 +112,7 @@ class InvitationCatalogSeeder extends Seeder
                 'hosts_title' => 'Шақырушы отбасы', 'hosts_name' => 'Балалары мен немерелері',
                 'rsvp_hint' => 'Мерейтойға қатысуыңызды растауыңызды сұраймыз.',
             ]],
-            ['Ару қыз ұзату', 'aru-qyz-uzatu', 'qyz_uzatu', 'qyz', 10990, '/invitation-assets/qyz-ethno.webp', [
+            ['Ару қыз ұзату', 'aru-qyz-uzatu', 'qyz_uzatu', 'qyz-modern', 10990, '/invitation-assets/modern-qyz-uzatu.webp', [
                 'title' => 'Ару қыз ұзату', 'event_label' => 'ҚЫЗ ҰЗАТУ',
                 'intro_title' => 'АҚ БОСАҒАДАН АҚ ЖОЛМЕН',
                 'invitation_text' => 'Аяулы қызымыздың жаңа өмірге қадам басар қыз ұзату тойына арналған ақ дастарханымызға шақырамыз.',

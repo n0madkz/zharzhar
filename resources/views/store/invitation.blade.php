@@ -97,8 +97,9 @@
         ? ['дүйсенбі', 'сейсенбі', 'сәрсенбі', 'бейсенбі', 'жұма', 'сенбі', 'жексенбі']
         : ['понедельник', 'вторник', 'среда', 'четверг', 'пятница', 'суббота', 'воскресенье'];
     $nameParts = preg_split('/\s*(?:&|·|\bи\b|\bжәне\b)\s*/ui', $details['names'], -1, PREG_SPLIT_NO_EMPTY);
+    $jubileeNumber = $customCopy['jubilee_number'] ?? '60';
     $monogram = $eventType === 'anniversary'
-        ? '60'
+        ? $jubileeNumber
         : collect($nameParts)->take(2)->map(fn ($name) => mb_strtoupper(mb_substr(trim($name), 0, 1)))->implode(' · ');
     $displayNameLines = $nameParts;
     if ($preview) {
@@ -135,7 +136,7 @@
         <div class="invite-cover-copy" data-reveal>
             <p class="invite-overline">{{ $copy['event_label'] }}</p>
             <p class="invite-cover-date">{{ $eventDate->translatedFormat('d · m · Y') }}</p>
-            @if($eventType === 'anniversary')<span class="jubilee-number" aria-hidden="true">60</span>@endif
+            @if($eventType === 'anniversary')<span class="jubilee-number" aria-hidden="true">{{ $jubileeNumber }}</span>@endif
             <h1 class="invite-name{{ $preview ? ' invite-name-preview' : '' }}">@foreach($displayNameLines as $nameLine)<span>{{ $nameLine }}</span>@endforeach</h1>
             <span class="invite-monogram" aria-hidden="true">{{ $monogram }}</span>
         </div>
