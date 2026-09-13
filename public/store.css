@@ -40,3 +40,54 @@ body.admin-ui{--bg:#f4f7fb;--paper:#fff;--ink:#172033;--muted:#667085;--accent:#
 .admin-ui .copy-row input{background:#f8fafc}.admin-ui .pagination{align-items:center;padding:12px 16px;border:1px solid var(--border);border-radius:12px;background:#fff}.admin-ui .pagination a{color:#2563eb;font-weight:700}
 .admin-ui .store-footer{margin-top:10px;border-color:#e4e7ec}.admin-ui a:focus-visible,.admin-ui button:focus-visible,.admin-ui input:focus-visible,.admin-ui select:focus-visible,.admin-ui textarea:focus-visible,.admin-ui summary:focus-visible{outline:3px solid rgba(37,99,235,.25);outline-offset:2px}
 @media(max-width:700px){.admin-ui .shell{width:calc(100% - 28px)}.admin-ui .store-header{min-height:68px;margin-top:10px;padding:0 16px;border-radius:14px}.admin-ui .wordmark small{display:none}.admin-ui .page-heading{padding-top:28px}.admin-ui .admin-nav{margin-left:-2px;margin-right:-2px}.admin-ui .stats{grid-template-columns:1fr}.admin-ui .stats .panel{min-height:105px}.admin-ui .panel,.admin-ui .admin-editor{padding:18px}.admin-ui details.admin-editor{padding:0 16px}.admin-ui .order-head>div:last-child{text-align:left}.admin-ui .order-search>div .button{flex:1}.admin-ui .admin-section{padding-top:24px}}
+
+/* Individual catalog identities. These rules also provide a complete preview when an admin has not uploaded a cover yet. */
+.design-preview[class*="invite-card-"]{
+    --card-ink:#233b34;
+    --card-accent:#a96143;
+    --card-surface:#f7fbf8;
+    color:var(--card-ink);
+    background:var(--card-surface);
+    box-shadow:0 18px 38px color-mix(in srgb,var(--card-ink) 13%,transparent);
+}
+.design-preview[class*="invite-card-"] .card-shade{
+    background:linear-gradient(180deg,rgba(255,255,255,.03) 25%,color-mix(in srgb,var(--card-surface) 91%,transparent) 100%);
+}
+.design-preview[class*="invite-card-"]:not(:has(>img)) .card-shade{display:none}
+.design-preview[class*="invite-card-"]::before{border-color:var(--card-accent);opacity:.46}
+.design-preview[class*="invite-card-"] .card-ring{border-color:var(--card-accent);box-shadow:0 0 0 9px color-mix(in srgb,var(--card-accent) 10%,transparent)}
+.design-preview[class*="invite-card-"] .card-design-name{color:var(--card-ink);text-shadow:0 1px 14px var(--card-surface)}
+.card-theme-mark{position:absolute!important;z-index:2!important;inset:22px;pointer-events:none}
+.card-theme-mark i,.card-theme-mark b{position:absolute;display:block;border:1px solid var(--card-accent);opacity:.55}
+.card-theme-mark i:first-child{top:0;left:0;width:42px;height:42px;border-right:0;border-bottom:0;border-radius:24px 0 0}
+.card-theme-mark i:nth-child(2){right:0;bottom:0;width:42px;height:42px;border-top:0;border-left:0;border-radius:0 0 24px}
+.card-theme-mark b{top:50%;right:9px;width:7px;height:7px;transform:rotate(45deg);background:var(--card-accent)}
+
+.design-preview.invite-card-sage-modern{--card-ink:#234f43;--card-accent:#55a181;--card-surface:#e9f7ef;background:radial-gradient(circle at 15% 16%,#fff 0 7%,transparent 8%),linear-gradient(145deg,#d9f2e7,#f8fff8 54%,#c9ead8)}
+.invite-card-sage-modern .card-theme-mark i{border-radius:70% 0 70% 0}.invite-card-sage-modern img{filter:saturate(1.08) brightness(1.04)}
+.design-preview.invite-card-rose-modern{--card-ink:#783f57;--card-accent:#dd718c;--card-surface:#fff0f3;border-radius:110px 110px 32px 32px;background:radial-gradient(circle at 84% 18%,#ffd2dd 0 8%,transparent 9%),linear-gradient(160deg,#fff8fa,#f8cbd8)}
+.invite-card-rose-modern .card-theme-mark i{width:54px;height:28px;border-radius:50%}.invite-card-rose-modern img{filter:saturate(1.12) brightness(1.03)}
+.design-preview.invite-card-evening-modern{--card-ink:#4c311a;--card-accent:#d3962b;--card-surface:#fff2c9;border-radius:18px;background:linear-gradient(135deg,transparent 0 46%,rgba(190,125,28,.13) 47% 53%,transparent 54%),linear-gradient(145deg,#fff8db,#edc372)}
+.invite-card-evening-modern::before{border-radius:10px;border-width:2px}.invite-card-evening-modern .card-ring{border-style:double;border-width:4px}.invite-card-evening-modern img{filter:saturate(1.18) contrast(1.03)}
+.design-preview.invite-card-heritage-modern{--card-ink:#60321f;--card-accent:#c85f35;--card-surface:#fff1dc;border-radius:150px 150px 12px 12px;background:repeating-linear-gradient(45deg,transparent 0 18px,rgba(180,70,37,.08) 19px 21px),linear-gradient(#fff7e8,#efbd87)}
+.invite-card-heritage-modern .card-theme-mark b{width:13px;height:13px;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)}.invite-card-heritage-modern img{filter:saturate(1.08) contrast(1.05)}
+.design-preview.invite-card-golden-jubilee{--card-ink:#593d15;--card-accent:#c89b30;--card-surface:#fff7d8;border-radius:50% 50% 18px 18px;background:radial-gradient(circle at 50% 23%,transparent 0 31px,#d6a83a 32px 34px,transparent 35px),linear-gradient(145deg,#fffbe8,#edcf73)}
+.invite-card-golden-jubilee::before{border-style:double;border-width:4px}.invite-card-golden-jubilee img{filter:saturate(1.15) brightness(1.04)}
+.design-preview.invite-card-sky-birthday,.design-preview.invite-card-birthday{--card-ink:#145475;--card-accent:#f09b35;--card-surface:#e9f8ff;border-radius:34px 110px 34px 110px;background:radial-gradient(circle at 17% 18%,#ffd45c 0 5%,transparent 6%),radial-gradient(circle at 80% 31%,#75d2ed 0 7%,transparent 8%),linear-gradient(150deg,#e8faff,#acdff2)}
+.invite-card-sky-birthday .card-theme-mark b,.invite-card-birthday .card-theme-mark b{clip-path:polygon(50% 0,62% 38%,100% 50%,62% 62%,50% 100%,38% 62%,0 50%,38% 38%)}.invite-card-sky-birthday img,.invite-card-birthday img{filter:saturate(1.18) brightness(1.05)}
+.design-preview.invite-card-pearl{--card-ink:#42626d;--card-accent:#7cb6c5;--card-surface:#eefbfe;background:radial-gradient(circle at 20% 20%,#fff 0 3%,transparent 4%),linear-gradient(155deg,#fbffff,#ccebf3)}
+.invite-card-pearl .card-ring{box-shadow:0 0 0 8px rgba(255,255,255,.64),0 0 0 10px var(--card-accent)}.invite-card-pearl img{filter:saturate(1.02) brightness(1.08)}
+.design-preview.invite-card-royal{--card-ink:#5c241d;--card-accent:#d19a36;--card-surface:#fff0d2;border-radius:18px 18px 120px 120px;background:linear-gradient(90deg,rgba(164,43,37,.08) 0 12%,transparent 12% 88%,rgba(164,43,37,.08) 88%),linear-gradient(#fff8e8,#f0c16d)}
+.invite-card-royal::before{border-radius:10px 10px 105px 105px;border-width:2px}.invite-card-royal img{filter:saturate(1.14) contrast(1.04)}
+.design-preview.invite-card-botanical{--card-ink:#36553b;--card-accent:#7fa969;--card-surface:#f1f8e9;border-radius:50% 50% 50% 10px;background:radial-gradient(ellipse at 5% 20%,#b8d8a8 0 8%,transparent 9%),radial-gradient(ellipse at 91% 78%,#9dc88f 0 10%,transparent 11%),linear-gradient(150deg,#fbfff7,#dbeccc)}
+.invite-card-botanical img{filter:saturate(1.12) brightness(1.04)}
+.design-preview.invite-card-silk{--card-ink:#375766;--card-accent:#75a9bb;--card-surface:#eef9fc;border-radius:140px 28px 140px 28px;background:linear-gradient(125deg,transparent 0 43%,rgba(100,164,184,.16) 44% 46%,transparent 47%),linear-gradient(#f9feff,#cce8f0)}
+.invite-card-silk img{filter:saturate(1.08) brightness(1.08)}
+.design-preview.invite-card-nomad{--card-ink:#633a1d;--card-accent:#d0872e;--card-surface:#fff0ce;border-radius:120px 120px 0 0;background:linear-gradient(0deg,#e9b562 0 22%,transparent 23%),linear-gradient(#bde9f5 0 47%,#f7d996 48%)}
+.invite-card-nomad::before{border-radius:104px 104px 0 0}.invite-card-nomad img{filter:saturate(1.16) contrast(1.02)}
+.design-preview.invite-card-jubilee{--card-ink:#315a55;--card-accent:#c49c43;--card-surface:#edf9f5;border-radius:50%;background:repeating-conic-gradient(from 22deg,rgba(55,130,119,.1) 0 8deg,transparent 8deg 45deg),radial-gradient(circle,#fbfffd 0 47%,#cce9df 48%)}
+.invite-card-jubilee::before{border-radius:50%}.invite-card-jubilee img{filter:saturate(1.1) brightness(1.05)}
+.design-preview.invite-card-qyz,.design-preview.invite-card-qyz-modern{--card-ink:#713d54;--card-accent:#d26f92;--card-surface:#fff0f5;border-radius:120px 120px 42px 42px;background:linear-gradient(90deg,rgba(41,139,137,.13) 0 10%,transparent 10% 90%,rgba(210,111,146,.14) 90%),linear-gradient(#fff9fb,#f2cbd9)}
+.invite-card-qyz::before,.invite-card-qyz-modern::before{border-radius:106px 106px 32px 32px}.invite-card-qyz img,.invite-card-qyz-modern img{filter:saturate(1.13) brightness(1.05)}
+
+@media(max-width:700px){.card-theme-mark{inset:15px}.card-theme-mark i:first-child,.card-theme-mark i:nth-child(2){width:28px;height:28px}.card-theme-mark b{right:5px}}

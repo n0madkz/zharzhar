@@ -236,9 +236,36 @@ body.invitation-shell{margin:0;background:#e6e2dc;color:#28231f;font-family:Manr
 .music-theme-heritage-modern .music-ethno-ring>i{border:0;background:var(--music-accent);clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)}
 .music-theme-sky-birthday .music-ethno-ring>i{border-radius:50%;background:var(--music-accent)}
 
-.music-orb.is-playing .music-ethno-ring {
-    animation: music-ethno-turn 12s linear infinite;
+.music-ethno-ring {
+    animation: music-ethno-turn 32s linear infinite;
+    filter: drop-shadow(0 3px 5px color-mix(in srgb, var(--music-ink) 16%, transparent));
 }
+
+.music-ethno-ring > i {
+    width: 16px;
+    height: 11px;
+    margin: -5px -8px;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+    transform: rotate(calc(var(--ring-step) * 45deg)) translateY(-51px);
+}
+
+.music-ethno-ring > i::before,
+.music-ethno-ring > i::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    width: 8px;
+    height: 8px;
+    border: 2px solid var(--music-accent);
+    border-bottom-color: transparent;
+    border-radius: 70% 70% 35% 35%;
+}
+
+.music-ethno-ring > i::before { left: 0; transform:rotate(-34deg); }
+.music-ethno-ring > i::after { right: 0; transform:scaleX(-1) rotate(-34deg); }
+.music-orb.is-playing .music-ethno-ring { animation-duration:20s; }
 
 @keyframes music-ethno-turn {
     to { transform: rotate(360deg); }
@@ -257,12 +284,12 @@ body.invitation-shell{margin:0;background:#e6e2dc;color:#28231f;font-family:Manr
     }
 
     .music-ethno-ring > i {
-        transform: rotate(calc(var(--ring-step) * 45deg)) translateY(-48px) rotate(45deg);
+        transform: rotate(calc(var(--ring-step) * 45deg)) translateY(-48px);
     }
 }
 
 @media(prefers-reduced-motion:reduce) {
-    .music-orb.is-playing .music-ethno-ring {
+    .music-ethno-ring {
         animation: none;
     }
 }
