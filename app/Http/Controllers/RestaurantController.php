@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Booking;
+use App\Models\RestaurantService;
+use App\Models\RestaurantTariff;
 use Carbon\Carbon;
 use chillerlan\QRCode\Output\QRGdImagePNG;
 use chillerlan\QRCode\Output\QRMarkupSVG;
@@ -17,7 +19,7 @@ class RestaurantController extends Controller
 {
     public function index(Request $request): View
     {
-        $restaurant = $request->user()->restaurant()->with('slots')->firstOrFail();
+        $restaurant = $request->user()->restaurant()->with(['slots', 'services.tariffs'])->firstOrFail();
         $selectedDate = $request->date ? Carbon::parse($request->date) : Carbon::today();
         $month = $request->month ? Carbon::createFromFormat('Y-m', $request->month)->startOfMonth() : $selectedDate->copy()->startOfMonth();
         $calendarStart = $month->copy()->startOfWeek(Carbon::MONDAY);
@@ -26,7 +28,7 @@ class RestaurantController extends Controller
         for ($day = $calendarStart->copy(); $day->lte($calendarEnd); $day->addDay()) {
             $calendarDays[] = $day->copy();
         }
-        $bookings = Booking::where('restaurant_id', $restaurant->id)->with('slot')->whereBetween('booking_date', [$calendarStart->toDateString(), $calendarEnd->toDateString()])->latest('booking_date')->latest()->get();
+        $bookings = Booking::where('restaurant_id', $restaurant->id)->with(['slot', 'tariff.service'])->whereBetween('booking_date', [$calendarStart->toDateString(), $calendarEnd->toDateString()])->latest('booking_date')->latest()->get();
         $allBookings = $bookings;
         $bookings = $bookings->filter(fn (Booking $booking) => $booking->booking_date->isSameDay($selectedDate));
         $selectedBookings = $bookings->filter(fn (Booking $booking) => $booking->booking_date->isSameDay($selectedDate));
@@ -35,11 +37,15 @@ class RestaurantController extends Controller
             'date' => $booking->booking_date->format('Y-m-d'),
             'name' => $booking->visitor_name,
             'eventType' => $this->eventTypeLabel($booking->event_type),
+            'eventTypeValue' => $booking->event_type,
             'slotId' => $booking->restaurant_slot_id,
             'slot' => $this->slotLabel($booking->slot),
             'status' => $booking->status,
             'statusLabel' => $booking->statusLabel(),
             'guests' => $booking->guest_count,
+            'tariffId' => $booking->restaurant_tariff_id,
+            'service' => $booking->tariff?->service?->name,
+            'tariff' => $booking->tariff?->name,
             'pricePerGuest' => (float) $booking->price_per_guest,
             'prepayment' => (float) $booking->prepayment,
             'phone' => $booking->phone,
@@ -48,7 +54,7 @@ class RestaurantController extends Controller
         $reportPeriod = $request->input('report_period', 'all');
         $reportFrom = $request->input('report_from');
         $reportTo = $request->input('report_to');
-        $reportBookings = Booking::where('restaurant_id', $restaurant->id)->with('slot')
+        $reportBookings = Booking::where('restaurant_id', $restaurant->id)->with(['slot', 'tariff.service'])
             ->when($reportFrom, fn ($query) => $query->whereDate('booking_date', '>=', $reportFrom))
             ->when($reportTo, fn ($query) => $query->whereDate('booking_date', '<=', $reportTo))
             ->latest('booking_date')->latest()->paginate(10)->withQueryString();
@@ -69,7 +75,7 @@ class RestaurantController extends Controller
         $period = $request->input('report_period', 'all');
         $from = $request->input('report_from');
         $to = $request->input('report_to');
-        $bookings = Booking::where('restaurant_id', $restaurant->id)->with('slot')
+        $bookings = Booking::where('restaurant_id', $restaurant->id)->with(['slot', 'tariff.service'])
             ->when($from, fn ($query) => $query->whereDate('booking_date', '>=', $from))
             ->when($to, fn ($query) => $query->whereDate('booking_date', '<=', $to))
             ->orderBy('booking_date')->orderBy('id')->get();
@@ -77,9 +83,9 @@ class RestaurantController extends Controller
         return response()->streamDownload(function () use ($bookings): void {
             $out = fopen('php://output', 'w');
             fwrite($out, "\xEF\xBB\xBF");
-            fputcsv($out, ['ID', 'Ресторан', 'Дата', 'Тип мероприятия', 'Имя посетителя', 'Телефон', 'Количество гостей', 'Цена за 1 гостя', 'Предоплата', 'Итого', 'Период', 'Начало', 'Конец', 'Статус', 'Примечания', 'Создано'], ';');
+            fputcsv($out, ['ID', 'Ресторан', 'Дата', 'Тип мероприятия', 'Услуга', 'Тариф', 'Имя посетителя', 'Телефон', 'Количество гостей', 'Цена за 1 гостя', 'Предоплата', 'Итого', 'Период', 'Начало', 'Конец', 'Статус', 'Примечания', 'Создано'], ';');
             foreach ($bookings as $booking) {
-                fputcsv($out, [$booking->id, $restaurant->name, $booking->booking_date->format('d.m.Y'), $booking->event_type, $booking->visitor_name, $booking->phone, $booking->guest_count, $booking->price_per_guest, $booking->prepayment, $booking->total_amount, $booking->slot?->label, $booking->slot?->start_time, $booking->slot?->end_time, $booking->statusLabel(), $booking->note, $booking->created_at?->format('d.m.Y H:i')], ';');
+                fputcsv($out, [$booking->id, $restaurant->name, $booking->booking_date->format('d.m.Y'), $booking->event_type, $booking->tariff?->service?->name, $booking->tariff?->name, $booking->visitor_name, $booking->phone, $booking->guest_count, $booking->price_per_guest, $booking->prepayment, $booking->total_amount, $booking->slot?->label, $booking->slot?->start_time, $booking->slot?->end_time, $booking->statusLabel(), $booking->note, $booking->created_at?->format('d.m.Y H:i')], ';');
             }
             fclose($out);
         }, 'zharzhar-bookings.csv', ['Content-Type' => 'text/csv; charset=UTF-8']);
@@ -94,7 +100,7 @@ class RestaurantController extends Controller
         $month = isset($data['month']) ? Carbon::createFromFormat('Y-m', $data['month'])->startOfMonth() : Carbon::today()->startOfMonth();
         $start = $month->copy()->startOfWeek(Carbon::MONDAY);
         $end = $month->copy()->endOfMonth()->endOfWeek(Carbon::SUNDAY);
-        $bookings = Booking::where('restaurant_id', $restaurant->id)->with('slot')
+        $bookings = Booking::where('restaurant_id', $restaurant->id)->with(['slot', 'tariff.service'])
             ->whereBetween('booking_date', [$start->toDateString(), $end->toDateString()])->get();
         $days = [];
         for ($day = $start->copy(); $day->lte($end); $day->addDay()) {
@@ -108,8 +114,9 @@ class RestaurantController extends Controller
             'slots' => $restaurant->slots->map(fn ($slot) => ['id' => $slot->id, 'label' => $this->slotLabel($slot), 'color' => $slot->color]),
             'bookings' => $bookings->map(fn (Booking $booking) => [
                 'id' => $booking->id, 'date' => $booking->booking_date->format('Y-m-d'), 'name' => $booking->visitor_name,
-                'eventType' => $this->eventTypeLabel($booking->event_type), 'slotId' => $booking->restaurant_slot_id, 'slot' => $this->slotLabel($booking->slot),
-                'status' => $booking->status, 'statusLabel' => $booking->statusLabel(), 'guests' => $booking->guest_count, 'pricePerGuest' => (float) $booking->price_per_guest,
+                'eventType' => $this->eventTypeLabel($booking->event_type), 'eventTypeValue' => $booking->event_type, 'slotId' => $booking->restaurant_slot_id, 'slot' => $this->slotLabel($booking->slot),
+                'status' => $booking->status, 'statusLabel' => $booking->statusLabel(), 'guests' => $booking->guest_count, 'tariffId' => $booking->restaurant_tariff_id,
+                'service' => $booking->tariff?->service?->name, 'tariff' => $booking->tariff?->name, 'pricePerGuest' => (float) $booking->price_per_guest,
                 'prepayment' => (float) $booking->prepayment, 'phone' => $booking->phone, 'note' => $booking->note,
             ])->values(),
         ]);
@@ -125,13 +132,15 @@ class RestaurantController extends Controller
             'booking_date' => ['required', 'date'],
             'restaurant_slot_id' => ['required', 'integer', 'exists:restaurant_slots,id'],
             'guest_count' => ['required', 'integer', 'min:1', 'max:1000'],
-            'price_per_guest' => ['required', 'numeric', 'min:0'],
+            'restaurant_tariff_id' => ['required', 'integer', 'exists:restaurant_tariffs,id'],
             'prepayment' => ['nullable', 'numeric', 'min:0'],
             'note' => ['nullable', 'string', 'max:2000'],
         ]);
         abort_unless($restaurant->slots->contains('id', (int) $data['restaurant_slot_id']), 422, __('partner.messages.slot_foreign'));
+        $tariff = $this->activeRestaurantTariff($restaurant->id, (int) $data['restaurant_tariff_id']);
+        $data['price_per_guest'] = $tariff->price_per_guest;
         $data['prepayment'] = $data['prepayment'] ?? 0;
-        if ((float) $data['prepayment'] > ((float) $data['price_per_guest'] * (int) $data['guest_count'])) {
+        if ((float) $data['prepayment'] > ((float) $tariff->price_per_guest * (int) $data['guest_count'])) {
             return back()->withInput()->withErrors(['prepayment' => __('partner.messages.prepayment_high')]);
         }
         $occupied = Booking::where('restaurant_id', $restaurant->id)->whereDate('booking_date', $data['booking_date'])->where('restaurant_slot_id', $data['restaurant_slot_id'])->where('status', '!=', 'cancelled')->exists();
@@ -154,9 +163,7 @@ class RestaurantController extends Controller
             'slots' => ['required', 'array'],
             'slots.*.start_time' => ['required', 'date_format:H:i'],
             'slots.*.end_time' => ['required', 'date_format:H:i'],
-            'default_price_per_guest' => ['required', 'numeric', 'min:0'],
         ]);
-        $restaurant->update(['default_price_per_guest' => $data['default_price_per_guest']]);
         DB::transaction(function () use ($restaurant, $data): void {
             foreach ($restaurant->slots as $slot) {
                 $values = $data['slots'][$slot->slot_key] ?? null;
@@ -201,13 +208,15 @@ class RestaurantController extends Controller
             'booking_date' => ['required', 'date'],
             'restaurant_slot_id' => ['required', 'integer', 'exists:restaurant_slots,id'],
             'guest_count' => ['required', 'integer', 'min:1', 'max:1000'],
-            'price_per_guest' => ['required', 'numeric', 'min:0'],
+            'restaurant_tariff_id' => ['required', 'integer', 'exists:restaurant_tariffs,id'],
             'prepayment' => ['nullable', 'numeric', 'min:0'],
             'status' => ['required', 'in:pending,confirmed,cancelled'],
             'note' => ['nullable', 'string', 'max:2000'],
         ]);
+        $tariff = $this->activeRestaurantTariff($restaurant->id, (int) $data['restaurant_tariff_id']);
+        $data['price_per_guest'] = $tariff->price_per_guest;
         $data['prepayment'] = $data['prepayment'] ?? 0;
-        if ((float) $data['prepayment'] > ((float) $data['price_per_guest'] * (int) $data['guest_count'])) {
+        if ((float) $data['prepayment'] > ((float) $tariff->price_per_guest * (int) $data['guest_count'])) {
             return back()->withInput()->withErrors(['prepayment' => __('partner.messages.prepayment_high')]);
         }
         abort_unless($restaurant->slots->contains('id', (int) $data['restaurant_slot_id']), 422);
@@ -297,6 +306,95 @@ class RestaurantController extends Controller
         $booking->delete();
 
         return back()->with('success', __('partner.messages.booking_deleted'));
+    }
+
+    public function storeService(Request $request): RedirectResponse
+    {
+        $restaurant = $request->user()->restaurant()->firstOrFail();
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:120'],
+            'description' => ['nullable', 'string', 'max:1000'],
+        ]);
+        $restaurant->services()->create([...$data, 'is_active' => true]);
+
+        return redirect()->to(route('restaurant.dashboard').'#services')->with('success', __('partner.services.added'));
+    }
+
+    public function updateService(Request $request, RestaurantService $service): RedirectResponse
+    {
+        $this->ensureOwnService($request, $service);
+        $service->update($request->validate([
+            'name' => ['required', 'string', 'max:120'],
+            'description' => ['nullable', 'string', 'max:1000'],
+            'is_active' => ['nullable', 'boolean'],
+        ]) + ['is_active' => $request->boolean('is_active')]);
+
+        return redirect()->to(route('restaurant.dashboard').'#services')->with('success', __('partner.services.updated'));
+    }
+
+    public function destroyService(Request $request, RestaurantService $service): RedirectResponse
+    {
+        $this->ensureOwnService($request, $service);
+        DB::transaction(function () use ($service): void {
+            $service->update(['is_active' => false]);
+            $service->tariffs()->update(['is_active' => false]);
+        });
+
+        return redirect()->to(route('restaurant.dashboard').'#services')->with('success', __('partner.services.archived'));
+    }
+
+    public function storeTariff(Request $request, RestaurantService $service): RedirectResponse
+    {
+        $this->ensureOwnService($request, $service);
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:120'],
+            'description' => ['nullable', 'string', 'max:1000'],
+            'price_per_guest' => ['required', 'numeric', 'min:0', 'max:9999999999'],
+        ]);
+        $service->tariffs()->create([...$data, 'is_active' => true]);
+
+        return redirect()->to(route('restaurant.dashboard').'#services')->with('success', __('partner.services.tariff_added'));
+    }
+
+    public function updateTariff(Request $request, RestaurantTariff $tariff): RedirectResponse
+    {
+        $this->ensureOwnTariff($request, $tariff);
+        $tariff->update($request->validate([
+            'name' => ['required', 'string', 'max:120'],
+            'description' => ['nullable', 'string', 'max:1000'],
+            'price_per_guest' => ['required', 'numeric', 'min:0', 'max:9999999999'],
+            'is_active' => ['nullable', 'boolean'],
+        ]) + ['is_active' => $request->boolean('is_active')]);
+
+        return redirect()->to(route('restaurant.dashboard').'#services')->with('success', __('partner.services.tariff_updated'));
+    }
+
+    public function destroyTariff(Request $request, RestaurantTariff $tariff): RedirectResponse
+    {
+        $this->ensureOwnTariff($request, $tariff);
+        $tariff->update(['is_active' => false]);
+
+        return redirect()->to(route('restaurant.dashboard').'#services')->with('success', __('partner.services.tariff_archived'));
+    }
+
+    private function activeRestaurantTariff(int $restaurantId, int $tariffId): RestaurantTariff
+    {
+        return RestaurantTariff::query()
+            ->whereKey($tariffId)
+            ->where('is_active', true)
+            ->whereHas('service', fn ($query) => $query->where('restaurant_id', $restaurantId)->where('is_active', true))
+            ->firstOrFail();
+    }
+
+    private function ensureOwnService(Request $request, RestaurantService $service): void
+    {
+        abort_unless($service->restaurant_id === $request->user()->restaurant()->value('id'), 404);
+    }
+
+    private function ensureOwnTariff(Request $request, RestaurantTariff $tariff): void
+    {
+        $tariff->loadMissing('service');
+        $this->ensureOwnService($request, $tariff->service);
     }
 
     private function slotLabel($slot): string

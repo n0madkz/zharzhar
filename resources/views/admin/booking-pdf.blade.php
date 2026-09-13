@@ -5,6 +5,7 @@
 <div class="summary"><table class="rows">
 <tr><td>Ресторан</td><td>{{ $booking->restaurant?->name ?? 'Не указан' }}</td></tr><tr><td>Адрес</td><td>{{ trim(($booking->restaurant?->city ?? '').' '.($booking->restaurant?->address ?? '')) ?: 'Не указан' }}</td></tr>
 <tr><td>Посетитель</td><td>{{ $booking->visitor_name }}</td></tr><tr><td>Телефон</td><td>{{ $booking->phone ?: 'Не указан' }}</td></tr><tr><td>Мероприятие</td><td>{{ $booking->event_type ?: 'Не указано' }}</td></tr>
+<tr><td>Услуга</td><td>{{ $booking->tariff?->service?->name ?: 'Не указана' }}</td></tr><tr><td>Тариф</td><td>{{ $booking->tariff?->name ?: 'Не указан' }}</td></tr>
 <tr><td>Дата</td><td>{{ $booking->booking_date->format('d.m.Y') }}</td></tr><tr><td>Период</td><td>{{ $booking->slot?->label ?? 'Не выбран' }} @if($booking->slot)({{ $booking->slot->start_time }}–{{ $booking->slot->end_time }})@endif</td></tr>
 <tr><td>Количество гостей</td><td>{{ $booking->guest_count }}</td></tr><tr><td>Цена за одного гостя</td><td>{{ number_format((float)$booking->price_per_guest, 0, ',', ' ') }} ₸</td></tr><tr><td>Предоплата</td><td>{{ number_format((float)$booking->prepayment, 0, ',', ' ') }} ₸</td></tr>
 <tr><td>Итоговая сумма</td><td class="total">{{ number_format($booking->total_amount, 0, ',', ' ') }} ₸</td></tr><tr><td>Примечание</td><td>{{ $booking->note ?: 'Нет' }}</td></tr><tr><td>Создано</td><td>{{ $booking->created_at?->format('d.m.Y H:i') }}</td></tr>

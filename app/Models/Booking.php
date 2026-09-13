@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Booking extends Model
 {
-    protected $fillable = ['restaurant_id', 'restaurant_slot_id', 'visitor_name', 'event_type', 'phone', 'booking_date', 'booking_time', 'guest_count', 'price_per_guest', 'prepayment', 'status', 'note', 'color'];
+    protected $fillable = ['restaurant_id', 'restaurant_slot_id', 'restaurant_tariff_id', 'visitor_name', 'event_type', 'phone', 'booking_date', 'booking_time', 'guest_count', 'price_per_guest', 'prepayment', 'status', 'note', 'color'];
 
     protected function casts(): array
     {
@@ -53,5 +53,10 @@ class Booking extends Model
     public function slot(): BelongsTo
     {
         return $this->belongsTo(RestaurantSlot::class, 'restaurant_slot_id');
+    }
+
+    public function tariff(): BelongsTo
+    {
+        return $this->belongsTo(RestaurantTariff::class, 'restaurant_tariff_id');
     }
 }

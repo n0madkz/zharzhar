@@ -11,6 +11,8 @@
         @if($booking->whatsappUrl())<a class="button whatsapp" href="{{ $booking->whatsappUrl() }}" target="_blank" rel="noopener">Написать {{ $booking->phone }} в WhatsApp ↗</a>@else<p class="muted">Номер телефона не указан.</p>@endif
         <dl class="detail-list">
             <div><dt>Мероприятие</dt><dd>{{ $booking->event_type ?: 'Не указано' }}</dd></div>
+            <div><dt>Услуга</dt><dd>{{ $booking->tariff?->service?->name ?: 'Не указана' }}</dd></div>
+            <div><dt>Тариф</dt><dd>{{ $booking->tariff?->name ?: 'Не указан' }}</dd></div>
             <div><dt>Дата</dt><dd>{{ $booking->booking_date->format('d.m.Y') }}</dd></div>
             <div><dt>Период</dt><dd>{{ $booking->slot?->label ?? 'Не выбран' }} @if($booking->slot)· {{ $booking->slot->start_time }}–{{ $booking->slot->end_time }}@endif</dd></div>
             <div><dt>Количество гостей</dt><dd>{{ $booking->guest_count }}</dd></div>

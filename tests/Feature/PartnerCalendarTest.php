@@ -6,6 +6,8 @@ use App\Models\Booking;
 use App\Models\BonusTransaction;
 use App\Models\Restaurant;
 use App\Models\RestaurantSlot;
+use App\Models\RestaurantService;
+use App\Models\RestaurantTariff;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -136,6 +138,74 @@ class PartnerCalendarTest extends TestCase
             ->assertDontSee('Әзірге бонус есептелмеді.');
     }
 
+    public function test_partner_can_manage_services_and_tariffs(): void
+    {
+        [$partner, $restaurant] = $this->partnerFixture();
+
+        $this->actingAs($partner)->post('http://partner.zharzhar.kz/restaurant/services', [
+            'name' => 'Банкет',
+            'description' => 'Полное обслуживание',
+        ])->assertRedirect('http://partner.zharzhar.kz/restaurant#services');
+
+        $service = RestaurantService::where('restaurant_id', $restaurant->id)->firstOrFail();
+        $this->actingAs($partner)->post("http://partner.zharzhar.kz/restaurant/services/{$service->id}/tariffs", [
+            'name' => 'Премиум',
+            'description' => 'Расширенное меню',
+            'price_per_guest' => 22500,
+        ])->assertRedirect('http://partner.zharzhar.kz/restaurant#services');
+
+        $this->assertDatabaseHas('restaurant_tariffs', [
+            'restaurant_service_id' => $service->id,
+            'name' => 'Премиум',
+            'price_per_guest' => 22500,
+            'is_active' => true,
+        ]);
+
+        $this->actingAs($partner)->get('http://partner.zharzhar.kz/restaurant#services')
+            ->assertOk()
+            ->assertSee('Банкет')
+            ->assertSee('Премиум')
+            ->assertDontSee('name="default_price_per_guest"', false);
+    }
+
+    public function test_booking_price_is_taken_from_own_active_tariff(): void
+    {
+        [$partner, $restaurant, $slot] = $this->partnerFixture();
+        $tariff = $this->tariffFixture($restaurant, 18500);
+
+        $this->actingAs($partner)->post('http://partner.zharzhar.kz/restaurant/bookings', [
+            'visitor_name' => 'Айдана',
+            'event_type' => 'wedding',
+            'phone' => '+7 700 111 22 33',
+            'booking_date' => '2026-11-20',
+            'restaurant_slot_id' => $slot->id,
+            'restaurant_tariff_id' => $tariff->id,
+            'guest_count' => 100,
+            'price_per_guest' => 1,
+            'prepayment' => 100000,
+        ])->assertRedirect();
+
+        $booking = Booking::where('restaurant_id', $restaurant->id)->firstOrFail();
+        $this->assertSame($tariff->id, $booking->restaurant_tariff_id);
+        $this->assertSame('18500.00', $booking->price_per_guest);
+
+        $tariff->update(['price_per_guest' => 20000]);
+        $this->assertSame('18500.00', $booking->fresh()->price_per_guest);
+    }
+
+    public function test_partner_cannot_book_with_another_restaurants_tariff(): void
+    {
+        [$partner, , $slot] = $this->partnerFixture();
+        [, $foreignRestaurant] = $this->partnerFixture();
+        $foreignTariff = $this->tariffFixture($foreignRestaurant, 15000);
+
+        $this->actingAs($partner)->post('http://partner.zharzhar.kz/restaurant/bookings', [
+            'visitor_name' => 'Тест', 'event_type' => 'other', 'booking_date' => '2026-11-21',
+            'restaurant_slot_id' => $slot->id, 'restaurant_tariff_id' => $foreignTariff->id,
+            'guest_count' => 10, 'prepayment' => 0,
+        ])->assertNotFound();
+    }
+
     private function partnerFixture(): array
     {
         $partner = User::factory()->create(['role' => 'partner']);
@@ -156,5 +226,21 @@ class PartnerCalendarTest extends TestCase
         ]);
 
         return [$partner, $restaurant, $slot];
+    }
+
+    private function tariffFixture(Restaurant $restaurant, float $price): RestaurantTariff
+    {
+        $service = RestaurantService::create([
+            'restaurant_id' => $restaurant->id,
+            'name' => 'Банкет',
+            'is_active' => true,
+        ]);
+
+        return RestaurantTariff::create([
+            'restaurant_service_id' => $service->id,
+            'name' => 'Стандарт',
+            'price_per_guest' => $price,
+            'is_active' => true,
+        ]);
     }
 }

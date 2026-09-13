@@ -20,7 +20,7 @@ class AdminController extends Controller
 {
     public function index(): View
     {
-        $bookings = Booking::with(['restaurant', 'slot'])->latest('booking_date')->latest()->get();
+        $bookings = Booking::with(['restaurant', 'slot', 'tariff.service'])->latest('booking_date')->latest()->get();
         $restaurants = Restaurant::with('partner')->withCount('bookings')->latest()->get();
 
         return view('admin.dashboard-v2', compact('bookings', 'restaurants'));
@@ -96,14 +96,14 @@ class AdminController extends Controller
 
     public function showBooking(Booking $booking): View
     {
-        $booking->load(['restaurant', 'slot']);
+        $booking->load(['restaurant', 'slot', 'tariff.service']);
 
         return view('admin.booking-show', compact('booking'));
     }
 
     public function bookingPdf(Booking $booking): Response
     {
-        $booking->load(['restaurant', 'slot']);
+        $booking->load(['restaurant', 'slot', 'tariff.service']);
         $options = new Options;
         $options->set('defaultFont', 'DejaVu Sans');
         $options->set('isRemoteEnabled', false);

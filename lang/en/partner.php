@@ -13,4 +13,16 @@ return [
     'bonuses' => ['title' => 'Bonuses', 'subtitle' => 'A bonus is credited after an invitation payment is confirmed when the customer selected your restaurant.', 'rate' => 'Accrual rate', 'balance' => 'Available balance', 'order' => 'Order #:number', 'empty' => 'No bonus transactions yet.'],
     'reports' => ['title' => 'Reports', 'subtitle' => 'Filter and export all restaurant bookings by date.', 'from' => 'From', 'to' => 'To', 'period' => 'Time slot', 'all_periods' => 'All time slots', 'show' => 'Show', 'export' => 'Export CSV', 'date' => 'Date', 'event' => 'Event', 'visitor' => 'Guest', 'phone' => 'Phone', 'guests' => 'Guests', 'price' => 'Price/guest', 'prepayment' => 'Prepayment', 'total' => 'Total', 'status' => 'Status', 'notes' => 'Notes', 'empty' => 'There are no bookings yet.'],
     'messages' => ['language_saved' => 'Dashboard language saved.', 'booking_added' => 'Booking added.', 'booking_updated' => 'Booking updated.', 'booking_deleted' => 'Booking deleted.', 'settings_saved' => 'Settings saved.', 'slot_foreign' => 'This time slot does not belong to the restaurant.', 'prepayment_high' => 'Prepayment cannot exceed the total amount.', 'slot_occupied' => 'This time slot is already booked for the selected date.'],
+    'services' => [
+        'nav' => 'Services & rates', 'title' => 'Services and rates', 'subtitle' => 'Manage restaurant services and per-seat rates for each service.',
+        'new_service' => 'New service', 'service' => 'Service', 'service_name' => 'Service name', 'service_placeholder' => 'For example: Banquet',
+        'description' => 'Description', 'description_placeholder' => 'A short description of the service or rate', 'add_service' => 'Add service',
+        'save_service' => 'Save service', 'active' => 'Active', 'archive' => 'Archive', 'archive_service_confirm' => 'Archive this service and its rates?',
+        'tariffs' => 'Rates', 'tariff' => 'Rate', 'tariff_name' => 'Rate name', 'tariff_placeholder' => 'For example: Standard',
+        'price_per_guest' => 'Price per seat', 'add_tariff' => 'Add rate', 'save_tariff' => 'Save rate', 'archive_tariff_confirm' => 'Archive this rate?',
+        'empty' => 'No services have been added yet.', 'tariffs_empty' => 'This service has no rates yet.',
+        'choose_tariff' => 'Choose a service and rate', 'no_active_tariffs' => 'Add an active service and rate before creating a booking.',
+        'added' => 'Service added.', 'updated' => 'Service updated.', 'archived' => 'Service archived.',
+        'tariff_added' => 'Rate added.', 'tariff_updated' => 'Rate updated.', 'tariff_archived' => 'Rate archived.',
+    ],
 ];

@@ -63,6 +63,12 @@ Route::domain(config('store.partner_domain'))->middleware(['partner.domain', 'au
     Route::get('/restaurant/bookings/{booking}/qr', [RestaurantController::class, 'qr'])->name('restaurant.bookings.qr');
     Route::put('/restaurant/settings/slots', [RestaurantController::class, 'updateSlots'])->name('restaurant.settings.slots');
     Route::put('/restaurant/settings/language', [RestaurantController::class, 'updateLanguage'])->name('restaurant.settings.language');
+    Route::post('/restaurant/services', [RestaurantController::class, 'storeService'])->name('restaurant.services.store');
+    Route::put('/restaurant/services/{service}', [RestaurantController::class, 'updateService'])->name('restaurant.services.update');
+    Route::delete('/restaurant/services/{service}', [RestaurantController::class, 'destroyService'])->name('restaurant.services.destroy');
+    Route::post('/restaurant/services/{service}/tariffs', [RestaurantController::class, 'storeTariff'])->name('restaurant.tariffs.store');
+    Route::put('/restaurant/tariffs/{tariff}', [RestaurantController::class, 'updateTariff'])->name('restaurant.tariffs.update');
+    Route::delete('/restaurant/tariffs/{tariff}', [RestaurantController::class, 'destroyTariff'])->name('restaurant.tariffs.destroy');
 });
 Route::get('/dashboard', function () {
     return redirect(auth()->user()?->isRole('partner') ? '/restaurant' : '/admin');
