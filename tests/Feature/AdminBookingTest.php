@@ -20,7 +20,8 @@ class AdminBookingTest extends TestCase
 
         $dashboard = $this->actingAs($admin)->get(route('admin.dashboard'));
         $dashboard->assertOk()
-            ->assertSee('Ожидает подтверждения')
+            ->assertSee('Подтверждено')
+            ->assertDontSee('Ожидает подтверждения')
             ->assertSee('https://wa.me/77071234567', false)
             ->assertSee(route('admin.bookings.show', $booking), false)
             ->assertSee(route('admin.bookings.pdf'), false);

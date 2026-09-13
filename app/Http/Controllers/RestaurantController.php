@@ -174,7 +174,7 @@ class RestaurantController extends Controller
             return back()->withInput()->withErrors(['restaurant_slot_id' => __('partner.messages.slot_occupied')]);
         }
         $slot = $restaurant->slots->firstWhere('id', (int) $data['restaurant_slot_id']);
-        $booking = Booking::create([...$data, 'restaurant_id' => $restaurant->id, 'color' => $slot->color, 'status' => 'pending']);
+        $booking = Booking::create([...$data, 'restaurant_id' => $restaurant->id, 'color' => $slot->color, 'status' => 'confirmed']);
 
         return redirect()->to(route('restaurant.dashboard', [
             'month' => Carbon::parse($booking->booking_date)->format('Y-m'),

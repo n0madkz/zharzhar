@@ -74,14 +74,18 @@
     .legend-mark { height:6px; border-radius:4px; }
     .booking-list { scroll-margin-top:20px; scroll-margin-bottom:96px; }
     .reports-panel { min-width:0; max-width:100%; overflow:hidden; }
-    .report-filter { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; align-items:end; }
-    .report-filter .button { min-height:44px; }
+    .report-filter { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; align-items:end; margin-top:20px; }
+    .report-filter .field { margin:0; }
+    .report-filter-actions { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); grid-column:1/-1; gap:12px; }
+    .report-filter .button { display:flex; min-height:46px; margin:0; align-items:center; justify-content:center; box-sizing:border-box; text-align:center; }
     .report-table-wrap { width:100%; max-width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch; }
     .report-table-wrap table { width:100%; min-width:1120px; table-layout:fixed; border-collapse:collapse; }
     .report-table-wrap th, .report-table-wrap td { padding:12px 10px; text-align:left; vertical-align:middle; overflow-wrap:anywhere; border-bottom:1px solid #e7ebe8; }
     .report-table-wrap th:nth-child(1) { width:90px; }
     .report-table-wrap th:nth-child(6) { width:70px; }
     .report-table-wrap th:nth-child(7), .report-table-wrap th:nth-child(8), .report-table-wrap th:nth-child(9) { width:110px; }
+    .report-table-wrap th:nth-child(11) { width:130px; }
+    .report-status { color:#067647; font-weight:700; white-space:nowrap; }
     .pagination { margin-top:18px; overflow-x:auto; }
     .pagination nav { display:flex; justify-content:center; }
     .pagination nav > div { display:flex; gap:6px; align-items:center; flex-wrap:wrap; justify-content:center; }
@@ -127,7 +131,7 @@
     .language-settings small { display:block; margin-top:7px; color:var(--ui-muted); font-weight:400; }
     .language-settings .button { width:100%; }
     .settings-divider { margin:0 0 22px; border:0; border-top:1px solid #e4e7ec; }
-    @media (max-width:850px) { .report-filter { grid-template-columns:1fr; } .report-filter .button, .report-filter a { width:100%; text-align:center; } }
+    @media (max-width:850px) { .report-filter { grid-template-columns:1fr; } .report-filter-actions { grid-template-columns:1fr; } .report-filter .button, .report-filter a { width:100%; text-align:center; } }
     @media (max-width:850px) { .service-create,.service-edit,.tariff-edit,.tariff-create{grid-template-columns:1fr}.service-controls,.tariff-actions{width:100%}.service-controls .button,.tariff-actions .button{flex:1} }
     @media (max-width:560px) { .pricing-fields { grid-template-columns:1fr; } }
     .day-modal-head { display:flex; justify-content:space-between; gap:16px; align-items:flex-start; border-bottom:1px solid #e7ebe8; padding-bottom:16px; }
@@ -273,10 +277,12 @@
                 <label class="field">{{ __('partner.reports.from') }}<input type="date" name="report_from" value="{{ $reportFrom }}"></label>
                 <label class="field">{{ __('partner.reports.to') }}<input type="date" name="report_to" value="{{ $reportTo }}"></label>
                 <label class="field">{{ __('partner.reports.period') }}<select name="report_period"><option value="all">{{ __('partner.reports.all_periods') }}</option>@foreach($reportPeriods as $period)<option value="{{ $period['key'] }}" @selected($reportPeriod === $period['key'])>{{ $period['label'] }}</option>@endforeach</select></label>
-                <button class="button" type="submit">{{ __('partner.reports.show') }}</button>
-                <a class="button button-secondary" href="{{ route('restaurant.reports.export') }}?report_period={{ $reportPeriod }}">{{ __('partner.reports.export') }}</a>
+                <div class="report-filter-actions">
+                    <button class="button" type="submit">{{ __('partner.reports.show') }}</button>
+                    <a class="button button-secondary" href="{{ route('restaurant.reports.export') }}?{{ http_build_query(['report_period' => $reportPeriod, 'report_from' => $reportFrom, 'report_to' => $reportTo]) }}">{{ __('partner.reports.export') }}</a>
+                </div>
             </form>
-            <div class="report-table-wrap"><table><thead><tr><th>{{ __('partner.reports.date') }}</th><th>{{ __('partner.reports.event') }}</th><th>{{ __('partner.packages.package') }}</th><th>{{ __('partner.reports.visitor') }}</th><th>{{ __('partner.reports.phone') }}</th><th>{{ __('partner.reports.period') }}</th><th>{{ __('partner.reports.guests') }}</th><th>{{ __('partner.packages.price_per_guest') }}</th><th>{{ __('partner.reports.prepayment') }}</th><th>{{ __('partner.reports.total') }}</th><th>{{ __('partner.reports.status') }}</th><th>{{ __('partner.reports.notes') }}</th></tr></thead><tbody>@forelse($reportBookings as $booking)<tr><td>{{ $booking->booking_date->format('d.m.Y') }}</td><td>{{ $booking->event_type ?: '—' }}</td><td>{{ $booking->tariff?->name ?: '—' }}</td><td>{{ $booking->visitor_name }}</td><td>{{ $booking->phone ?: '—' }}</td><td>{{ $booking->slot?->label ?: '—' }}</td><td>{{ $booking->guest_count }}</td><td>{{ number_format($booking->price_per_guest, 2, ',', ' ') }} ₸</td><td>{{ number_format($booking->prepayment, 2, ',', ' ') }} ₸</td><td>{{ number_format($booking->total_amount, 2, ',', ' ') }} ₸</td><td>{{ $booking->statusLabel() }}</td><td>{{ $booking->note ?: '—' }}</td></tr>@empty<tr><td colspan="12" class="muted">{{ __('partner.reports.empty') }}</td></tr>@endforelse</tbody></table></div>
+            <div class="report-table-wrap"><table><thead><tr><th>{{ __('partner.reports.date') }}</th><th>{{ __('partner.reports.event') }}</th><th>{{ __('partner.packages.package') }}</th><th>{{ __('partner.reports.visitor') }}</th><th>{{ __('partner.reports.phone') }}</th><th>{{ __('partner.reports.period') }}</th><th>{{ __('partner.reports.guests') }}</th><th>{{ __('partner.packages.price_per_guest') }}</th><th>{{ __('partner.reports.prepayment') }}</th><th>{{ __('partner.reports.total') }}</th><th>{{ __('partner.reports.status') }}</th><th>{{ __('partner.reports.notes') }}</th></tr></thead><tbody>@forelse($reportBookings as $booking)<tr><td>{{ $booking->booking_date->format('d.m.Y') }}</td><td>{{ $booking->event_type ?: '—' }}</td><td>{{ $booking->tariff?->name ?: '—' }}</td><td>{{ $booking->visitor_name }}</td><td>{{ $booking->phone ?: '—' }}</td><td>{{ $booking->slot?->label ?: '—' }}</td><td>{{ $booking->guest_count }}</td><td>{{ number_format($booking->price_per_guest, 2, ',', ' ') }} ₸</td><td>{{ number_format($booking->prepayment, 2, ',', ' ') }} ₸</td><td>{{ number_format($booking->total_amount, 2, ',', ' ') }} ₸</td><td class="report-status">{{ $booking->statusLabel() }}</td><td>{{ $booking->note ?: '—' }}</td></tr>@empty<tr><td colspan="12" class="muted">{{ __('partner.reports.empty') }}</td></tr>@endforelse</tbody></table></div>
             <div class="pagination">{{ $reportBookings->links() }}</div>
         </section>
         <div class="restaurant-top">

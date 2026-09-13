@@ -282,6 +282,7 @@ class PartnerCalendarTest extends TestCase
         $booking = Booking::where('restaurant_id', $restaurant->id)->firstOrFail();
         $this->assertSame($tariff->id, $booking->restaurant_tariff_id);
         $this->assertSame('18500.00', $booking->price_per_guest);
+        $this->assertSame('confirmed', $booking->status);
 
         $tariff->update(['price_per_guest' => 20000]);
         $this->assertSame('18500.00', $booking->fresh()->price_per_guest);
