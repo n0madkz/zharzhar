@@ -77,7 +77,12 @@ class RestaurantController extends Controller
             'slot' => $this->slotLabel($booking->slot), 'guests' => $booking->guest_count, 'total' => number_format($booking->total_amount, 2, ',', ' ').' ₸', 'status' => $booking->statusLabel(),
         ])->values();
         $reportPeriods = $restaurant->slots->map(fn ($slot) => ['key' => $slot->slot_key, 'label' => $this->slotLabel($slot)])->values();
-        $bonusTransactions = $restaurant->bonuses()->with('order')->where('type', 'accrual')->latest()->limit(50)->get();
+        $bonusTransactions = $restaurant->bonuses()
+            ->with(['order.invitation', 'order.template'])
+            ->where('type', 'accrual')
+            ->latest()
+            ->limit(50)
+            ->get();
         $bonusBalance = (float) $restaurant->bonuses()->where('type', 'accrual')->where('status', 'available')->sum('amount');
         $packages = $restaurant->services->flatMap->tariffs->sortBy('sort_order')->sortBy('id')->values();
 

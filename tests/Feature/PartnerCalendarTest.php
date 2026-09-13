@@ -4,10 +4,14 @@ namespace Tests\Feature;
 
 use App\Models\Booking;
 use App\Models\BonusTransaction;
+use App\Models\Event;
+use App\Models\Invitation;
+use App\Models\InvitationOrder;
 use App\Models\Restaurant;
 use App\Models\RestaurantSlot;
 use App\Models\RestaurantService;
 use App\Models\RestaurantTariff;
+use App\Models\Template;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -122,8 +126,33 @@ class PartnerCalendarTest extends TestCase
     {
         [$partner, $restaurant] = $this->partnerFixture();
         $restaurant->update(['bonus_percent' => 9.5]);
+        $template = Template::factory()->create(['name' => 'Алтын салтанат']);
+        $event = Event::create([
+            'restaurant_id' => $restaurant->id,
+            'event_type' => 'wedding',
+            'title' => 'Алихан және Аружан',
+            'event_date' => '2026-10-14',
+            'event_time' => '18:00',
+            'language' => 'kk',
+            'status' => 'active',
+        ]);
+        $invitation = Invitation::create([
+            'event_id' => $event->id,
+            'template_id' => $template->id,
+            'slug' => 'alihan-aruzhan-12345',
+            'status' => 'published',
+            'published_at' => now(),
+        ]);
+        $order = InvitationOrder::factory()->create([
+            'template_id' => $template->id,
+            'invitation_id' => $invitation->id,
+            'status' => 'paid',
+            'details' => ['names' => 'Алихан және Аружан'],
+        ]);
         BonusTransaction::create([
             'restaurant_id' => $restaurant->id,
+            'invitation_id' => $invitation->id,
+            'invitation_order_id' => $order->id,
             'amount' => 949.05,
             'type' => 'accrual',
             'status' => 'available',
@@ -135,6 +164,9 @@ class PartnerCalendarTest extends TestCase
             ->assertOk()
             ->assertSee('9.5%')
             ->assertSee('949,05 ₸')
+            ->assertSee('Алихан және Аружан')
+            ->assertSee('Алтын салтанат')
+            ->assertSee('/i/alihan-aruzhan-12345', false)
             ->assertDontSee('Әзірге бонус есептелмеді.');
     }
 

@@ -242,15 +242,15 @@
     .bonus-summary small{color:#667085;font-weight:700}
     .bonus-summary strong{color:#1d4ed8;font-size:26px}
     .bonus-history{margin-top:18px;border-top:1px solid #eef1f5}
-    .bonus-row{display:flex;justify-content:space-between;gap:16px;align-items:center;padding:15px 2px;border-bottom:1px solid #eef1f5}
-    .bonus-row div{display:flex;flex-direction:column;gap:4px}.bonus-row small{color:#667085}.bonus-row>span{color:#067647;font-weight:800;white-space:nowrap}.bonus-empty{padding:18px 0}
+    .bonus-row{display:flex;justify-content:space-between;gap:22px;align-items:center;padding:17px 2px;border-bottom:1px solid #eef1f5}
+    .bonus-info,.bonus-side{display:flex;flex-direction:column;gap:4px}.bonus-row small{color:#667085}.bonus-side{align-items:flex-end;gap:9px}.bonus-amount{color:#067647;font-weight:800;white-space:nowrap}.bonus-invitation-link{display:inline-flex;align-items:center;justify-content:center;min-height:36px;padding:8px 12px;border:1px solid #b9c8ff;border-radius:9px;background:#eef3ff;color:#1746c9;font-size:12px;font-weight:800;text-decoration:none}.bonus-invitation-link:hover{background:#dfe8ff}.bonus-unavailable{font-size:12px;color:#98a2b3}.bonus-empty{padding:18px 0}
     .booking-list-head{display:flex;align-items:end;justify-content:space-between;gap:18px;margin-bottom:10px}.booking-search{display:flex;gap:8px;width:min(480px,100%)}.booking-search input{flex:1;min-width:150px;padding:11px 13px;border:1px solid #d0d5dd;border-radius:9px;background:#fff}.booking-search .button{white-space:nowrap}.booking-search-reset{display:inline-flex;align-items:center;padding:0 5px;color:#475467;font-size:13px}
     @media(max-width:560px){
         .day-modal-backdrop{align-items:stretch;padding:8px}
         .day-modal{width:100%;max-height:calc(100dvh - 16px);padding:18px 14px;border-radius:16px}
         .day-modal-head h2{font-size:22px}
         .day-modal-form #new-booking{padding-top:14px}
-        .bonus-summary{grid-template-columns:1fr}.bonus-summary>div{min-height:94px}
+        .bonus-summary{grid-template-columns:1fr}.bonus-summary>div{min-height:94px}.bonus-row{align-items:flex-start;flex-direction:column}.bonus-side{width:100%;align-items:center;flex-direction:row;justify-content:space-between}
         .booking-list-head{align-items:stretch;flex-direction:column}.booking-search{width:100%;flex-wrap:wrap}.booking-search input{flex-basis:100%}.booking-search .button{flex:1}
     }
 </style>
@@ -349,7 +349,7 @@
             </div>
             <div class="bonus-history">
                 @forelse($bonusTransactions as $transaction)
-                    <article class="bonus-row"><div><strong>{{ __('partner.bonuses.order', ['number' => $transaction->invitation_order_id]) }}</strong><small>{{ $transaction->created_at?->format('d.m.Y H:i') }}</small></div><span>+{{ number_format((float)$transaction->amount, 2, ',', ' ') }} ₸</span></article>
+                    <article class="bonus-row"><div class="bonus-info"><strong>{{ __('partner.bonuses.order', ['number' => $transaction->invitation_order_id]) }}</strong>@if($transaction->order)<small>{{ data_get($transaction->order->details, 'names') }}</small><small>{{ __('partner.bonuses.design', ['name' => $transaction->order->template?->name ?? '—']) }}</small>@endif<small>{{ $transaction->created_at?->format('d.m.Y H:i') }}</small></div><div class="bonus-side"><span class="bonus-amount">+{{ number_format((float)$transaction->amount, 2, ',', ' ') }} ₸</span>@if($transaction->order?->invitation)<a class="bonus-invitation-link" href="{{ $transaction->order->publicUrl('i/'.$transaction->order->invitation->slug) }}" target="_blank" rel="noopener">{{ __('partner.bonuses.view_invitation') }} ↗</a>@else<span class="bonus-unavailable">{{ __('partner.bonuses.invitation_unavailable') }}</span>@endif</div></article>
                 @empty<p class="muted bonus-empty">{{ __('partner.bonuses.empty') }}</p>@endforelse
             </div>
         </section>
