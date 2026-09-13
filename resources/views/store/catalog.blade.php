@@ -74,7 +74,7 @@
     $titleSecondLine = implode(' ', $titleWords);
 @endphp
 <article class="design-card design-card-{{ $theme }}">
-<a href="{{ route('store.preview', $template) }}" class="design-preview invite-card-{{ $theme }} theme-{{ $theme }}" aria-label="{{ $copy['view'] }}: {{ $template->name }}">
+<a href="{{ route('store.preview', $template) }}" class="design-preview invite-card-{{ $theme }} theme-{{ $theme }} event-card-{{ $template->event_type }}" aria-label="{{ $copy['view'] }}: {{ $template->name }}">
 @if($template->preview_image)<img src="{{ $template->preview_image }}" alt="" loading="lazy">@endif
 <span class="card-shade" aria-hidden="true"></span>
 <span class="card-theme-mark" aria-hidden="true"><i></i><i></i><b></b></span>

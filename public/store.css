@@ -90,4 +90,13 @@ body.admin-ui{--bg:#f4f7fb;--paper:#fff;--ink:#172033;--muted:#667085;--accent:#
 .design-preview.invite-card-qyz,.design-preview.invite-card-qyz-modern{--card-ink:#713d54;--card-accent:#d26f92;--card-surface:#fff0f5;border-radius:120px 120px 42px 42px;background:linear-gradient(90deg,rgba(41,139,137,.13) 0 10%,transparent 10% 90%,rgba(210,111,146,.14) 90%),linear-gradient(#fff9fb,#f2cbd9)}
 .invite-card-qyz::before,.invite-card-qyz-modern::before{border-radius:106px 106px 32px 32px}.invite-card-qyz img,.invite-card-qyz-modern img{filter:saturate(1.13) brightness(1.05)}
 
+/* Legacy themes already stored in production receive the same distinct event identities. */
+.design-preview.invite-card-sage{--card-ink:#234f43;--card-accent:#55a181;--card-surface:#e9f7ef;background:radial-gradient(circle at 15% 16%,#fff 0 7%,transparent 8%),linear-gradient(145deg,#d9f2e7,#f8fff8 54%,#c9ead8)}
+.design-preview.invite-card-sand{--card-ink:#60321f;--card-accent:#c85f35;--card-surface:#fff1dc;border-radius:150px 150px 12px 12px;background:repeating-linear-gradient(45deg,transparent 0 18px,rgba(180,70,37,.08) 19px 21px),linear-gradient(#fff7e8,#efbd87)}
+.design-preview.invite-card-midnight{--card-ink:#4c311a;--card-accent:#d3962b;--card-surface:#fff2c9;border-radius:18px;background:linear-gradient(135deg,transparent 0 46%,rgba(190,125,28,.13) 47% 53%,transparent 54%),linear-gradient(145deg,#fff8db,#edc372)}
+.design-preview.invite-card-rose{--card-ink:#783f57;--card-accent:#dd718c;--card-surface:#fff0f3;border-radius:110px 110px 32px 32px;background:radial-gradient(circle at 84% 18%,#ffd2dd 0 8%,transparent 9%),linear-gradient(160deg,#fff8fa,#f8cbd8)}
+.design-preview.invite-card-rose.event-card-birthday{--card-ink:#145475;--card-accent:#f09b35;--card-surface:#e9f8ff;border-radius:34px 110px 34px 110px;background:radial-gradient(circle at 17% 18%,#ffd45c 0 5%,transparent 6%),radial-gradient(circle at 80% 31%,#75d2ed 0 7%,transparent 8%),linear-gradient(150deg,#e8faff,#acdff2)}
+.design-preview.invite-card-midnight.event-card-anniversary{--card-ink:#593d15;--card-accent:#c89b30;--card-surface:#fff7d8;border-radius:50% 50% 18px 18px;background:repeating-conic-gradient(from 22deg,rgba(200,155,48,.12) 0 8deg,transparent 8deg 45deg),radial-gradient(circle,#fffbe8 0 47%,#ecd381 48%)}
+.design-preview.invite-card-midnight.event-card-anniversary::before{border-radius:50%}
+
 @media(max-width:700px){.card-theme-mark{inset:15px}.card-theme-mark i:first-child,.card-theme-mark i:nth-child(2){width:28px;height:28px}.card-theme-mark b{right:5px}}
