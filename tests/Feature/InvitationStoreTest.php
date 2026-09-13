@@ -465,7 +465,7 @@ class InvitationStoreTest extends TestCase
             ->assertOk()
             ->assertViewHas('orders', fn ($orders) => $orders->count() === 2);
 
-        foreach (['Мария', '77775556677', 'Алтын Сарай', (string) $target->id] as $search) {
+        foreach (['Мария', '77775556677', '5566', 'Алтын Сарай', (string) $target->id] as $search) {
             $this->get(route('admin.store.index', ['q' => $search]))
                 ->assertOk()
                 ->assertSee('Мария Касымова')

@@ -33,17 +33,14 @@ class StoreAdminController extends Controller
             ->when(in_array($status, ['pending', 'review', 'paid', 'rejected']), fn ($query) => $query->where('status', $status))
             ->when($search !== '', function ($query) use ($search, $phoneSearch, $orderNumberSearch): void {
                 $query->where(function ($query) use ($search, $phoneSearch, $orderNumberSearch): void {
-                    if ($orderNumberSearch !== null) {
-                        $query->whereRaw('CAST(id AS CHAR) LIKE ?', ['%'.$orderNumberSearch.'%']);
-
-                        return;
-                    }
-
                     $query->where('customer_name', 'like', '%'.$search.'%')
                         ->orWhere('customer_phone', 'like', '%'.$search.'%')
                         ->orWhere('details->names', 'like', '%'.$search.'%')
                         ->orWhere('details->hosts', 'like', '%'.$search.'%')
                         ->orWhere('details->venue_name', 'like', '%'.$search.'%');
+                    if ($orderNumberSearch !== null) {
+                        $query->orWhereRaw('CAST(id AS CHAR) LIKE ?', ['%'.$orderNumberSearch.'%']);
+                    }
                     if ($phoneSearch !== '') {
                         $query->orWhereRaw("REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(customer_phone, '+', ''), ' ', ''), '-', ''), '(', ''), ')', '') LIKE ?", ['%'.$phoneSearch.'%']);
                     }
