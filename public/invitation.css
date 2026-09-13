@@ -237,9 +237,17 @@ body.invitation-shell{margin:0;background:#e6e2dc;color:#28231f;font-family:Manr
 .music-theme-sky-birthday .music-ethno-ring>i{border-radius:50%;background:var(--music-accent)}
 
 .music-ethno-ring {
+    inset: -19px;
     animation: music-ethno-turn 32s linear infinite;
     filter: drop-shadow(0 3px 5px color-mix(in srgb, var(--music-ink) 16%, transparent));
+    overflow: visible;
 }
+
+.music-ethno-track{fill:none;stroke:color-mix(in srgb,var(--music-accent) 68%,transparent);stroke-width:1}
+.music-ethno-track-outer{stroke-dasharray:1.5 3.5}
+.music-ethno-track-inner{stroke:color-mix(in srgb,var(--music-ring) 88%,var(--music-accent));stroke-width:1.4}
+.music-koshkar-ring{fill:none;stroke:var(--music-accent);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.music-koshkar-ring use:nth-child(even){stroke:color-mix(in srgb,var(--music-accent) 70%,var(--music-ink))}
 
 .music-ethno-ring > i {
     width: 16px;
@@ -265,7 +273,7 @@ body.invitation-shell{margin:0;background:#e6e2dc;color:#28231f;font-family:Manr
 
 .music-ethno-ring > i::before { left: 0; transform:rotate(-34deg); }
 .music-ethno-ring > i::after { right: 0; transform:scaleX(-1) rotate(-34deg); }
-.music-orb.is-playing .music-ethno-ring { animation-duration:20s; }
+.music-orb.is-playing .music-ethno-ring { animation-duration:24s; }
 
 @keyframes music-ethno-turn {
     to { transform: rotate(360deg); }
@@ -293,3 +301,43 @@ body.invitation-shell{margin:0;background:#e6e2dc;color:#28231f;font-family:Manr
         animation: none;
     }
 }
+
+/* The map link follows the invitation palette while the compact 2GIS mark stays recognizable. */
+.venue-location{
+    position:relative;
+    grid-template-columns:44px minmax(0,1fr) 30px;
+    gap:12px;
+    padding:13px 14px;
+    overflow:hidden;
+    border-color:color-mix(in srgb,var(--iv-accent) 55%,var(--iv-soft));
+    border-radius:24px;
+    background:linear-gradient(135deg,color-mix(in srgb,var(--iv-paper) 96%,white),color-mix(in srgb,var(--iv-accent) 8%,var(--iv-paper)));
+    box-shadow:0 14px 32px color-mix(in srgb,var(--iv-ink) 10%,transparent),inset 0 0 0 1px rgba(255,255,255,.55);
+}
+.venue-location::before{
+    content:'';
+    position:absolute;
+    top:-28px;
+    right:-24px;
+    width:92px;
+    height:92px;
+    border:1px solid color-mix(in srgb,var(--iv-accent) 24%,transparent);
+    border-radius:50%;
+    box-shadow:0 0 0 10px color-mix(in srgb,var(--iv-accent) 5%,transparent),0 0 0 20px color-mix(in srgb,var(--iv-accent) 4%,transparent);
+}
+.venue-location>*{position:relative;z-index:1}
+.two-gis-logo{
+    width:44px;
+    height:44px;
+    border:1px solid color-mix(in srgb,#21a74f 72%,var(--iv-accent));
+    border-radius:50%;
+    background:color-mix(in srgb,var(--iv-paper) 92%,white);
+    box-shadow:0 5px 13px color-mix(in srgb,var(--iv-ink) 11%,transparent),inset 0 0 0 4px color-mix(in srgb,#21a74f 8%,transparent);
+    color:#168c40;
+    font-size:11px;
+    letter-spacing:-.4px;
+}
+.venue-location-copy>span{color:var(--iv-accent);letter-spacing:.2px}
+.venue-location-arrow{display:grid;width:28px;height:28px;place-items:center;border:1px solid color-mix(in srgb,var(--iv-accent) 48%,var(--iv-soft));border-radius:50%;color:var(--iv-accent);font-size:14px;transition:transform .2s ease,background .2s ease,color .2s ease}
+.venue-location:hover{border-color:var(--iv-accent);box-shadow:0 18px 38px color-mix(in srgb,var(--iv-ink) 15%,transparent)}
+.venue-location:hover .venue-location-arrow{transform:translate(1px,-1px);background:var(--iv-accent);color:var(--iv-paper)}

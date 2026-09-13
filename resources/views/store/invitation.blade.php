@@ -226,9 +226,27 @@
 @endif
 <button class="music-orb music-theme-{{ $theme }}" type="button" data-invite-music @if(empty($details['music_url'])) data-preview-tone @endif aria-label="{{ $copy['music_play'] }}" aria-pressed="false" data-play-label="{{ $copy['music_play'] }}" data-pause-label="{{ $copy['music_pause'] }}">
     <span class="music-ornament" aria-hidden="true"></span>
-    <span class="music-ethno-ring" aria-hidden="true">
-        <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
-    </span>
+    <svg class="music-ethno-ring" viewBox="0 0 120 120" aria-hidden="true" focusable="false">
+        <defs>
+            <g id="music-koshkar-motif">
+                <path d="M60 5c-8 0-13 4-13 10 0 6 5 10 10 10 5 0 9-4 9-9 0-4-3-7-7-7-4 0-7 3-7 6 0 3 2 5 5 5 3 0 5-2 5-5"/>
+                <path d="M60 5c8 0 13 4 13 10 0 6-5 10-10 10-5 0-9-4-9-9 0-4 3-7 7-7 4 0 7 3 7 6 0 3-2 5-5 5-3 0-5-2-5-5"/>
+                <path d="M51 22l-5 7m23-7 5 7"/>
+            </g>
+        </defs>
+        <circle class="music-ethno-track music-ethno-track-outer" cx="60" cy="60" r="54"/>
+        <circle class="music-ethno-track music-ethno-track-inner" cx="60" cy="60" r="39"/>
+        <g class="music-koshkar-ring">
+            <use href="#music-koshkar-motif"/>
+            <use href="#music-koshkar-motif" transform="rotate(45 60 60)"/>
+            <use href="#music-koshkar-motif" transform="rotate(90 60 60)"/>
+            <use href="#music-koshkar-motif" transform="rotate(135 60 60)"/>
+            <use href="#music-koshkar-motif" transform="rotate(180 60 60)"/>
+            <use href="#music-koshkar-motif" transform="rotate(225 60 60)"/>
+            <use href="#music-koshkar-motif" transform="rotate(270 60 60)"/>
+            <use href="#music-koshkar-motif" transform="rotate(315 60 60)"/>
+        </g>
+    </svg>
     <span class="music-control-icon" aria-hidden="true">
         <span class="music-play-icon"></span>
         <span class="music-pause-icon"><i></i><i></i></span>
