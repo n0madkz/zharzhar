@@ -59,7 +59,7 @@
     </section>
 </div>
 
-<div class="section-head"><div><h2>Все бронирования</h2><p class="muted">Нажмите на имя гостя, чтобы открыть бронирование на этом сайте.</p></div></div>
+<div class="section-head"><div><h2>Все бронирования</h2><p class="muted">Нажмите на имя гостя, чтобы открыть бронирование на этом сайте.</p></div><a class="button secondary" href="{{ route('admin.bookings.pdf') }}">Скачать все в PDF</a></div>
 <div class="table-scroll">
     <table>
         <thead><tr><th>Посетитель</th><th>Телефон / WhatsApp</th><th>Ресторан</th><th>Дата</th><th>Гостей</th><th>Сумма</th><th>Статус</th><th>Действия</th></tr></thead>
@@ -73,7 +73,7 @@
                 <td>{{ $booking->guest_count }}</td>
                 <td>{{ number_format($booking->total_amount, 0, ',', ' ') }} ₸</td>
                 <td><span class="status status-{{ $booking->status }}">{{ $booking->statusLabel() }}</span></td>
-                <td><div class="row-actions"><a href="{{ route('admin.bookings.show', $booking) }}">Просмотр</a><a href="{{ route('admin.bookings.pdf', $booking) }}">PDF</a></div></td>
+                <td><div class="row-actions"><a href="{{ route('admin.bookings.show', $booking) }}">Просмотр</a></div></td>
             </tr>
         @empty
             <tr><td colspan="8">Бронирований пока нет.</td></tr>

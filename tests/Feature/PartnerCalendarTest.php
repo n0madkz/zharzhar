@@ -138,22 +138,17 @@ class PartnerCalendarTest extends TestCase
             ->assertDontSee('Әзірге бонус есептелмеді.');
     }
 
-    public function test_partner_can_manage_services_and_tariffs(): void
+    public function test_partner_can_manage_packages_from_settings_without_services_ui(): void
     {
         [$partner, $restaurant] = $this->partnerFixture();
 
-        $this->actingAs($partner)->post('http://partner.zharzhar.kz/restaurant/services', [
-            'name' => 'Банкет',
-            'description' => 'Полное обслуживание',
-        ])->assertRedirect('http://partner.zharzhar.kz/restaurant#services');
-
-        $service = RestaurantService::where('restaurant_id', $restaurant->id)->firstOrFail();
-        $this->actingAs($partner)->post("http://partner.zharzhar.kz/restaurant/services/{$service->id}/tariffs", [
+        $this->actingAs($partner)->post('http://partner.zharzhar.kz/restaurant/settings/packages', [
             'name' => 'Премиум',
             'description' => 'Расширенное меню',
             'price_per_guest' => 22500,
-        ])->assertRedirect('http://partner.zharzhar.kz/restaurant#services');
+        ])->assertRedirect('http://partner.zharzhar.kz/restaurant#settings');
 
+        $service = RestaurantService::where('restaurant_id', $restaurant->id)->firstOrFail();
         $this->assertDatabaseHas('restaurant_tariffs', [
             'restaurant_service_id' => $service->id,
             'name' => 'Премиум',
@@ -161,11 +156,41 @@ class PartnerCalendarTest extends TestCase
             'is_active' => true,
         ]);
 
-        $this->actingAs($partner)->get('http://partner.zharzhar.kz/restaurant#services')
+        $this->actingAs($partner)->get('http://partner.zharzhar.kz/restaurant#settings')
             ->assertOk()
-            ->assertSee('Банкет')
             ->assertSee('Премиум')
+            ->assertSee('href="#settings"', false)
+            ->assertDontSee('href="#services"', false)
             ->assertDontSee('name="default_price_per_guest"', false);
+    }
+
+    public function test_partner_can_download_utf8_csv_report(): void
+    {
+        [$partner, $restaurant, $slot] = $this->partnerFixture();
+        $tariff = $this->tariffFixture($restaurant, 18500);
+        Booking::create([
+            'restaurant_id' => $restaurant->id,
+            'restaurant_slot_id' => $slot->id,
+            'restaurant_tariff_id' => $tariff->id,
+            'visitor_name' => 'Айдана',
+            'event_type' => 'wedding',
+            'phone' => '+7 700 111 22 33',
+            'booking_date' => '2026-11-20',
+            'guest_count' => 100,
+            'price_per_guest' => 18500,
+            'prepayment' => 100000,
+            'status' => 'confirmed',
+        ]);
+
+        $response = $this->actingAs($partner)->get('http://partner.zharzhar.kz/restaurant/reports/export?report_period=all');
+
+        $response->assertOk()
+            ->assertHeader('content-type', 'text/csv; charset=UTF-8')
+            ->assertHeader('content-disposition', 'attachment; filename="zharzhar-bookings.csv"');
+        $this->assertStringStartsWith("\xEF\xBB\xBF", $response->getContent());
+        $this->assertStringContainsString('Айдана', $response->getContent());
+        $this->assertStringContainsString('Пакет', $response->getContent());
+        $this->assertStringNotContainsString('Услуга', $response->getContent());
     }
 
     public function test_booking_price_is_taken_from_own_active_tariff(): void

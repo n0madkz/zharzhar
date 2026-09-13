@@ -51,8 +51,8 @@ Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->n
 Route::get('/admin', [AdminController::class, 'index'])->middleware(['auth', 'role:admin'])->name('admin.dashboard');
 Route::post('/admin/restaurants', [AdminController::class, 'storeRestaurant'])->middleware(['auth', 'role:admin'])->name('admin.restaurants.store');
 Route::put('/admin/restaurants/{restaurant}', [AdminController::class, 'updateRestaurant'])->middleware(['auth', 'role:admin'])->name('admin.restaurants.update');
+Route::get('/admin/bookings/pdf', [AdminController::class, 'bookingsPdf'])->middleware(['auth', 'role:admin'])->name('admin.bookings.pdf');
 Route::get('/admin/bookings/{booking}', [AdminController::class, 'showBooking'])->middleware(['auth', 'role:admin'])->name('admin.bookings.show');
-Route::get('/admin/bookings/{booking}/pdf', [AdminController::class, 'bookingPdf'])->middleware(['auth', 'role:admin'])->name('admin.bookings.pdf');
 Route::domain(config('store.partner_domain'))->middleware(['partner.domain', 'auth', 'role:partner', SetPartnerLocale::class])->group(function () {
     Route::get('/restaurant', [RestaurantController::class, 'index'])->name('restaurant.dashboard');
     Route::get('/restaurant/calendar-data', [RestaurantController::class, 'calendarData'])->name('restaurant.calendar.data');
@@ -63,12 +63,9 @@ Route::domain(config('store.partner_domain'))->middleware(['partner.domain', 'au
     Route::get('/restaurant/bookings/{booking}/qr', [RestaurantController::class, 'qr'])->name('restaurant.bookings.qr');
     Route::put('/restaurant/settings/slots', [RestaurantController::class, 'updateSlots'])->name('restaurant.settings.slots');
     Route::put('/restaurant/settings/language', [RestaurantController::class, 'updateLanguage'])->name('restaurant.settings.language');
-    Route::post('/restaurant/services', [RestaurantController::class, 'storeService'])->name('restaurant.services.store');
-    Route::put('/restaurant/services/{service}', [RestaurantController::class, 'updateService'])->name('restaurant.services.update');
-    Route::delete('/restaurant/services/{service}', [RestaurantController::class, 'destroyService'])->name('restaurant.services.destroy');
-    Route::post('/restaurant/services/{service}/tariffs', [RestaurantController::class, 'storeTariff'])->name('restaurant.tariffs.store');
-    Route::put('/restaurant/tariffs/{tariff}', [RestaurantController::class, 'updateTariff'])->name('restaurant.tariffs.update');
-    Route::delete('/restaurant/tariffs/{tariff}', [RestaurantController::class, 'destroyTariff'])->name('restaurant.tariffs.destroy');
+    Route::post('/restaurant/settings/packages', [RestaurantController::class, 'storePackage'])->name('restaurant.packages.store');
+    Route::put('/restaurant/settings/packages/{tariff}', [RestaurantController::class, 'updatePackage'])->name('restaurant.packages.update');
+    Route::delete('/restaurant/settings/packages/{tariff}', [RestaurantController::class, 'destroyPackage'])->name('restaurant.packages.destroy');
 });
 Route::get('/dashboard', function () {
     return redirect(auth()->user()?->isRole('partner') ? '/restaurant' : '/admin');

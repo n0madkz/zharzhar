@@ -3,12 +3,12 @@
 @section('content')
 @php
     $partnerI18n = [
-        'bookings' => __('partner.nav.bookings'), 'reports' => __('partner.nav.reports'), 'services' => __('partner.services.nav'),
+        'bookings' => __('partner.nav.bookings'), 'reports' => __('partner.nav.reports'),
         'saveSettings' => __('partner.settings.save_time'),
         'close' => __('partner.booking.close'), 'addEvent' => __('partner.booking.add_event'), 'selectedDay' => __('partner.booking.selected_day'),
         'event' => __('partner.booking.event'), 'periodMissing' => __('partner.booking.not_selected'), 'guests' => __('partner.booking.guests'),
         'eventType' => __('partner.booking.event_type'), 'notSpecified' => __('partner.booking.not_specified'), 'phone' => __('partner.booking.phone'),
-        'service' => __('partner.services.service'), 'tariff' => __('partner.services.tariff'), 'price' => __('partner.services.price_per_guest'), 'prepayment' => __('partner.booking.prepayment'), 'total' => __('partner.booking.total'),
+        'tariff' => __('partner.packages.package'), 'price' => __('partner.packages.price_per_guest'), 'prepayment' => __('partner.booking.prepayment'), 'total' => __('partner.booking.total'),
         'notes' => __('partner.booking.notes'), 'none' => __('partner.booking.none'), 'change' => __('partner.booking.change'),
         'edit' => __('partner.booking.edit'), 'delete' => __('partner.booking.delete'), 'deleteConfirm' => __('partner.booking.delete_confirm'),
 'noDay' => __('partner.booking.no_day'), 'openEvent' => __('partner.booking.open_event'),
@@ -258,7 +258,6 @@
         <div class="brand" style="margin:4px 0 28px">Жар-Жар</div>
         <a class="active" href="{{ route('restaurant.dashboard') }}#new-booking"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 9h18"/></svg></span>{{ __('partner.nav.bookings') }}</a>
         <a href="#schedule"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 13h3M8 17h3M14 13h3"/></svg></span>{{ __('partner.nav.calendar') }}</a>
-        <a href="#services"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M7 3v4M17 3v4M6 11h5v5H6zM14 11h4M14 15h4M6 20h12"/></svg></span>{{ __('partner.services.nav') }}</a>
         <a href="#bonuses"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18M17 7H9.5a3 3 0 1 0 0 6H14a3 3 0 1 1 0 6H6"/></svg></span>{{ __('partner.nav.bonuses') }}</a>
         <a href="#settings"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.5 2.4 2.8.5.5 2.8L19 10l-1.2 2 1.2 2-2.2 1.3-.5 2.8-2.8.5L12 21l-1.5-2.4-2.8-.5-.5-2.8L5 14l1.2-2L5 10l2.2-1.3.5-2.8 2.8-.5L12 3Z"/><circle cx="12" cy="12" r="2.5"/></svg></span>{{ __('partner.nav.settings') }}</a>
         <a href="#reports"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V10M12 20V4M19 20v-7"/></svg></span>{{ __('partner.nav.reports') }}</a>
@@ -275,7 +274,7 @@
                 <button class="button" type="submit">{{ __('partner.reports.show') }}</button>
                 <a class="button button-secondary" href="{{ route('restaurant.reports.export') }}?report_period={{ $reportPeriod }}">{{ __('partner.reports.export') }}</a>
             </form>
-            <div class="report-table-wrap"><table><thead><tr><th>{{ __('partner.reports.date') }}</th><th>{{ __('partner.reports.event') }}</th><th>{{ __('partner.services.service') }}</th><th>{{ __('partner.services.tariff') }}</th><th>{{ __('partner.reports.visitor') }}</th><th>{{ __('partner.reports.phone') }}</th><th>{{ __('partner.reports.period') }}</th><th>{{ __('partner.reports.guests') }}</th><th>{{ __('partner.services.price_per_guest') }}</th><th>{{ __('partner.reports.prepayment') }}</th><th>{{ __('partner.reports.total') }}</th><th>{{ __('partner.reports.status') }}</th><th>{{ __('partner.reports.notes') }}</th></tr></thead><tbody>@forelse($reportBookings as $booking)<tr><td>{{ $booking->booking_date->format('d.m.Y') }}</td><td>{{ $booking->event_type ?: '—' }}</td><td>{{ $booking->tariff?->service?->name ?: '—' }}</td><td>{{ $booking->tariff?->name ?: '—' }}</td><td>{{ $booking->visitor_name }}</td><td>{{ $booking->phone ?: '—' }}</td><td>{{ $booking->slot?->label ?: '—' }}</td><td>{{ $booking->guest_count }}</td><td>{{ number_format($booking->price_per_guest, 2, ',', ' ') }} ₸</td><td>{{ number_format($booking->prepayment, 2, ',', ' ') }} ₸</td><td>{{ number_format($booking->total_amount, 2, ',', ' ') }} ₸</td><td>{{ $booking->statusLabel() }}</td><td>{{ $booking->note ?: '—' }}</td></tr>@empty<tr><td colspan="13" class="muted">{{ __('partner.reports.empty') }}</td></tr>@endforelse</tbody></table></div>
+            <div class="report-table-wrap"><table><thead><tr><th>{{ __('partner.reports.date') }}</th><th>{{ __('partner.reports.event') }}</th><th>{{ __('partner.packages.package') }}</th><th>{{ __('partner.reports.visitor') }}</th><th>{{ __('partner.reports.phone') }}</th><th>{{ __('partner.reports.period') }}</th><th>{{ __('partner.reports.guests') }}</th><th>{{ __('partner.packages.price_per_guest') }}</th><th>{{ __('partner.reports.prepayment') }}</th><th>{{ __('partner.reports.total') }}</th><th>{{ __('partner.reports.status') }}</th><th>{{ __('partner.reports.notes') }}</th></tr></thead><tbody>@forelse($reportBookings as $booking)<tr><td>{{ $booking->booking_date->format('d.m.Y') }}</td><td>{{ $booking->event_type ?: '—' }}</td><td>{{ $booking->tariff?->name ?: '—' }}</td><td>{{ $booking->visitor_name }}</td><td>{{ $booking->phone ?: '—' }}</td><td>{{ $booking->slot?->label ?: '—' }}</td><td>{{ $booking->guest_count }}</td><td>{{ number_format($booking->price_per_guest, 2, ',', ' ') }} ₸</td><td>{{ number_format($booking->prepayment, 2, ',', ' ') }} ₸</td><td>{{ number_format($booking->total_amount, 2, ',', ' ') }} ₸</td><td>{{ $booking->statusLabel() }}</td><td>{{ $booking->note ?: '—' }}</td></tr>@empty<tr><td colspan="12" class="muted">{{ __('partner.reports.empty') }}</td></tr>@endforelse</tbody></table></div>
             <div class="pagination">{{ $reportBookings->links() }}</div>
         </section>
         <div class="restaurant-top">
@@ -314,23 +313,23 @@
                     <label class="field">{{ __('partner.booking.event_type') }}<select name="event_type" required><option value="">{{ __('partner.booking.choose_type') }}</option>@foreach(['wedding','birthday','anniversary','corporate','other'] as $eventType)<option value="{{ $eventType }}">{{ __('partner.event_types.'.$eventType) }}</option>@endforeach</select></label>
                     <label class="field">{{ __('partner.booking.visitor') }}<input name="visitor_name" value="{{ old('visitor_name') }}" required></label>
                     <div class="form-grid"><label class="field">{{ __('partner.booking.phone') }}<input name="phone" value="{{ old('phone') }}" placeholder="+7 700 000 00 00"></label><label class="field">{{ __('partner.booking.guests') }}<input name="guest_count" type="number" min="1" value="{{ old('guest_count', 2) }}" required></label></div>
-                    <label class="field">{{ __('partner.services.tariff') }}<select class="tariff-select" name="restaurant_tariff_id" required><option value="">{{ __('partner.services.choose_tariff') }}</option>@foreach($restaurant->services->where('is_active', true) as $service)@if($service->tariffs->where('is_active', true)->isNotEmpty())<optgroup label="{{ $service->name }}">@foreach($service->tariffs->where('is_active', true) as $tariff)<option value="{{ $tariff->id }}" data-price="{{ (float)$tariff->price_per_guest }}" @selected(old('restaurant_tariff_id') == $tariff->id)>{{ $tariff->name }} · {{ number_format((float)$tariff->price_per_guest, 0, ',', ' ') }} ₸</option>@endforeach</optgroup>@endif @endforeach</select></label>
-                    @if($restaurant->services->where('is_active', true)->flatMap->tariffs->where('is_active', true)->isEmpty())<p class="error">{{ __('partner.services.no_active_tariffs') }}</p>@endif
+                    <label class="field">{{ __('partner.packages.package') }}<select class="tariff-select" name="restaurant_tariff_id" required><option value="">{{ __('partner.packages.choose') }}</option>@foreach($packages->where('is_active', true) as $package)<option value="{{ $package->id }}" data-price="{{ (float)$package->price_per_guest }}" @selected(old('restaurant_tariff_id') == $package->id)>{{ $package->name }} · {{ number_format((float)$package->price_per_guest, 0, ',', ' ') }} ₸</option>@endforeach</select></label>
+                    @if($packages->where('is_active', true)->isEmpty())<p class="error">{{ __('partner.packages.no_active') }}</p>@endif
                     <div class="pricing-fields"><label class="field">{{ __('partner.booking.prepayment') }}<input name="prepayment" type="number" min="0" step="0.01" value="{{ old('prepayment', 0) }}"></label><p class="booking-total">{{ __('partner.booking.total') }}: <strong>0,00 ₸</strong></p></div>
                     <label class="field">{{ __('partner.booking.period') }}<select name="restaurant_slot_id" required><option value="">{{ __('partner.booking.choose_period') }}</option>@foreach($restaurant->slots as $slot)<option value="{{ $slot->id }}" @selected(old('restaurant_slot_id') == $slot->id)>{{ __('partner.slots.'.$slot->slot_key) !== 'partner.slots.'.$slot->slot_key ? __('partner.slots.'.$slot->slot_key) : $slot->label }} · {{ $slot->start_time }}–{{ $slot->end_time }}</option>@endforeach</select></label>
                     <label class="field">{{ __('partner.booking.notes') }}<textarea name="note" rows="4" placeholder="{{ __('partner.booking.notes_placeholder') }}">{{ old('note') }}</textarea></label>
-                    <button class="button submit" type="submit" @disabled($restaurant->services->where('is_active', true)->flatMap->tariffs->where('is_active', true)->isEmpty())>{{ __('partner.booking.save') }}</button>
+                    <button class="button submit" type="submit" @disabled($packages->where('is_active', true)->isEmpty())>{{ __('partner.booking.save') }}</button>
                 </form>
             </section>
         </div>
 
         <section class="panel booking-list"><h2>{{ __('partner.booking.selected_day') }}</h2>
             @forelse($bookings->sortBy('booking_date')->take(12) as $booking)
-                <details class="booking-card" id="booking-{{ $booking->id }}"><summary><i class="booking-color" style="--booking-color:{{ $booking->color }}"></i><span><strong>{{ $booking->visitor_name }}</strong><small>{{ $booking->booking_date->format('d.m.Y') }} · {{ $booking->tariff?->service?->name ?? __('partner.services.service') }} / {{ $booking->tariff?->name ?? __('partner.services.tariff') }} · {{ $booking->slot?->label ?? __('partner.booking.not_selected') }} · {{ $booking->guest_count }} {{ __('partner.booking.guests') }}</small></span></summary>
+                <details class="booking-card" id="booking-{{ $booking->id }}"><summary><i class="booking-color" style="--booking-color:{{ $booking->color }}"></i><span><strong>{{ $booking->visitor_name }}</strong><small>{{ $booking->booking_date->format('d.m.Y') }} · {{ $booking->tariff?->name ?? __('partner.packages.package') }} · {{ $booking->slot?->label ?? __('partner.booking.not_selected') }} · {{ $booking->guest_count }} {{ __('partner.booking.guests') }}</small></span></summary>
                     <form method="POST" action="{{ route('restaurant.bookings.update', $booking) }}" class="booking-edit-form">@csrf @method('PUT')
                         <input type="hidden" name="event_type" value="{{ $booking->event_type }}"><input type="hidden" name="status" value="{{ $booking->status }}">
                         <div class="form-grid"><label class="field">{{ __('partner.booking.visitor') }}<input name="visitor_name" value="{{ $booking->visitor_name }}" required></label><label class="field">{{ __('partner.booking.phone') }}<input name="phone" value="{{ $booking->phone }}"></label><label class="field">{{ __('partner.booking.date') }}<input type="date" name="booking_date" value="{{ $booking->booking_date->format('Y-m-d') }}" required></label><label class="field">{{ __('partner.booking.guests') }}<input type="number" name="guest_count" min="1" value="{{ $booking->guest_count }}" required></label></div>
-                        <label class="field">{{ __('partner.services.tariff') }}<select class="tariff-select" name="restaurant_tariff_id" required>@foreach($restaurant->services->where('is_active', true) as $service)@if($service->tariffs->where('is_active', true)->isNotEmpty())<optgroup label="{{ $service->name }}">@foreach($service->tariffs->where('is_active', true) as $tariff)<option value="{{ $tariff->id }}" data-price="{{ (float)$tariff->price_per_guest }}" @selected($booking->restaurant_tariff_id === $tariff->id)>{{ $tariff->name }} · {{ number_format((float)$tariff->price_per_guest, 0, ',', ' ') }} ₸</option>@endforeach</optgroup>@endif @endforeach</select></label>
+                        <label class="field">{{ __('partner.packages.package') }}<select class="tariff-select" name="restaurant_tariff_id" required>@foreach($packages->where('is_active', true) as $package)<option value="{{ $package->id }}" data-price="{{ (float)$package->price_per_guest }}" @selected($booking->restaurant_tariff_id === $package->id)>{{ $package->name }} · {{ number_format((float)$package->price_per_guest, 0, ',', ' ') }} ₸</option>@endforeach</select></label>
                         <div class="pricing-fields"><label class="field">{{ __('partner.booking.prepayment') }}<input name="prepayment" type="number" min="0" step="0.01" value="{{ (float)$booking->prepayment }}"></label><p class="booking-total">{{ __('partner.booking.total') }}: <strong>{{ number_format($booking->total_amount, 2, ',', ' ') }} ₸</strong></p></div>
                         <label class="field">{{ __('partner.booking.period') }}<select name="restaurant_slot_id" required>@foreach($restaurant->slots as $slot)<option value="{{ $slot->id }}" @selected($booking->restaurant_slot_id === $slot->id)>{{ __('partner.slots.'.$slot->slot_key) !== 'partner.slots.'.$slot->slot_key ? __('partner.slots.'.$slot->slot_key) : $slot->label }} · {{ $slot->start_time }}–{{ $slot->end_time }}</option>@endforeach</select></label>
                         <label class="field">{{ __('partner.booking.notes') }}<textarea name="note" rows="3">{{ $booking->note }}</textarea></label><div class="booking-actions"><button class="button" type="submit">{{ __('partner.booking.save_changes') }}</button></div>
@@ -338,47 +337,6 @@
                     <form method="POST" action="{{ route('restaurant.bookings.destroy', $booking) }}" onsubmit="return window.confirm(this.dataset.confirm)" data-confirm="{{ __('partner.booking.delete_confirm') }}">@csrf @method('DELETE')<button class="button button-danger" type="submit">{{ __('partner.booking.delete') }}</button></form>
                 </details>
             @empty<p class="muted">{{ __('partner.booking.no_month') }}</p>@endforelse
-        </section>
-
-        <section class="panel info-panel" id="services">
-            <h2>{{ __('partner.services.title') }}</h2><p class="muted">{{ __('partner.services.subtitle') }}</p>
-            <form class="service-create" method="POST" action="{{ route('restaurant.services.store') }}">@csrf
-                <label class="field">{{ __('partner.services.service_name') }}<input name="name" maxlength="120" placeholder="{{ __('partner.services.service_placeholder') }}" required></label>
-                <label class="field">{{ __('partner.services.description') }}<input name="description" maxlength="1000" placeholder="{{ __('partner.services.description_placeholder') }}"></label>
-                <button class="button" type="submit">{{ __('partner.services.add_service') }}</button>
-            </form>
-            <div class="service-list">
-                @forelse($restaurant->services as $service)
-                    <article class="service-card {{ $service->is_active ? '' : 'is-archived' }}">
-                        <form class="service-edit" method="POST" action="{{ route('restaurant.services.update', $service) }}">@csrf @method('PUT')
-                            <label class="field">{{ __('partner.services.service_name') }}<input name="name" value="{{ $service->name }}" maxlength="120" required></label>
-                            <label class="field">{{ __('partner.services.description') }}<input name="description" value="{{ $service->description }}" maxlength="1000"></label>
-                            <div class="service-controls"><label class="active-check"><input type="checkbox" name="is_active" value="1" @checked($service->is_active)>{{ __('partner.services.active') }}</label><button class="button button-secondary" type="submit">{{ __('partner.services.save_service') }}</button></div>
-                        </form>
-                        <form method="POST" action="{{ route('restaurant.services.destroy', $service) }}" onsubmit="return window.confirm(this.dataset.confirm)" data-confirm="{{ __('partner.services.archive_service_confirm') }}" style="margin-top:8px">@csrf @method('DELETE')<button class="button button-danger" type="submit">{{ __('partner.services.archive') }}</button></form>
-                        <h4>{{ __('partner.services.tariffs') }}</h4>
-                        <div class="tariff-list">
-                            @forelse($service->tariffs as $tariff)
-                                <article class="tariff-card {{ $tariff->is_active ? '' : 'is-archived' }}">
-                                    <form class="tariff-edit" method="POST" action="{{ route('restaurant.tariffs.update', $tariff) }}">@csrf @method('PUT')
-                                        <label class="field">{{ __('partner.services.tariff_name') }}<input name="name" value="{{ $tariff->name }}" maxlength="120" required></label>
-                                        <label class="field">{{ __('partner.services.description') }}<input name="description" value="{{ $tariff->description }}" maxlength="1000"></label>
-                                        <label class="field">{{ __('partner.services.price_per_guest') }}<input name="price_per_guest" type="number" min="0" step="0.01" value="{{ (float)$tariff->price_per_guest }}" required></label>
-                                        <div class="tariff-actions"><label class="active-check"><input type="checkbox" name="is_active" value="1" @checked($tariff->is_active)>{{ __('partner.services.active') }}</label><button class="button button-secondary" type="submit">{{ __('partner.services.save_tariff') }}</button></div>
-                                    </form>
-                                    <form method="POST" action="{{ route('restaurant.tariffs.destroy', $tariff) }}" onsubmit="return window.confirm(this.dataset.confirm)" data-confirm="{{ __('partner.services.archive_tariff_confirm') }}" style="margin-top:8px">@csrf @method('DELETE')<button class="button button-danger" type="submit">{{ __('partner.services.archive') }}</button></form>
-                                </article>
-                            @empty<p class="muted">{{ __('partner.services.tariffs_empty') }}</p>@endforelse
-                        </div>
-                        <form class="tariff-create" method="POST" action="{{ route('restaurant.tariffs.store', $service) }}">@csrf
-                            <label class="field">{{ __('partner.services.tariff_name') }}<input name="name" maxlength="120" placeholder="{{ __('partner.services.tariff_placeholder') }}" required></label>
-                            <label class="field">{{ __('partner.services.description') }}<input name="description" maxlength="1000" placeholder="{{ __('partner.services.description_placeholder') }}"></label>
-                            <label class="field">{{ __('partner.services.price_per_guest') }}<input name="price_per_guest" type="number" min="0" step="0.01" required></label>
-                            <button class="button" type="submit">{{ __('partner.services.add_tariff') }}</button>
-                        </form>
-                    </article>
-                @empty<div class="empty-state">{{ __('partner.services.empty') }}</div>@endforelse
-            </div>
         </section>
 
         <section class="panel info-panel" id="bonuses">
@@ -393,7 +351,31 @@
                 @empty<p class="muted bonus-empty">{{ __('partner.bonuses.empty') }}</p>@endforelse
             </div>
         </section>
-        <section class="panel info-panel" id="settings"><h2>{{ __('partner.settings.title') }}</h2><p class="muted">{{ __('partner.settings.subtitle') }}</p><form class="language-settings" method="POST" action="{{ route('restaurant.settings.language') }}">@csrf @method('PUT')<label class="field">{{ __('partner.language.label') }}<select name="preferred_language" required>@foreach(['kk','ru','en'] as $language)<option value="{{ $language }}" @selected(auth()->user()->preferred_language === $language)>{{ __('partner.language.'.$language) }}</option>@endforeach</select><small>{{ __('partner.language.hint') }}</small></label><button class="button button-secondary" type="submit">{{ __('partner.language.save') }}</button></form><hr class="settings-divider"><form method="POST" action="{{ route('restaurant.settings.slots') }}">@csrf @method('PUT')@foreach($restaurant->slots as $slot)<div class="settings-row"><span><strong>{{ __('partner.slots.'.$slot->slot_key) !== 'partner.slots.'.$slot->slot_key ? __('partner.slots.'.$slot->slot_key) : $slot->label }}</strong><small style="display:block;color:var(--ui-muted)">{{ __('partner.settings.slot_time') }}</small></span><span style="display:flex;gap:7px;align-items:center"><input type="time" name="slots[{{ $slot->slot_key }}][start_time]" value="{{ $slot->start_time }}" required style="padding:9px;border:1px solid #dfe6e1;border-radius:8px"><b>—</b><input type="time" name="slots[{{ $slot->slot_key }}][end_time]" value="{{ $slot->end_time }}" required style="padding:9px;border:1px solid #dfe6e1;border-radius:8px"></span></div>@endforeach<button class="button" type="submit" style="margin-top:16px">{{ __('partner.settings.save_time') }}</button></form></section>
+        <section class="panel info-panel" id="settings"><h2>{{ __('partner.settings.title') }}</h2><p class="muted">{{ __('partner.settings.subtitle') }}</p><form class="language-settings" method="POST" action="{{ route('restaurant.settings.language') }}">@csrf @method('PUT')<label class="field">{{ __('partner.language.label') }}<select name="preferred_language" required>@foreach(['kk','ru','en'] as $language)<option value="{{ $language }}" @selected(auth()->user()->preferred_language === $language)>{{ __('partner.language.'.$language) }}</option>@endforeach</select><small>{{ __('partner.language.hint') }}</small></label><button class="button button-secondary" type="submit">{{ __('partner.language.save') }}</button></form><hr class="settings-divider"><form method="POST" action="{{ route('restaurant.settings.slots') }}">@csrf @method('PUT')@foreach($restaurant->slots as $slot)<div class="settings-row"><span><strong>{{ __('partner.slots.'.$slot->slot_key) !== 'partner.slots.'.$slot->slot_key ? __('partner.slots.'.$slot->slot_key) : $slot->label }}</strong><small style="display:block;color:var(--ui-muted)">{{ __('partner.settings.slot_time') }}</small></span><span style="display:flex;gap:7px;align-items:center"><input type="time" name="slots[{{ $slot->slot_key }}][start_time]" value="{{ $slot->start_time }}" required style="padding:9px;border:1px solid #dfe6e1;border-radius:8px"><b>—</b><input type="time" name="slots[{{ $slot->slot_key }}][end_time]" value="{{ $slot->end_time }}" required style="padding:9px;border:1px solid #dfe6e1;border-radius:8px"></span></div>@endforeach<button class="button" type="submit" style="margin-top:16px">{{ __('partner.settings.save_time') }}</button></form>
+<hr class="settings-divider">
+<div class="packages-settings">
+    <h3>{{ __('partner.packages.title') }}</h3>
+    <p class="muted">{{ __('partner.packages.subtitle') }}</p>
+    <div class="tariff-list">
+        @forelse($packages as $package)
+            <article class="tariff-card {{ $package->is_active ? '' : 'is-archived' }}">
+                <form class="tariff-edit" method="POST" action="{{ route('restaurant.packages.update', $package) }}">@csrf @method('PUT')
+                    <label class="field">{{ __('partner.packages.name') }}<input name="name" value="{{ $package->name }}" maxlength="120" required></label>
+                    <label class="field">{{ __('partner.packages.description') }}<input name="description" value="{{ $package->description }}" maxlength="1000"></label>
+                    <label class="field">{{ __('partner.packages.price_per_guest') }}<input name="price_per_guest" type="number" min="0" step="0.01" value="{{ (float)$package->price_per_guest }}" required></label>
+                    <div class="tariff-actions"><label class="active-check"><input type="checkbox" name="is_active" value="1" @checked($package->is_active)>{{ __('partner.packages.active') }}</label><button class="button button-secondary" type="submit">{{ __('partner.packages.save') }}</button></div>
+                </form>
+                <form method="POST" action="{{ route('restaurant.packages.destroy', $package) }}" onsubmit="return window.confirm(this.dataset.confirm)" data-confirm="{{ __('partner.packages.archive_confirm') }}" style="margin-top:8px">@csrf @method('DELETE')<button class="button button-danger" type="submit">{{ __('partner.packages.archive') }}</button></form>
+            </article>
+        @empty<p class="muted">{{ __('partner.packages.empty') }}</p>@endforelse
+    </div>
+    <form class="tariff-create" method="POST" action="{{ route('restaurant.packages.store') }}">@csrf
+        <label class="field">{{ __('partner.packages.name') }}<input name="name" maxlength="120" placeholder="{{ __('partner.packages.placeholder') }}" required></label>
+        <label class="field">{{ __('partner.packages.description') }}<input name="description" maxlength="1000" placeholder="{{ __('partner.packages.description_placeholder') }}"></label>
+        <label class="field">{{ __('partner.packages.price_per_guest') }}<input name="price_per_guest" type="number" min="0" step="0.01" required></label>
+        <button class="button" type="submit">{{ __('partner.packages.add') }}</button>
+    </form>
+</div></section>
         <form class="settings-logout" method="POST" action="{{ route('logout') }}">@csrf<button class="button button-danger" type="submit">{{ __('partner.settings.logout') }}</button></form>
     </main>
 </div>
@@ -402,14 +384,13 @@ const partnerLocale = @js(app()->getLocale());
 const partnerBrowserLocale = { kk: 'kk-KZ', ru: 'ru-RU', en: 'en-US' }[partnerLocale] || 'kk-KZ';
 const partnerI18n = @json($partnerI18n);
 (() => {
-    const tabs = ['schedule', 'services', 'bonuses', 'reports', 'settings'];
+    const tabs = ['schedule', 'bonuses', 'reports', 'settings'];
     const applyTab = () => {
         const active = tabs.includes(window.location.hash.slice(1)) ? window.location.hash.slice(1) : 'schedule';
         const calendar = document.querySelector('.calendar-layout');
         const bookingList = document.querySelector('.booking-list');
         const newBooking = document.getElementById('new-booking');
         const sections = {
-            services: document.getElementById('services'),
             bonuses: document.getElementById('bonuses'),
             reports: document.getElementById('reports'),
             settings: document.getElementById('settings')
@@ -427,7 +408,7 @@ const partnerI18n = @json($partnerI18n);
 </script>
 <script>
     (() => {
-        const sections = ['schedule', 'services', 'bonuses', 'reports', 'settings'];
+        const sections = ['schedule', 'bonuses', 'reports', 'settings'];
         document.querySelectorAll('.restaurant-nav a[href*="#new-booking"]').forEach((link) => link.remove());
         const reportLinks = [...document.querySelectorAll('.restaurant-nav a[href="#reports"]')];
         reportLinks.slice(1).forEach((link) => link.remove());
@@ -438,14 +419,12 @@ const partnerI18n = @json($partnerI18n);
             const calendarLayout = document.querySelector('.calendar-layout');
             const schedule = document.getElementById('schedule');
             const bookingList = document.querySelector('.booking-list');
-            const services = document.getElementById('services');
-            const bonuses = document.getElementById('bonuses');
+                const bonuses = document.getElementById('bonuses');
             const reports = document.getElementById('reports');
             const settings = document.getElementById('settings');
             if (calendarLayout) calendarLayout.style.display = current === 'schedule' ? 'grid' : 'none';
             if (schedule) schedule.style.display = current === 'schedule' ? 'block' : 'none';
             if (bookingList) bookingList.style.display = current === 'schedule' ? 'block' : 'none';
-            if (services) services.style.display = current === 'services' ? 'block' : 'none';
             if (bonuses) bonuses.style.display = current === 'bonuses' ? 'block' : 'none';
             if (reports) reports.style.display = current === 'reports' ? 'block' : 'none';
             if (settings) settings.style.display = current === 'settings' ? 'block' : 'none';
@@ -502,7 +481,7 @@ const partnerI18n = @json($partnerI18n);
         const listTitle = selectedDayList.querySelector('h2');
         if (listTitle) listTitle.textContent = partnerI18n.selectedDay + ' · ' + dateForForm(normalizedDate);
         selectedDayList.querySelectorAll('.booking-card, .muted').forEach((item) => item.remove());
-        selectedDayList.insertAdjacentHTML('beforeend', events.length ? events.map((booking) => '<details class="booking-card" id="booking-' + booking.id + '"><summary><i class="booking-color" style="--booking-color:#c46b58"></i><span><strong>' + escapeHtml(booking.name) + '</strong><small>' + escapeHtml(booking.service || partnerI18n.service) + ' / ' + escapeHtml(booking.tariff || partnerI18n.tariff) + ' · ' + escapeHtml(booking.slot || partnerI18n.periodMissing) + ' · ' + booking.guests + ' ' + partnerI18n.guests + '</small></span></summary><div class="booking-preview"><p><strong>' + partnerI18n.eventType + ':</strong> ' + escapeHtml(booking.eventType || partnerI18n.notSpecified) + '</p><p><strong>' + partnerI18n.service + ':</strong> ' + escapeHtml(booking.service || partnerI18n.notSpecified) + '</p><p><strong>' + partnerI18n.tariff + ':</strong> ' + escapeHtml(booking.tariff || partnerI18n.notSpecified) + '</p><p><strong>' + partnerI18n.phone + ':</strong> ' + (booking.phone ? '<a class="booking-phone" href="' + whatsappHref(booking.phone) + '" target="_blank" rel="noopener">' + escapeHtml(booking.phone) + '</a>' : partnerI18n.notSpecified) + '</p><p><strong>' + partnerI18n.guests + ':</strong> ' + escapeHtml(booking.guests || 0) + '</p><p><strong>' + partnerI18n.price + ':</strong> ' + money(booking.pricePerGuest || 0) + ' ₸</p><p><strong>' + partnerI18n.prepayment + ':</strong> ' + money(booking.prepayment || 0) + ' ₸</p><p><strong>' + partnerI18n.total + ':</strong> ' + money(Number(booking.pricePerGuest || 0) * Number(booking.guests || 0)) + ' ₸</p><p><strong>' + partnerI18n.notes + ':</strong> ' + escapeHtml(booking.note || partnerI18n.none) + '</p><div class="booking-actions"><button type="button" class="button selected-booking-edit" data-booking-id="' + booking.id + '">' + partnerI18n.change + '</button><form method="POST" action="/restaurant/bookings/' + booking.id + '" onsubmit="return window.confirm(this.dataset.confirm)" data-confirm="' + escapeHtml(partnerI18n.deleteConfirm) + '"><input type="hidden" name="_token" value="' + (document.querySelector('input[name=_token]')?.value || '') + '"><input type="hidden" name="_method" value="DELETE"><button type="submit" class="button button-danger">' + partnerI18n.delete + '</button></form></div></div></details>').join('') : '<p class="muted">' + partnerI18n.noDay + '</p>');
+        selectedDayList.insertAdjacentHTML('beforeend', events.length ? events.map((booking) => '<details class="booking-card" id="booking-' + booking.id + '"><summary><i class="booking-color" style="--booking-color:#c46b58"></i><span><strong>' + escapeHtml(booking.name) + '</strong><small>' + escapeHtml(booking.tariff || partnerI18n.tariff) + ' · ' + escapeHtml(booking.slot || partnerI18n.periodMissing) + ' · ' + booking.guests + ' ' + partnerI18n.guests + '</small></span></summary><div class="booking-preview"><p><strong>' + partnerI18n.eventType + ':</strong> ' + escapeHtml(booking.eventType || partnerI18n.notSpecified) + '</p><p><strong>' + partnerI18n.tariff + ':</strong> ' + escapeHtml(booking.tariff || partnerI18n.notSpecified) + '</p><p><strong>' + partnerI18n.phone + ':</strong> ' + (booking.phone ? '<a class="booking-phone" href="' + whatsappHref(booking.phone) + '" target="_blank" rel="noopener">' + escapeHtml(booking.phone) + '</a>' : partnerI18n.notSpecified) + '</p><p><strong>' + partnerI18n.guests + ':</strong> ' + escapeHtml(booking.guests || 0) + '</p><p><strong>' + partnerI18n.price + ':</strong> ' + money(booking.pricePerGuest || 0) + ' ₸</p><p><strong>' + partnerI18n.prepayment + ':</strong> ' + money(booking.prepayment || 0) + ' ₸</p><p><strong>' + partnerI18n.total + ':</strong> ' + money(Number(booking.pricePerGuest || 0) * Number(booking.guests || 0)) + ' ₸</p><p><strong>' + partnerI18n.notes + ':</strong> ' + escapeHtml(booking.note || partnerI18n.none) + '</p><div class="booking-actions"><button type="button" class="button selected-booking-edit" data-booking-id="' + booking.id + '">' + partnerI18n.change + '</button><form method="POST" action="/restaurant/bookings/' + booking.id + '" onsubmit="return window.confirm(this.dataset.confirm)" data-confirm="' + escapeHtml(partnerI18n.deleteConfirm) + '"><input type="hidden" name="_token" value="' + (document.querySelector('input[name=_token]')?.value || '') + '"><input type="hidden" name="_method" value="DELETE"><button type="submit" class="button button-danger">' + partnerI18n.delete + '</button></form></div></div></details>').join('') : '<p class="muted">' + partnerI18n.noDay + '</p>');
         selectedDayList.querySelectorAll('.selected-booking-edit').forEach((button) => button.addEventListener('click', () => { const booking = calendarBookingData.find((item) => item.id === Number(button.dataset.bookingId)); const day = [...document.querySelectorAll('.day')].find((item) => new URL(item.href).searchParams.get('date') === booking?.date); day?.click(); const eventElement = dayModalEvents.querySelector('[data-booking-id="' + booking?.id + '"]'); eventElement?.click(); }));
     };
     const selectCalendarDay = (day, date) => {
@@ -539,7 +518,7 @@ const partnerI18n = @json($partnerI18n);
                 const bookingCard = document.getElementById('booking-' + booking.id);
                 const details = document.createElement('div');
                 details.className = 'booking-modal-details';
-                [[partnerI18n.eventType, booking.eventType || partnerI18n.notSpecified], [partnerI18n.service, booking.service || partnerI18n.notSpecified], [partnerI18n.tariff, booking.tariff || partnerI18n.notSpecified], [partnerI18n.date, formatDay(booking.date)], [partnerI18n.period, booking.slot || partnerI18n.periodMissing], [partnerI18n.guests, booking.guests], [partnerI18n.price, money(booking.pricePerGuest) + ' ₸'], [partnerI18n.prepayment, money(booking.prepayment) + ' ₸'], [partnerI18n.total, money(Number(booking.pricePerGuest || 0) * Number(booking.guests || 0)) + ' ₸'], [partnerI18n.phone, booking.phone || partnerI18n.notSpecified], [partnerI18n.notes, booking.note || partnerI18n.none]].forEach(([label, value]) => {
+                [[partnerI18n.eventType, booking.eventType || partnerI18n.notSpecified], [partnerI18n.tariff, booking.tariff || partnerI18n.notSpecified], [partnerI18n.date, formatDay(booking.date)], [partnerI18n.period, booking.slot || partnerI18n.periodMissing], [partnerI18n.guests, booking.guests], [partnerI18n.price, money(booking.pricePerGuest) + ' ₸'], [partnerI18n.prepayment, money(booking.prepayment) + ' ₸'], [partnerI18n.total, money(Number(booking.pricePerGuest || 0) * Number(booking.guests || 0)) + ' ₸'], [partnerI18n.phone, booking.phone || partnerI18n.notSpecified], [partnerI18n.notes, booking.note || partnerI18n.none]].forEach(([label, value]) => {
                     const row = document.createElement('p');
                     row.innerHTML = '<strong>' + label + ':</strong> ' + (label === partnerI18n.phone && booking.phone ? '<a class="booking-phone" href="' + whatsappHref(booking.phone) + '" target="_blank" rel="noopener">' + escapeHtml(booking.phone) + '</a>' : escapeHtml(value));
                     details.appendChild(row);
@@ -821,7 +800,7 @@ const partnerI18n = @json($partnerI18n);
         document.querySelector('.restaurant-nav a[href*="#new-booking"]')?.remove();
         const calendarLink = document.querySelector('.restaurant-nav a[href="#schedule"]');
         if (calendarLink) calendarLink.lastChild.textContent = partnerI18n.bookings;
-        const sections = ['new-booking', 'schedule', 'services', 'bonuses', 'reports', 'settings'];
+        const sections = ['new-booking', 'schedule', 'bonuses', 'reports', 'settings'];
         const navLinks = [...document.querySelectorAll('.restaurant-nav a')];
         const figmaIcons = {
             schedule: '<svg class="figma-icon" viewBox="0 0 17 20" aria-hidden="true"><path fill="currentColor" fill-rule="evenodd" d="M13.342 2.426h1.819a1.82 1.82 0 0 1 1.819 1.819v1.819H0V4.245a1.82 1.82 0 0 1 1.819-1.819h1.82V.606A.606.606 0 0 1 4.245 0h1.213a.606.606 0 0 1 .606.606v1.82h4.852V.606A.606.606 0 0 1 11.522 0h1.213a.606.606 0 0 1 .607.606v1.82ZM1.819 19.406A1.82 1.82 0 0 1 0 17.587V7.277h16.98v10.31a1.82 1.82 0 0 1-1.819 1.819H1.819Z"/></svg>',
@@ -842,7 +821,6 @@ const partnerI18n = @json($partnerI18n);
         const schedule = document.getElementById('schedule');
         const newBooking = document.getElementById('new-booking');
         const bookingList = document.querySelector('.booking-list');
-        const services = document.getElementById('services');
         const bonuses = document.getElementById('bonuses');
         const settings = document.getElementById('settings');
         const reports = document.getElementById('reports');
@@ -855,7 +833,6 @@ const partnerI18n = @json($partnerI18n);
             schedule.style.display = current === 'schedule' ? 'block' : 'none';
             newBooking.style.display = calendarTab ? 'block' : 'none';
             bookingList.style.display = calendarTab ? 'block' : 'none';
-            services.style.display = current === 'services' ? 'block' : 'none';
             bonuses.style.display = current === 'bonuses' ? 'block' : 'none';
             reports.style.display = current === 'reports' ? 'block' : 'none';
             settings.style.display = current === 'settings' ? 'block' : 'none';

@@ -101,20 +101,23 @@ class AdminController extends Controller
         return view('admin.booking-show', compact('booking'));
     }
 
-    public function bookingPdf(Booking $booking): Response
+    public function bookingsPdf(): Response
     {
-        $booking->load(['restaurant', 'slot', 'tariff.service']);
+        $bookings = Booking::with(['restaurant', 'slot', 'tariff.service'])
+            ->orderBy('booking_date')
+            ->orderBy('id')
+            ->get();
         $options = new Options;
         $options->set('defaultFont', 'DejaVu Sans');
         $options->set('isRemoteEnabled', false);
         $pdf = new Dompdf($options);
-        $pdf->loadHtml(view('admin.booking-pdf', compact('booking'))->render(), 'UTF-8');
-        $pdf->setPaper('A4');
+        $pdf->loadHtml(view('admin.bookings-pdf', compact('bookings'))->render(), 'UTF-8');
+        $pdf->setPaper('A4', 'landscape');
         $pdf->render();
 
         return response($pdf->output(), 200, [
             'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'attachment; filename="zharzhar-booking-'.$booking->id.'.pdf"',
+            'Content-Disposition' => 'attachment; filename="zharzhar-all-bookings.pdf"',
             'Cache-Control' => 'no-store, private',
         ]);
     }

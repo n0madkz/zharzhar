@@ -14,7 +14,7 @@ class AdminBookingTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_admin_sees_booking_in_russian_and_can_open_whatsapp_and_pdf(): void
+    public function test_admin_sees_booking_in_russian_and_can_export_all_bookings_to_one_pdf(): void
     {
         [$admin, $restaurant, $booking] = $this->bookingFixture();
 
@@ -23,7 +23,7 @@ class AdminBookingTest extends TestCase
             ->assertSee('Ожидает подтверждения')
             ->assertSee('https://wa.me/77071234567', false)
             ->assertSee(route('admin.bookings.show', $booking), false)
-            ->assertSee(route('admin.bookings.pdf', $booking), false);
+            ->assertSee(route('admin.bookings.pdf'), false);
 
         $detail = $this->get(route('admin.bookings.show', $booking));
         $detail->assertOk()
@@ -32,10 +32,21 @@ class AdminBookingTest extends TestCase
             ->assertSee('https://wa.me/77071234567', false)
             ->assertSee('https://2gis.kz/almaty/geo/700000010', false);
 
-        $pdf = $this->get(route('admin.bookings.pdf', $booking));
+        $secondBooking = $booking->replicate(['phone', 'note']);
+        $secondBooking->visitor_name = 'Второй гость';
+        $secondBooking->booking_date = '2026-10-15';
+        $secondBooking->save();
+
+        $pdfTable = view('admin.bookings-pdf', [
+            'bookings' => Booking::with(['restaurant', 'slot', 'tariff.service'])->orderBy('id')->get(),
+        ])->render();
+        $this->assertStringContainsString($booking->visitor_name, $pdfTable);
+        $this->assertStringContainsString('Второй гость', $pdfTable);
+
+        $pdf = $this->get(route('admin.bookings.pdf'));
         $pdf->assertOk()
             ->assertHeader('content-type', 'application/pdf')
-            ->assertHeader('content-disposition', 'attachment; filename="zharzhar-booking-'.$booking->id.'.pdf"');
+            ->assertHeader('content-disposition', 'attachment; filename="zharzhar-all-bookings.pdf"');
         $this->assertStringStartsWith('%PDF', $pdf->getContent());
     }
 
@@ -101,7 +112,7 @@ class AdminBookingTest extends TestCase
         $partner = User::factory()->create(['role' => 'partner']);
 
         $this->actingAs($partner)->get(route('admin.bookings.show', $booking))->assertForbidden();
-        $this->get(route('admin.bookings.pdf', $booking))->assertForbidden();
+        $this->get(route('admin.bookings.pdf'))->assertForbidden();
     }
 
     private function bookingFixture(): array
