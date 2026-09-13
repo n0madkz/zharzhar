@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Booking;
 use App\Models\Restaurant;
+use App\Models\RestaurantSlot;
 use App\Models\User;
 use Dompdf\Dompdf;
 use Dompdf\Options;
@@ -18,12 +19,42 @@ use Illuminate\View\View;
 
 class AdminController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
-        $bookings = Booking::with(['restaurant', 'slot', 'tariff.service'])->latest('booking_date')->latest()->get();
+        $filters = $request->validate([
+            'q' => ['nullable', 'string', 'max:100'],
+            'restaurant_id' => ['nullable', 'integer', 'exists:restaurants,id'],
+            'period' => ['nullable', 'string', 'max:50'],
+            'event_type' => ['nullable', 'string', 'max:120'],
+            'date_from' => ['nullable', 'date'],
+            'date_to' => ['nullable', 'date', 'after_or_equal:date_from'],
+        ]);
+        $search = trim($filters['q'] ?? '');
+        $phoneSearch = preg_replace('/\D+/', '', $search);
+        $bookings = Booking::with(['restaurant', 'slot', 'tariff.service'])
+            ->when($search !== '', function ($query) use ($search, $phoneSearch): void {
+                $query->where(function ($query) use ($search, $phoneSearch): void {
+                    $query->where('visitor_name', 'like', '%'.$search.'%')
+                        ->orWhere('phone', 'like', '%'.$search.'%');
+                    if ($phoneSearch !== '') {
+                        $query->orWhereRaw("REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(phone, '+', ''), ' ', ''), '-', ''), '(', ''), ')', '') LIKE ?", ['%'.$phoneSearch.'%']);
+                    }
+                });
+            })
+            ->when(! empty($filters['restaurant_id']), fn ($query) => $query->where('restaurant_id', $filters['restaurant_id']))
+            ->when(($filters['period'] ?? '') !== '', fn ($query) => $query->whereHas('slot', fn ($slotQuery) => $slotQuery->where('slot_key', $filters['period'])))
+            ->when(($filters['event_type'] ?? '') !== '', fn ($query) => $query->where('event_type', 'like', '%'.$filters['event_type'].'%'))
+            ->when(! empty($filters['date_from']), fn ($query) => $query->whereDate('booking_date', '>=', $filters['date_from']))
+            ->when(! empty($filters['date_to']), fn ($query) => $query->whereDate('booking_date', '<=', $filters['date_to']))
+            ->latest('booking_date')
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
         $restaurants = Restaurant::with('partner')->withCount('bookings')->latest()->get();
+        $periods = RestaurantSlot::query()->orderBy('start_time')->get()->unique('slot_key')->values();
+        $eventTypes = Booking::query()->whereNotNull('event_type')->where('event_type', '!=', '')->distinct()->orderBy('event_type')->pluck('event_type');
 
-        return view('admin.dashboard-v2', compact('bookings', 'restaurants'));
+        return view('admin.dashboard-v2', compact('bookings', 'restaurants', 'periods', 'eventTypes', 'filters', 'search'));
     }
 
     public function storeRestaurant(Request $request): RedirectResponse

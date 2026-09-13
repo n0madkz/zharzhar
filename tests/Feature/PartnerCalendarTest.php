@@ -193,6 +193,43 @@ class PartnerCalendarTest extends TestCase
         $this->assertStringNotContainsString('Услуга', $response->getContent());
     }
 
+    public function test_partner_searches_all_bookings_by_partial_name_or_normalized_phone(): void
+    {
+        [$partner, $restaurant, $slot] = $this->partnerFixture();
+        $target = Booking::create([
+            'restaurant_id' => $restaurant->id,
+            'restaurant_slot_id' => $slot->id,
+            'visitor_name' => 'Айгерім Сейтова',
+            'event_type' => 'wedding',
+            'phone' => '+7 (707) 456-78-90',
+            'booking_date' => '2027-02-18',
+            'guest_count' => 80,
+            'price_per_guest' => 15000,
+            'prepayment' => 0,
+            'status' => 'confirmed',
+        ]);
+        Booking::create([
+            'restaurant_id' => $restaurant->id,
+            'restaurant_slot_id' => $slot->id,
+            'visitor_name' => 'Другой гость',
+            'event_type' => 'birthday',
+            'phone' => '+7 700 000 00 01',
+            'booking_date' => '2027-02-19',
+            'guest_count' => 20,
+            'price_per_guest' => 10000,
+            'prepayment' => 0,
+            'status' => 'confirmed',
+        ]);
+
+        foreach (['герім', '456789'] as $search) {
+            $this->actingAs($partner)
+                ->get('http://partner.zharzhar.kz/restaurant?q='.urlencode($search))
+                ->assertOk()
+                ->assertSee('Айгерім Сейтова')
+                ->assertViewHas('bookings', fn ($bookings) => $bookings->count() === 1 && $bookings->first()->is($target));
+        }
+    }
+
     public function test_booking_price_is_taken_from_own_active_tariff(): void
     {
         [$partner, $restaurant, $slot] = $this->partnerFixture();

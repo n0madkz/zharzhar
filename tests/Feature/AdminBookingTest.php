@@ -73,6 +73,50 @@ class AdminBookingTest extends TestCase
         $this->assertCount(3, $restaurant->slots);
     }
 
+    public function test_admin_can_filter_bookings_and_search_by_partial_phone_or_name(): void
+    {
+        [$admin, $restaurant, $booking] = $this->bookingFixture();
+        $otherRestaurant = Restaurant::create([
+            'name' => 'Aurora',
+            'city' => 'Астана',
+            'phone' => '+7 700 000 11 22',
+        ]);
+        $otherSlot = RestaurantSlot::create([
+            'restaurant_id' => $otherRestaurant->id,
+            'slot_key' => 'morning',
+            'label' => 'Утро',
+            'start_time' => '09:00',
+            'end_time' => '12:00',
+            'color' => '#2563eb',
+        ]);
+        Booking::create([
+            'restaurant_id' => $otherRestaurant->id,
+            'restaurant_slot_id' => $otherSlot->id,
+            'visitor_name' => 'Данияр',
+            'event_type' => 'День рождения',
+            'phone' => '+7 701 999 88 77',
+            'booking_date' => '2026-11-20',
+            'guest_count' => 30,
+            'price_per_guest' => 12000,
+            'prepayment' => 0,
+            'status' => 'confirmed',
+        ]);
+
+        foreach ([
+            ['q' => 'йгу'],
+            ['q' => '12345'],
+            ['restaurant_id' => $restaurant->id],
+            ['period' => 'evening'],
+            ['event_type' => 'вад'],
+            ['date_from' => '2026-10-01', 'date_to' => '2026-10-31'],
+        ] as $filters) {
+            $this->actingAs($admin)
+                ->get(route('admin.dashboard', $filters))
+                ->assertOk()
+                ->assertViewHas('bookings', fn ($bookings) => $bookings->total() === 1 && $bookings->first()->is($booking));
+        }
+    }
+
     public function test_admin_can_change_restaurant_email_and_reset_password(): void
     {
         $admin = User::factory()->create(['role' => 'admin']);

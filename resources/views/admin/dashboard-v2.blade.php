@@ -60,6 +60,15 @@
 </div>
 
 <div class="section-head"><div><h2>Все бронирования</h2><p class="muted">Нажмите на имя гостя, чтобы открыть бронирование на этом сайте.</p></div><a class="button secondary" href="{{ route('admin.bookings.pdf') }}">Скачать все в PDF</a></div>
+<form class="booking-filters card" method="GET" action="{{ route('admin.dashboard') }}">
+    <label class="filter-search">Имя или телефон<input name="q" type="search" value="{{ $search }}" placeholder="Введите часть имени или номера"></label>
+    <label>Ресторан<select name="restaurant_id"><option value="">Все рестораны</option>@foreach($restaurants as $restaurant)<option value="{{ $restaurant->id }}" @selected(($filters['restaurant_id'] ?? '') == $restaurant->id)>{{ $restaurant->name }}</option>@endforeach</select></label>
+    <label>Период<select name="period"><option value="">Все периоды</option>@foreach($periods as $period)<option value="{{ $period->slot_key }}" @selected(($filters['period'] ?? '') === $period->slot_key)>{{ $period->label }} · {{ $period->start_time }}–{{ $period->end_time }}</option>@endforeach</select></label>
+    <label>Мероприятие<select name="event_type"><option value="">Все мероприятия</option>@foreach($eventTypes as $eventType)<option value="{{ $eventType }}" @selected(($filters['event_type'] ?? '') === $eventType)>{{ $eventType }}</option>@endforeach</select></label>
+    <label>Дата от<input name="date_from" type="date" value="{{ $filters['date_from'] ?? '' }}"></label>
+    <label>Дата до<input name="date_to" type="date" value="{{ $filters['date_to'] ?? '' }}"></label>
+    <div class="booking-filter-actions"><button class="button" type="submit">Применить</button>@if(collect($filters)->filter(fn ($value) => $value !== null && $value !== '')->isNotEmpty())<a class="button secondary" href="{{ route('admin.dashboard') }}">Сбросить</a>@endif</div>
+</form>
 <div class="table-scroll">
     <table>
         <thead><tr><th>Посетитель</th><th>Телефон / WhatsApp</th><th>Ресторан</th><th>Дата</th><th>Гостей</th><th>Сумма</th><th>Статус</th><th>Действия</th></tr></thead>
@@ -81,4 +90,5 @@
         </tbody>
     </table>
 </div>
+@if($bookings->hasPages())<div class="booking-pagination">@if($bookings->previousPageUrl())<a class="button secondary" href="{{ $bookings->previousPageUrl() }}">← Назад</a>@else<span></span>@endif<span>Страница {{ $bookings->currentPage() }} из {{ $bookings->lastPage() }}</span>@if($bookings->nextPageUrl())<a class="button secondary" href="{{ $bookings->nextPageUrl() }}">Далее →</a>@else<span></span>@endif</div>@endif
 @endsection

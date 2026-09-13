@@ -454,6 +454,11 @@ class InvitationStoreTest extends TestCase
                 ->assertViewHas('orders', fn ($orders) => $orders->total() === 1 && $orders->first()->is($target));
         }
 
+        $partialOrderNumber = substr((string) $target->id, -1);
+        $this->get(route('admin.store.index', ['q' => $partialOrderNumber]))
+            ->assertOk()
+            ->assertViewHas('orders', fn ($orders) => $orders->contains(fn ($order) => $order->is($target)));
+
         $this->get(route('admin.store.index', ['status' => 'pending', 'q' => 'Мария']))
             ->assertOk()
             ->assertViewHas('orders', fn ($orders) => $orders->isEmpty());

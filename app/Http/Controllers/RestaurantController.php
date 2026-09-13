@@ -28,10 +28,25 @@ class RestaurantController extends Controller
         for ($day = $calendarStart->copy(); $day->lte($calendarEnd); $day->addDay()) {
             $calendarDays[] = $day->copy();
         }
-        $bookings = Booking::where('restaurant_id', $restaurant->id)->with(['slot', 'tariff.service'])->whereBetween('booking_date', [$calendarStart->toDateString(), $calendarEnd->toDateString()])->latest('booking_date')->latest()->get();
-        $allBookings = $bookings;
-        $bookings = $bookings->filter(fn (Booking $booking) => $booking->booking_date->isSameDay($selectedDate));
-        $selectedBookings = $bookings->filter(fn (Booking $booking) => $booking->booking_date->isSameDay($selectedDate));
+        $bookingSearch = trim(mb_substr($request->string('q')->toString(), 0, 100));
+        $phoneSearch = preg_replace('/\D+/', '', $bookingSearch);
+        $allBookings = Booking::where('restaurant_id', $restaurant->id)->with(['slot', 'tariff.service'])->whereBetween('booking_date', [$calendarStart->toDateString(), $calendarEnd->toDateString()])->latest('booking_date')->latest()->get();
+        $bookings = $bookingSearch === ''
+            ? $allBookings->filter(fn (Booking $booking) => $booking->booking_date->isSameDay($selectedDate))
+            : Booking::where('restaurant_id', $restaurant->id)
+                ->with(['slot', 'tariff.service'])
+                ->where(function ($query) use ($bookingSearch, $phoneSearch): void {
+                    $query->where('visitor_name', 'like', '%'.$bookingSearch.'%')
+                        ->orWhere('phone', 'like', '%'.$bookingSearch.'%');
+                    if ($phoneSearch !== '') {
+                        $query->orWhereRaw("REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(phone, '+', ''), ' ', ''), '-', ''), '(', ''), ')', '') LIKE ?", ['%'.$phoneSearch.'%']);
+                    }
+                })
+                ->latest('booking_date')
+                ->latest()
+                ->limit(100)
+                ->get();
+        $selectedBookings = $bookings;
         $calendarBookingData = $allBookings->map(fn (Booking $booking) => [
             'id' => $booking->id,
             'date' => $booking->booking_date->format('Y-m-d'),
@@ -66,7 +81,7 @@ class RestaurantController extends Controller
         $bonusBalance = (float) $restaurant->bonuses()->where('type', 'accrual')->where('status', 'available')->sum('amount');
         $packages = $restaurant->services->flatMap->tariffs->sortBy('sort_order')->sortBy('id')->values();
 
-        return view('restaurant.framework', compact('restaurant', 'bookings', 'allBookings', 'selectedBookings', 'selectedDate', 'month', 'calendarDays', 'calendarBookingData', 'reportBookings', 'reportPeriod', 'reportFrom', 'reportTo', 'reportRows', 'reportPeriods', 'bonusTransactions', 'bonusBalance', 'packages'));
+        return view('restaurant.framework', compact('restaurant', 'bookings', 'allBookings', 'selectedBookings', 'selectedDate', 'month', 'calendarDays', 'calendarBookingData', 'reportBookings', 'reportPeriod', 'reportFrom', 'reportTo', 'reportRows', 'reportPeriods', 'bonusTransactions', 'bonusBalance', 'packages', 'bookingSearch'));
     }
 
     public function exportReports(Request $request): mixed

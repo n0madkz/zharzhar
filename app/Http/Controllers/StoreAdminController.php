@@ -25,19 +25,20 @@ class StoreAdminController extends Controller
         $status = $request->string('status')->toString();
         $search = trim(mb_substr($request->string('q')->toString(), 0, 100));
         $phoneSearch = preg_replace('/\D+/', '', $search);
-        $orderIdSearch = ctype_digit($search) && strlen($search) <= 6 ? (int) $search : null;
+        $orderNumberSearch = ctype_digit($search) && strlen($search) <= 6 ? $search : null;
         if (preg_match('/^(?:заказ\s*)?[№#]\s*(\d+)$/ui', $search, $matches)) {
-            $orderIdSearch = (int) $matches[1];
+            $orderNumberSearch = $matches[1];
         }
         $orders = InvitationOrder::with('invitation')
             ->when(in_array($status, ['pending', 'review', 'paid', 'rejected']), fn ($query) => $query->where('status', $status))
-            ->when($search !== '', function ($query) use ($search, $phoneSearch, $orderIdSearch): void {
-                $query->where(function ($query) use ($search, $phoneSearch, $orderIdSearch): void {
-                    if ($orderIdSearch !== null) {
-                        $query->whereKey($orderIdSearch);
+            ->when($search !== '', function ($query) use ($search, $phoneSearch, $orderNumberSearch): void {
+                $query->where(function ($query) use ($search, $phoneSearch, $orderNumberSearch): void {
+                    if ($orderNumberSearch !== null) {
+                        $query->whereRaw('CAST(id AS CHAR) LIKE ?', ['%'.$orderNumberSearch.'%']);
 
                         return;
                     }
+
                     $query->where('customer_name', 'like', '%'.$search.'%')
                         ->orWhere('customer_phone', 'like', '%'.$search.'%')
                         ->orWhere('details->names', 'like', '%'.$search.'%')

@@ -244,12 +244,14 @@
     .bonus-history{margin-top:18px;border-top:1px solid #eef1f5}
     .bonus-row{display:flex;justify-content:space-between;gap:16px;align-items:center;padding:15px 2px;border-bottom:1px solid #eef1f5}
     .bonus-row div{display:flex;flex-direction:column;gap:4px}.bonus-row small{color:#667085}.bonus-row>span{color:#067647;font-weight:800;white-space:nowrap}.bonus-empty{padding:18px 0}
+    .booking-list-head{display:flex;align-items:end;justify-content:space-between;gap:18px;margin-bottom:10px}.booking-search{display:flex;gap:8px;width:min(480px,100%)}.booking-search input{flex:1;min-width:150px;padding:11px 13px;border:1px solid #d0d5dd;border-radius:9px;background:#fff}.booking-search .button{white-space:nowrap}.booking-search-reset{display:inline-flex;align-items:center;padding:0 5px;color:#475467;font-size:13px}
     @media(max-width:560px){
         .day-modal-backdrop{align-items:stretch;padding:8px}
         .day-modal{width:100%;max-height:calc(100dvh - 16px);padding:18px 14px;border-radius:16px}
         .day-modal-head h2{font-size:22px}
         .day-modal-form #new-booking{padding-top:14px}
         .bonus-summary{grid-template-columns:1fr}.bonus-summary>div{min-height:94px}
+        .booking-list-head{align-items:stretch;flex-direction:column}.booking-search{width:100%;flex-wrap:wrap}.booking-search input{flex-basis:100%}.booking-search .button{flex:1}
     }
 </style>
 
@@ -323,8 +325,8 @@
             </section>
         </div>
 
-        <section class="panel booking-list"><h2>{{ __('partner.booking.selected_day') }}</h2>
-            @forelse($bookings->sortBy('booking_date')->take(12) as $booking)
+        <section class="panel booking-list"><div class="booking-list-head"><h2>{{ $bookingSearch !== '' ? __('partner.search.results') : __('partner.booking.selected_day') }}</h2><form class="booking-search" method="GET" action="{{ route('restaurant.dashboard') }}#schedule" role="search"><input type="hidden" name="month" value="{{ $month->format('Y-m') }}"><input name="q" type="search" value="{{ $bookingSearch }}" placeholder="{{ __('partner.search.placeholder') }}" aria-label="{{ __('partner.search.label') }}"><button class="button button-secondary" type="submit">{{ __('partner.search.submit') }}</button>@if($bookingSearch !== '')<a class="booking-search-reset" href="{{ route('restaurant.dashboard', ['month' => $month->format('Y-m'), 'date' => $selectedDate->format('Y-m-d')]) }}#schedule">{{ __('partner.search.reset') }}</a>@endif</form></div>
+            @forelse($bookings->sortByDesc('booking_date') as $booking)
                 <details class="booking-card" id="booking-{{ $booking->id }}"><summary><i class="booking-color" style="--booking-color:{{ $booking->color }}"></i><span><strong>{{ $booking->visitor_name }}</strong><small>{{ $booking->booking_date->format('d.m.Y') }} · {{ $booking->tariff?->name ?? __('partner.packages.package') }} · {{ $booking->slot?->label ?? __('partner.booking.not_selected') }} · {{ $booking->guest_count }} {{ __('partner.booking.guests') }}</small></span></summary>
                     <form method="POST" action="{{ route('restaurant.bookings.update', $booking) }}" class="booking-edit-form">@csrf @method('PUT')
                         <input type="hidden" name="event_type" value="{{ $booking->event_type }}"><input type="hidden" name="status" value="{{ $booking->status }}">
@@ -336,7 +338,7 @@
                     </form>
                     <form method="POST" action="{{ route('restaurant.bookings.destroy', $booking) }}" onsubmit="return window.confirm(this.dataset.confirm)" data-confirm="{{ __('partner.booking.delete_confirm') }}">@csrf @method('DELETE')<button class="button button-danger" type="submit">{{ __('partner.booking.delete') }}</button></form>
                 </details>
-            @empty<p class="muted">{{ __('partner.booking.no_month') }}</p>@endforelse
+            @empty<p class="muted">{{ $bookingSearch !== '' ? __('partner.search.empty') : __('partner.booking.no_month') }}</p>@endforelse
         </section>
 
         <section class="panel info-panel" id="bonuses">
