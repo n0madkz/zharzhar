@@ -13,13 +13,32 @@ document.addEventListener('DOMContentLoaded', () => {
     try { await navigator.clipboard.writeText(button.dataset.copy); button.textContent = copy.copied; }
     catch { button.textContent = copy.copyFallback; }
   }));
-  const restaurant = document.querySelector('#restaurant_id');
-  restaurant?.addEventListener('change', () => {
-    const option = restaurant.selectedOptions[0];
-    if (option.dataset.name) {
-      document.querySelector('#venue_name').value = option.dataset.name;
-      document.querySelector('#venue_address').value = option.dataset.address;
-    }
+  document.querySelectorAll('[data-restaurant-picker]').forEach(picker => {
+    const restaurantId = picker.querySelector('input[name="restaurant_id"]');
+    const search = picker.querySelector('input[type="search"]');
+    const suggestionList = search ? document.getElementById(search.getAttribute('list')) : null;
+    const suggestions = Array.from(suggestionList?.querySelectorAll('option') || []);
+    const hint = picker.querySelector('.restaurant-picker-hint');
+    if (!restaurantId || !search) return;
+
+    const findRestaurant = value => suggestions.find(option => option.value.localeCompare(value.trim(), undefined, { sensitivity: 'base' }) === 0);
+    const syncRestaurant = fillVenue => {
+      const match = findRestaurant(search.value);
+      restaurantId.value = match?.dataset.id || '';
+      picker.classList.toggle('restaurant-found', Boolean(match));
+      if (hint) hint.textContent = match ? search.dataset.found : (search.value.trim() ? search.dataset.missing : hint.dataset.default || hint.textContent);
+      if (match && fillVenue) {
+        const venueName = document.querySelector('#venue_name');
+        const venueAddress = document.querySelector('#venue_address');
+        if (venueName) venueName.value = match.value;
+        if (venueAddress) venueAddress.value = match.dataset.address || '';
+      }
+    };
+
+    if (hint) hint.dataset.default = hint.textContent;
+    search.addEventListener('input', () => syncRestaurant(true));
+    search.addEventListener('change', () => syncRestaurant(true));
+    syncRestaurant(false);
   });
   const music = document.querySelector('#music_id');
   const audio = document.querySelector('#music-preview');

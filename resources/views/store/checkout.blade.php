@@ -12,8 +12,9 @@
         'names' => 'Жас жұбайлардың немесе мерейтой иесінің есімі',
         'names_placeholder' => 'Алихан және Аружан / Айгүл', 'date' => 'Мереке күні', 'time' => 'Басталу уақыты',
         'hosts' => 'Той иелері', 'hosts_placeholder' => 'Ерлан – Айгүл, Марат – Сәуле',
-        'venue' => '02. Кездесу орны', 'restaurant' => 'Каталогтағы мейрамхана', 'own_restaurant' => 'Мейрамхананы өзім көрсетемін',
-        'restaurant_hint' => 'Мейрамхананы таңдағанда атауы мен мекенжайы толтырылады. Бұл залды брондау емес.',
+        'venue' => '02. Кездесу орны', 'restaurant' => 'Каталогтағы мейрамхана', 'own_restaurant' => 'Мейрамхана атауын енгізіңіз',
+        'restaurant_hint' => 'Атаудың бір бөлігін енгізіңіз. Каталогта болса, жүйе мейрамхананы ұсынады.',
+        'restaurant_found' => 'Мейрамхана табылды — атауы мен мекенжайы толтырылды.', 'restaurant_missing' => 'Каталогта жоқ болса, атауы мен мекенжайын төменде өзіңіз толтырыңыз.',
         'venue_name' => 'Мейрамхана атауы', 'address' => 'Қала және мекенжай',
         'mood' => '03. Шақырудың көңіл күйі', 'music' => 'Музыка', 'without_music' => 'Музыкасыз',
         'music_hint' => 'Әуенді таңдап, алдын ала тыңдауға болады.', 'audio_label' => 'Таңдалған музыканы тыңдау',
@@ -33,8 +34,9 @@
         'names' => 'Имена молодожёнов или имя именинника',
         'names_placeholder' => 'Алихан и Аружан / Айгүл', 'date' => 'Дата праздника', 'time' => 'Начало',
         'hosts' => 'Той иелері — хозяева торжества', 'hosts_placeholder' => 'Ерлан – Айгүл, Марат – Сәуле',
-        'venue' => '02. Место встречи', 'restaurant' => 'Ресторан из каталога', 'own_restaurant' => 'Укажу свой ресторан',
-        'restaurant_hint' => 'Выбор ресторана заполнит название и адрес. Это не бронирование зала.',
+        'venue' => '02. Место встречи', 'restaurant' => 'Ресторан из каталога', 'own_restaurant' => 'Введите название ресторана',
+        'restaurant_hint' => 'Введите часть названия. Если ресторан есть в каталоге, он появится в подсказках.',
+        'restaurant_found' => 'Ресторан найден — название и адрес заполнены.', 'restaurant_missing' => 'Если ресторана нет в каталоге, заполните название и адрес ниже.',
         'venue_name' => 'Название ресторана', 'address' => 'Город и адрес',
         'mood' => '03. Настроение приглашения', 'music' => 'Музыка', 'without_music' => 'Без музыки',
         'music_hint' => 'Выберите трек и прослушайте его заранее.', 'audio_label' => 'Прослушать выбранную музыку',
@@ -49,6 +51,7 @@
     $templateTitleWords = preg_split('/\s+/u', trim($template->name), -1, PREG_SPLIT_NO_EMPTY);
     $templateTitleFirstLine = array_shift($templateTitleWords);
     $templateTitleSecondLine = implode(' ', $templateTitleWords);
+    $selectedRestaurant = $restaurants->firstWhere('id', (int) old('restaurant_id'));
 @endphp
 
 @extends('layouts.store', ['title' => $t['title']])
@@ -70,7 +73,7 @@
 <label class="field wide">{{ $t['hosts'] }}<input name="hosts" value="{{ old('hosts') }}" placeholder="{{ $t['hosts_placeholder'] }}" maxlength="240" required>@error('hosts')<span class="error">{{ $message }}</span>@enderror</label>
 </div></fieldset>
 <fieldset class="form-section"><legend>{{ $t['venue'] }}</legend><div class="form-grid">
-<label class="field wide">{{ $t['restaurant'] }}<select name="restaurant_id" id="restaurant_id"><option value="">{{ $t['own_restaurant'] }}</option>@foreach($restaurants as $restaurant)<option value="{{ $restaurant->id }}" data-name="{{ $restaurant->name }}" data-address="{{ $restaurant->city }}, {{ $restaurant->address }}" @selected((string)old('restaurant_id') === (string)$restaurant->id)>{{ $restaurant->name }} · {{ $restaurant->city }}</option>@endforeach</select><small>{{ $t['restaurant_hint'] }}</small>@error('restaurant_id')<span class="error">{{ $message }}</span>@enderror</label>
+<label class="field wide" data-restaurant-picker>{{ $t['restaurant'] }}<input type="hidden" name="restaurant_id" id="restaurant_id" value="{{ old('restaurant_id') }}"><input id="restaurant_search" type="search" list="checkout-restaurant-options" value="{{ $selectedRestaurant?->name }}" placeholder="{{ $t['own_restaurant'] }}" autocomplete="off" data-found="{{ $t['restaurant_found'] }}" data-missing="{{ $t['restaurant_missing'] }}"><datalist id="checkout-restaurant-options">@foreach($restaurants as $restaurant)<option value="{{ $restaurant->name }}" data-id="{{ $restaurant->id }}" data-address="{{ $restaurant->city }}, {{ $restaurant->address }}">{{ $restaurant->city }}</option>@endforeach</datalist><small class="restaurant-picker-hint">{{ $t['restaurant_hint'] }}</small>@error('restaurant_id')<span class="error">{{ $message }}</span>@enderror</label>
 <label class="field wide">{{ $t['venue_name'] }}<input id="venue_name" name="venue_name" value="{{ old('venue_name') }}" maxlength="160" required>@error('venue_name')<span class="error">{{ $message }}</span>@enderror</label>
 <label class="field wide">{{ $t['address'] }}<input id="venue_address" name="venue_address" value="{{ old('venue_address') }}" maxlength="255" required>@error('venue_address')<span class="error">{{ $message }}</span>@enderror</label>
 </div></fieldset>

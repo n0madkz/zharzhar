@@ -24,6 +24,7 @@ class AdminController extends Controller
         $filters = $request->validate([
             'q' => ['nullable', 'string', 'max:100'],
             'restaurant_id' => ['nullable', 'integer', 'exists:restaurants,id'],
+            'restaurant' => ['nullable', 'string', 'max:150'],
             'period' => ['nullable', 'string', 'max:50'],
             'event_type' => ['nullable', 'string', 'max:120'],
             'date_from' => ['nullable', 'date'],
@@ -42,6 +43,12 @@ class AdminController extends Controller
                 });
             })
             ->when(! empty($filters['restaurant_id']), fn ($query) => $query->where('restaurant_id', $filters['restaurant_id']))
+            ->when(($filters['restaurant'] ?? '') !== '', function ($query) use ($filters): void {
+                $restaurantSearch = trim($filters['restaurant']);
+                $query->whereHas('restaurant', fn ($restaurantQuery) => $restaurantQuery
+                    ->where('name', 'like', '%'.$restaurantSearch.'%')
+                    ->orWhere('city', 'like', '%'.$restaurantSearch.'%'));
+            })
             ->when(($filters['period'] ?? '') !== '', fn ($query) => $query->whereHas('slot', fn ($slotQuery) => $slotQuery->where('slot_key', $filters['period'])))
             ->when(($filters['event_type'] ?? '') !== '', fn ($query) => $query->where('event_type', 'like', '%'.$filters['event_type'].'%'))
             ->when(! empty($filters['date_from']), fn ($query) => $query->whereDate('booking_date', '>=', $filters['date_from']))

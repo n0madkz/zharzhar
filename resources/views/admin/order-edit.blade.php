@@ -3,6 +3,7 @@
 @section('content')
 @php
     $value = fn (string $key, mixed $default = '') => old($key, data_get($details, $key, $default));
+    $selectedRestaurant = $restaurants->firstWhere('id', (int) $value('restaurant_id'));
     $programTimes = old('program_times', $details['program_times'] ?? ['17:00', '18:00', '19:00']);
     $copyFields = [
         'event_label' => ['Название события на обложке', false],
@@ -76,10 +77,10 @@
                 <label class="field wide">Той иелері / организаторы<input name="hosts" value="{{ $value('hosts') }}" maxlength="240" required></label>
                 <label class="field">Дата<input type="date" name="event_date" value="{{ $value('event_date') }}" required></label>
                 <label class="field">Время<input type="time" name="event_time" value="{{ $value('event_time', '18:00') }}" required></label>
-                <label class="field">Ресторан из каталога<select name="restaurant_id"><option value="">Не выбран</option>@foreach($restaurants as $restaurant)<option value="{{ $restaurant->id }}" @selected((int)$value('restaurant_id') === $restaurant->id)>{{ $restaurant->name }}{{ $restaurant->status === 'active' ? '' : ' · скрыт' }}</option>@endforeach</select></label>
+                <label class="field" data-restaurant-picker>Ресторан из каталога<input type="hidden" name="restaurant_id" id="restaurant_id" value="{{ $value('restaurant_id') }}"><input id="restaurant_search" type="search" list="admin-order-restaurant-options" value="{{ $selectedRestaurant?->name }}" placeholder="Введите часть названия" autocomplete="off" data-found="Ресторан найден — название и адрес заполнены." data-missing="Если ресторана нет, оставьте поле без выбора и заполните место ниже."><datalist id="admin-order-restaurant-options">@foreach($restaurants as $restaurant)<option value="{{ $restaurant->name }}" data-id="{{ $restaurant->id }}" data-address="{{ $restaurant->city }}, {{ $restaurant->address }}">{{ $restaurant->city }}{{ $restaurant->status === 'active' ? '' : ' · скрыт' }}</option>@endforeach</datalist><small class="restaurant-picker-hint">Введите часть названия и выберите ресторан из подсказок.</small></label>
                 <label class="field">Музыка<select name="music_id"><option value="">Без музыки</option>@foreach($music as $track)<option value="{{ $track->id }}" @selected((int)old('music_id', $musicId) === $track->id)>{{ $track->name }}{{ $track->is_active ? '' : ' · скрыта' }}</option>@endforeach</select></label>
-                <label class="field wide">Название ресторана или места<input name="venue_name" value="{{ $value('venue_name') }}" maxlength="160" required></label>
-                <label class="field wide">Адрес<input name="venue_address" value="{{ $value('venue_address') }}" maxlength="255" required></label>
+                <label class="field wide">Название ресторана или места<input id="venue_name" name="venue_name" value="{{ $value('venue_name') }}" maxlength="160" required></label>
+                <label class="field wide">Адрес<input id="venue_address" name="venue_address" value="{{ $value('venue_address') }}" maxlength="255" required></label>
                 <label class="field wide">Основной текст приглашения<textarea name="invitation_text" maxlength="2000">{{ $value('invitation_text') }}</textarea></label>
             </div>
         </fieldset>

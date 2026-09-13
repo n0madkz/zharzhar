@@ -106,6 +106,7 @@ class AdminBookingTest extends TestCase
             ['q' => 'йгу'],
             ['q' => '12345'],
             ['restaurant_id' => $restaurant->id],
+            ['restaurant' => 'odem'],
             ['period' => 'evening'],
             ['event_type' => 'вад'],
             ['date_from' => '2026-10-01', 'date_to' => '2026-10-31'],

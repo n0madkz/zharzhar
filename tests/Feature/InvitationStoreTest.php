@@ -149,6 +149,24 @@ class InvitationStoreTest extends TestCase
         $this->get('/media/music/missing.mp3')->assertNotFound();
     }
 
+    public function test_checkout_suggests_catalog_restaurants_in_a_searchable_field(): void
+    {
+        $template = Template::factory()->create();
+        Restaurant::create([
+            'name' => 'Алтын Сарай',
+            'city' => 'Алматы',
+            'address' => 'Абая, 10',
+            'phone' => '+7 700 000 00 00',
+            'status' => 'active',
+        ]);
+
+        $this->get('/checkout/'.$template->id)
+            ->assertOk()
+            ->assertSee('list="checkout-restaurant-options"', false)
+            ->assertSee('value="Алтын Сарай"', false)
+            ->assertSee('name="restaurant_id"', false);
+    }
+
     public function test_store_is_kazakh_by_default_and_language_switch_persists_russian(): void
     {
         $this->get('/')
