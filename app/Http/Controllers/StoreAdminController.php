@@ -22,15 +22,19 @@ class StoreAdminController extends Controller
 {
     public function index(Request $request): View
     {
+        Invitation::archiveExpired();
         $status = $request->string('status')->toString();
         $search = trim(mb_substr($request->string('q')->toString(), 0, 100));
         $phoneSearch = preg_replace('/\D+/', '', $search);
         $orderNumberSearch = ctype_digit($search) && strlen($search) <= 6 ? $search : null;
         if (preg_match('/^(?:заказ\s*)?[№#]\s*(\d+)$/ui', $search, $matches)) {
             $orderNumberSearch = $matches[1];
+            $phoneSearch = '';
         }
         $orders = InvitationOrder::with('invitation')
+            ->when($status === 'archived', fn ($query) => $query->whereHas('invitation', fn ($invitationQuery) => $invitationQuery->where('status', 'archived')))
             ->when(in_array($status, ['pending', 'review', 'paid', 'rejected']), fn ($query) => $query->where('status', $status))
+            ->when($status === 'paid', fn ($query) => $query->whereDoesntHave('invitation', fn ($invitationQuery) => $invitationQuery->where('status', 'archived')))
             ->when($search !== '', function ($query) use ($search, $phoneSearch, $orderNumberSearch): void {
                 $query->where(function ($query) use ($search, $phoneSearch, $orderNumberSearch): void {
                     $query->where('customer_name', 'like', '%'.$search.'%')
@@ -52,7 +56,12 @@ class StoreAdminController extends Controller
 
         return view('admin.store', [
             'orders' => $orders, 'status' => $status, 'search' => $search,
-            'totals' => ['review' => InvitationOrder::where('status', 'review')->count(), 'paid' => InvitationOrder::where('status', 'paid')->count(), 'revenue' => InvitationOrder::where('status', 'paid')->sum('total')],
+            'totals' => [
+                'review' => InvitationOrder::where('status', 'review')->count(),
+                'paid' => InvitationOrder::where('status', 'paid')->whereDoesntHave('invitation', fn ($query) => $query->where('status', 'archived'))->count(),
+                'archived' => Invitation::where('status', 'archived')->count(),
+                'revenue' => InvitationOrder::where('status', 'paid')->sum('total'),
+            ],
             'templates' => Template::orderBy('price')->get(), 'music' => Music::latest()->get(),
             'promos' => PromoCode::latest()->get(), 'restaurants' => Restaurant::orderBy('name')->get(),
         ]);
@@ -107,6 +116,18 @@ class StoreAdminController extends Controller
             'music' => Music::orderBy('name')->get(),
             'restaurants' => Restaurant::orderBy('name')->get(),
         ]);
+    }
+
+    public function archiveInvitation(InvitationOrder $order): RedirectResponse
+    {
+        $order->load('invitation.event');
+        abort_unless($order->status === 'paid' && $order->invitation, 409, 'У этого заказа нет готового приглашения.');
+
+        if ($order->invitation->status !== 'archived') {
+            $order->invitation->moveToArchive();
+        }
+
+        return back()->with('success', 'Приглашение перенесено в архив. Заказ и ответы сохранены.');
     }
 
     public function updateOrder(Request $request, InvitationOrder $order): RedirectResponse
@@ -198,6 +219,8 @@ class StoreAdminController extends Controller
 
     public function destroyOrder(InvitationOrder $order): RedirectResponse
     {
+        $photoPaths = collect(data_get($order->details, 'photo_paths', []))->filter()->values()->all();
+
         DB::transaction(function () use ($order): void {
             $order = InvitationOrder::with('invitation.event')->lockForUpdate()->findOrFail($order->id);
             if ($order->promo_code_id && $order->status !== 'rejected') {
@@ -212,6 +235,10 @@ class StoreAdminController extends Controller
                 $invitation?->delete();
             }
         }, 3);
+
+        foreach ($photoPaths as $photoPath) {
+            Storage::disk('public')->delete($photoPath);
+        }
 
         return redirect()->route('admin.store.index')->with('success', 'Заказ, приглашение и ответы гостей удалены.');
     }
@@ -251,6 +278,7 @@ class StoreAdminController extends Controller
             'content_event_date' => ['required', 'date'],
             'content_event_time' => ['required', 'date_format:H:i'],
             'content_date_title' => ['required', 'string', 'max:120'],
+            'content_gallery_title' => ['nullable', 'string', 'max:120'],
             'content_venue_title' => ['required', 'string', 'max:120'],
             'content_venue_name' => ['required', 'string', 'max:160'],
             'content_venue_address' => ['required', 'string', 'max:255'],
@@ -408,6 +436,7 @@ class StoreAdminController extends Controller
     private function syncInvitation(InvitationOrder $order, array $details, Template $template, bool $published): void
     {
         $invitation = $order->invitation()->with('event')->first();
+        $keepArchived = $published && $invitation?->status === 'archived';
         $eventValues = [
             'restaurant_id' => $details['restaurant_id'] ?? null,
             'event_type' => $details['event_type'],
@@ -417,7 +446,7 @@ class StoreAdminController extends Controller
             'venue_name' => $details['venue_name'],
             'venue_address' => $details['venue_address'],
             'language' => $details['language'],
-            'status' => $published ? 'active' : 'draft',
+            'status' => $published ? ($keepArchived ? 'archived' : 'active') : 'draft',
         ];
 
         if (! $invitation && ! $published) {
@@ -444,7 +473,7 @@ class StoreAdminController extends Controller
             'template_id' => $template->id,
             'content_json' => $details,
             'settings_json' => ['music_url' => $details['music_url'] ?? null, 'theme' => $details['theme']],
-            'status' => $published ? 'published' : 'draft',
+            'status' => $published ? ($keepArchived ? 'archived' : 'published') : 'draft',
             'published_at' => $published ? ($invitation->published_at ?? now()) : null,
         ]);
     }

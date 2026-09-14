@@ -20,6 +20,8 @@
         'music_hint' => 'Әуенді таңдап, алдын ала тыңдауға болады.', 'audio_label' => 'Таңдалған музыканы тыңдау',
         'invite_text' => 'Шақыру мәтіні', 'optional_text' => 'Қалауыңызша. Бос қалдырсаңыз, дайын мәтін қолданылады.',
         'text_placeholder' => 'Құрметті ағайын-туыс, бауырлар мен достар! Сіздерді қуанышымыздың қадірлі қонағы болуға шақырамыз…',
+        'photos' => 'Өз фотоларыңыз', 'photos_hint' => '1–3 фото таңдаңыз. JPG, PNG немесе WebP, әр файл 5 МБ-тан аспауы керек.',
+        'photos_preview' => 'Таңдалған фотолар',
         'contact' => '04. Сізбен қалай байланысамыз', 'your_name' => 'Сіздің есіміңіз', 'phone' => 'Телефон / WhatsApp',
         'submit' => 'Рәсімдеу және төлемге өту', 'submit_hint' => 'Келесі қадамда нақты сома мен Kaspi деректері көрсетіледі. Шақыру төлем тексерілгеннен кейін жарияланады.',
         'choice' => 'СІЗДІҢ ТАҢДАУЫҢЫЗ', 'promo' => 'Промокод бар ма?', 'promo_placeholder' => 'Кодты енгізіңіз',
@@ -42,6 +44,8 @@
         'music_hint' => 'Выберите трек и прослушайте его заранее.', 'audio_label' => 'Прослушать выбранную музыку',
         'invite_text' => 'Текст приглашения', 'optional_text' => 'По желанию. Если оставить пустым, используем готовый текст.',
         'text_placeholder' => 'Дорогие родные и друзья! Будем рады видеть вас…',
+        'photos' => 'Ваши фотографии', 'photos_hint' => 'Выберите 1–3 фото. JPG, PNG или WebP, каждый файл до 5 МБ.',
+        'photos_preview' => 'Выбранные фотографии',
         'contact' => '04. Как с вами связаться', 'your_name' => 'Ваше имя', 'phone' => 'Телефон / WhatsApp',
         'submit' => 'Оформить и перейти к оплате', 'submit_hint' => 'На следующем шаге получите точную сумму и реквизиты Kaspi. Приглашение опубликуем после проверки оплаты.',
         'choice' => 'ВАШ ВЫБОР', 'promo' => 'Есть промокод?', 'promo_placeholder' => 'Введите код',
@@ -52,13 +56,14 @@
     $templateTitleFirstLine = array_shift($templateTitleWords);
     $templateTitleSecondLine = implode(' ', $templateTitleWords);
     $selectedRestaurant = $restaurants->firstWhere('id', (int) old('restaurant_id'));
+    $supportsPhotos = (bool) data_get($template->config_json, 'supports_photos', false);
 @endphp
 
 @extends('layouts.store', ['title' => $t['title']])
 @section('content')
 <div class="shell"><div class="page-heading"><a class="breadcrumb" href="{{ route('store.catalog') }}#designs">← {{ $t['back'] }}</a><h1>{{ $t['heading'] }}</h1><p class="hint">{{ $t['progress'] }}</p></div>
 @if($errors->any())<div class="error" role="alert">{{ $t['errors'] }} {{ $errors->first() }}</div>@endif
-<form class="checkout-layout" method="POST" action="{{ route('store.order') }}" data-submit-once>@csrf
+<form class="checkout-layout" method="POST" action="{{ route('store.order') }}" enctype="multipart/form-data" data-submit-once>@csrf
 <input type="hidden" name="template_id" value="{{ $template->id }}"><input type="hidden" name="request_key" value="{{ old('request_key', $requestKey) }}">
 <div class="panel">
 <fieldset class="form-section"><legend>{{ $t['event'] }}</legend><div class="form-grid">
@@ -81,6 +86,10 @@
 <label class="field wide">{{ $t['music'] }}<select id="music_id" name="music_id"><option value="">{{ $t['without_music'] }}</option>@foreach($music as $track)<option value="{{ $track->id }}" data-url="{{ $track->playbackUrl() }}" @selected((string)old('music_id') === (string)$track->id)>{{ $track->name }} · {{ $track->categoryLabel() }}</option>@endforeach</select><small>{{ $t['music_hint'] }}</small>@error('music_id')<span class="error">{{ $message }}</span>@enderror</label>
 <audio class="wide" id="music-preview" controls preload="none" hidden aria-label="{{ $t['audio_label'] }}"></audio>
 <label class="field wide">{{ $t['invite_text'] }} <small>{{ $t['optional_text'] }}</small><textarea name="invitation_text" maxlength="2000" placeholder="{{ $t['text_placeholder'] }}">{{ old('invitation_text') }}</textarea>@error('invitation_text')<span class="error">{{ $message }}</span>@enderror</label>
+@if($supportsPhotos)
+<label class="field wide photo-upload">{{ $t['photos'] }}<input type="file" name="photos[]" accept="image/jpeg,image/png,image/webp" multiple required data-photo-input data-max-message="{{ $kk ? 'Ең көбі 3 фото таңдаңыз.' : 'Выберите не более 3 фотографий.' }}"><small>{{ $t['photos_hint'] }}</small>@error('photos')<span class="error">{{ $message }}</span>@enderror @error('photos.*')<span class="error">{{ $message }}</span>@enderror</label>
+<div class="photo-upload-preview wide" data-photo-preview aria-label="{{ $t['photos_preview'] }}"></div>
+@endif
 </div></fieldset>
 <fieldset class="form-section"><legend>{{ $t['contact'] }}</legend><div class="form-grid">
 <label class="field">{{ $t['your_name'] }}<input name="customer_name" value="{{ old('customer_name') }}" autocomplete="name" maxlength="120" required>@error('customer_name')<span class="error">{{ $message }}</span>@enderror</label>

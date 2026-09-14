@@ -3,14 +3,18 @@
 <div class="shell"><div class="page-heading order-head"><div><p class="eyebrow">ZHARZHAR · АДМИНИСТРАТОР</p><h1>Магазин приглашений</h1></div><form method="POST" action="{{ route('logout') }}">@csrf<button class="button outline">Выйти</button></form></div>
 @if($errors->any())<p class="error" role="alert">{{ $errors->first() }}</p>@endif
 <nav class="admin-nav" aria-label="Разделы админки"><a href="#orders">Заказы и генерации</a><a href="#templates">Дизайны</a><a href="#music">Музыка</a><a href="#promos">Промокоды</a><a href="#restaurants">Рестораны</a><a href="{{ route('admin.dashboard') }}">Бронирования ↗</a></nav>
-<div class="stats"><div class="panel"><strong>{{ $totals['review'] }}</strong><span>Оплат на проверке</span></div><div class="panel"><strong>{{ $totals['paid'] }}</strong><span>Создано приглашений</span></div><div class="panel"><strong>{{ number_format($totals['revenue'], 0, ',', ' ') }} ₸</strong><span>Подтверждено оплат</span></div></div>
+<div class="stats"><div class="panel"><strong>{{ $totals['review'] }}</strong><span>Оплат на проверке</span></div><div class="panel"><strong>{{ $totals['paid'] }}</strong><span>Активных приглашений</span></div><div class="panel"><strong>{{ $totals['archived'] }}</strong><span>Приглашений в архиве</span></div><div class="panel"><strong>{{ number_format($totals['revenue'], 0, ',', ' ') }} ₸</strong><span>Подтверждено оплат</span></div></div>
 <section id="orders" class="admin-section"><h2>Заказы <em>и приглашения</em></h2>
 <form class="order-search" method="GET" action="{{ route('admin.store.index') }}#orders" role="search">
 @if($status !== '')<input type="hidden" name="status" value="{{ $status }}">@endif
 <label for="order-search">Поиск заказов</label><div><input id="order-search" name="q" type="search" value="{{ $search }}" placeholder="Имя, телефон, № заказа или ресторан"><button class="button primary" type="submit">Найти</button>@if($search !== '')<a class="button outline" href="{{ route('admin.store.index', array_filter(['status'=>$status])) }}#orders">Сбросить</a>@endif</div>
 </form>
-<nav class="filters" aria-label="Статус заказов">@foreach([''=>'Все','pending'=>'Ожидают оплаты','review'=>'На проверке','paid'=>'Готовы','rejected'=>'Отклонены'] as $key=>$label)<a class="{{ $status === $key ? 'active' : '' }}" href="{{ route('admin.store.index', array_filter(['status'=>$key,'q'=>$search])) }}#orders">{{ $label }}</a>@endforeach</nav>
-@forelse($orders as $order)<article class="panel order-card"><div class="order-head"><div><p class="eyebrow">ЗАКАЗ №{{ $order->id }} · {{ $order->created_at->format('d.m.Y H:i') }}</p><h3>{{ $order->details['names'] }}</h3><p class="hint">{{ $order->customer_name }} · {{ $order->customer_phone }}</p></div><div><strong>{{ number_format($order->total, 0, ',', ' ') }} ₸</strong><br><span class="badge badge-{{ $order->status }}">{{ $order->statusLabel() }}</span></div></div>
+<nav class="filters" aria-label="Статус заказов">@foreach([''=>'Все','pending'=>'Ожидают оплаты','review'=>'На проверке','paid'=>'Готовы','archived'=>'Архив','rejected'=>'Отклонены'] as $key=>$label)<a class="{{ $status === $key ? 'active' : '' }}" href="{{ route('admin.store.index', array_filter(['status'=>$key,'q'=>$search])) }}#orders">{{ $label }}</a>@endforeach</nav>
+@forelse($orders as $order)
+@php
+    $invitationArchived = $order->invitation?->status === 'archived';
+@endphp
+<article class="panel order-card {{ $invitationArchived ? 'order-card-archived' : '' }}"><div class="order-head"><div><p class="eyebrow">ЗАКАЗ №{{ $order->id }} · {{ $order->created_at->format('d.m.Y H:i') }}</p><h3>{{ $order->details['names'] }}</h3><p class="hint">{{ $order->customer_name }} · {{ $order->customer_phone }}</p></div><div><strong>{{ number_format($order->total, 0, ',', ' ') }} ₸</strong><br><span class="badge badge-{{ $invitationArchived ? 'archived' : $order->status }}">{{ $invitationArchived ? 'В архиве' : $order->statusLabel() }}</span></div></div>
 <p class="order-card-brief">{{ $order->details['template_name'] }} · {{ $order->details['event_date'] }} · {{ $order->details['venue_name'] }}</p>
 <details class="order-management"><summary>Детали и управление заказом</summary><div class="order-management-body">
 <p class="hint">{{ $order->details['template_name'] }} · {{ $order->details['event_date'] }} {{ $order->details['event_time'] }} · {{ $order->details['venue_name'] }}<br>Той иелері: {{ $order->details['hosts'] }}<br>{{ $order->details['venue_address'] }} · {{ $order->details['music_name'] ?? 'Без музыки' }}</p>
@@ -18,7 +22,12 @@
 @if($order->payment_reference)<p class="notice">Сообщение об оплате: {{ $order->payment_reference }}</p>@endif
 @if($order->status === 'paid')
 <p class="hint">Подтверждено {{ $order->paid_at->format('d.m.Y H:i') }} · администратор #{{ $order->confirmed_by }}</p>
+@if($invitationArchived)
+<p class="notice archive-notice">Публичная ссылка закрыта. Заказ, тексты приглашения и ответы гостей сохранены.</p>
+@else
 <p class="field">Приглашение для гостей</p><div class="copy-row"><input readonly aria-label="Приглашение заказа {{ $order->id }}" value="{{ $order->publicUrl('i/'.$order->invitation->slug) }}"><button type="button" class="button outline" data-copy="{{ $order->publicUrl('i/'.$order->invitation->slug) }}">Копировать</button></div>
+<form method="POST" action="{{ route('admin.store.orders.archive', $order) }}" onsubmit="return window.confirm('Перенести приглашение в архив? Публичная ссылка перестанет открываться.')">@csrf<button class="button outline archive-button" type="submit">В архив</button></form>
+@endif
 <p class="field">Личная ссылка на ответы</p><div class="copy-row"><input readonly aria-label="Ответы заказа {{ $order->id }}" value="{{ $order->publicUrl('responses/'.$order->responses_token) }}"><button type="button" class="button outline" data-copy="{{ $order->publicUrl('responses/'.$order->responses_token) }}">Копировать</button></div>
 @elseif(in_array($order->status, ['pending','review']))
 <form method="POST" action="{{ route('admin.store.confirm', $order) }}" class="stack" data-submit-once>@csrf<p class="hint">Проверьте поступление {{ number_format($order->total, 0, ',', ' ') }} ₸ в Kaspi. Подтверждение опубликует приглашение и откроет ссылки клиенту.</p><button type="submit" class="button primary">Подтвердить оплату и создать приглашение</button></form>
@@ -40,6 +49,7 @@ $templateTextDefaults = [
     'event_date' => now()->addMonths(2)->format('Y-m-d'),
     'event_time' => '18:00',
     'date_title' => 'Той салтанаты',
+    'gallery_title' => 'Біздің ерекше сәттеріміз',
     'venue_title' => 'Мекенжайымыз',
     'venue_name' => 'Салтанат сарайы',
     'venue_address' => 'Алматы қаласы, Абай даңғылы, 50',
@@ -65,6 +75,7 @@ $groups = [
 'content_event_date'=>['label'=>'Дата в превью','config'=>'content_kk.event_date','default'=>$templateTextDefaults['event_date'],'type'=>'date','required'=>true],
 'content_event_time'=>['label'=>'Время в превью','config'=>'content_kk.event_time','default'=>$templateTextDefaults['event_time'],'type'=>'time','required'=>true],
 'content_date_title'=>['label'=>'Заголовок блока даты','config'=>'content_kk.date_title','default'=>$templateTextDefaults['date_title'],'required'=>true],
+'content_gallery_title'=>['label'=>'Заголовок блока фотографий','config'=>'content_kk.gallery_title','default'=>$templateTextDefaults['gallery_title'],'hint'=>'Используется в шаблонах с фотографиями.'],
 'content_venue_title'=>['label'=>'Заголовок места','config'=>'content_kk.venue_title','default'=>$templateTextDefaults['venue_title'],'required'=>true],
 'content_venue_name'=>['label'=>'Название места в превью','config'=>'content_kk.venue_name','default'=>$templateTextDefaults['venue_name'],'required'=>true],
 'content_venue_address'=>['label'=>'Адрес в превью','config'=>'content_kk.venue_address','default'=>$templateTextDefaults['venue_address'],'wide'=>true,'required'=>true],

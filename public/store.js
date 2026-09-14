@@ -149,6 +149,25 @@ document.addEventListener('DOMContentLoaded', () => {
     if (url) { audio.src = url; } else { audio.removeAttribute('src'); }
     audio.load();
   });
+  document.querySelectorAll('[data-photo-input]').forEach(input => {
+    const preview = document.querySelector('[data-photo-preview]');
+    let previewUrls = [];
+    input.addEventListener('change', () => {
+      previewUrls.forEach(url => URL.revokeObjectURL(url));
+      previewUrls = [];
+      if (preview) preview.replaceChildren();
+      const files = Array.from(input.files || []);
+      input.setCustomValidity(files.length > 3 ? input.dataset.maxMessage : '');
+      files.slice(0, 3).forEach((file, index) => {
+        const url = URL.createObjectURL(file);
+        previewUrls.push(url);
+        const image = document.createElement('img');
+        image.src = url;
+        image.alt = `${index + 1}`;
+        preview?.append(image);
+      });
+    });
+  });
   const promo = document.querySelector('#promo_code');
   const apply = document.querySelector('#apply-promo');
   const result = document.querySelector('#promo-result');

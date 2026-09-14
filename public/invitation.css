@@ -412,10 +412,10 @@ body.invitation-shell{margin:0;background:#e6e2dc;color:#28231f;font-family:Manr
 
 /* Large qoshqar muiiz player shared by every invitation theme. */
 .music-orb{
-    width:84px;
-    height:84px;
-    right:max(64px,calc(50% - 150px));
-    bottom:max(70px,calc(env(safe-area-inset-bottom) + 62px));
+    width:72px;
+    height:72px;
+    right:max(38px,calc(50% - 166px));
+    bottom:max(48px,calc(env(safe-area-inset-bottom) + 40px));
     border:0;
     border-radius:0;
     background:transparent;
@@ -430,8 +430,8 @@ body.invitation-shell{margin:0;background:#e6e2dc;color:#28231f;font-family:Manr
     z-index:1;
     top:50%;
     left:50%;
-    width:136px;
-    height:136px;
+    width:112px;
+    height:112px;
     background:var(--music-ornament,var(--music-accent));
     -webkit-mask:url('/invitation-assets/music-kazakh-ornament.svg') center/contain no-repeat;
     mask:url('/invitation-assets/music-kazakh-ornament.svg') center/contain no-repeat;
@@ -464,10 +464,69 @@ body.invitation-shell{margin:0;background:#e6e2dc;color:#28231f;font-family:Manr
     to{transform:translate(-50%,-50%) rotate(360deg)}
 }
 @media(max-width:600px){
-    .music-orb{right:max(62px,env(safe-area-inset-right));bottom:max(68px,calc(env(safe-area-inset-bottom) + 60px));width:80px;height:80px}
-    .music-kazakh-ornament{width:126px;height:126px}
+    .music-orb{right:max(24px,env(safe-area-inset-right));bottom:max(30px,calc(env(safe-area-inset-bottom) + 22px));width:66px;height:66px}
+    .music-kazakh-ornament{width:102px;height:102px}
 }
 @media(prefers-reduced-motion:reduce){
     .music-kazakh-ornament,
     .music-orb.is-playing .music-kazakh-ornament{animation:none}
+}
+
+/* Clear two-option RSVP used by every invitation. */
+.attendance-choice{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0;padding:0;border:0}
+.attendance-choice legend{width:100%;margin:0 0 8px;color:var(--iv-ink);font-size:11px;font-weight:600;letter-spacing:.5px}
+.attendance-choice label{position:relative;cursor:pointer}
+.attendance-choice input{position:absolute;width:1px!important;height:1px!important;min-height:0!important;margin:0!important;padding:0!important;opacity:0}
+.attendance-choice b{display:flex;min-height:52px;align-items:center;justify-content:center;border:1px solid var(--iv-soft);border-radius:15px;background:color-mix(in srgb,var(--iv-paper) 78%,transparent);color:var(--iv-ink);font-size:14px;font-weight:700;transition:border-color .18s,background .18s,color .18s,transform .18s}
+.attendance-choice input:checked+b{border-color:var(--iv-accent);background:var(--iv-accent);color:var(--iv-paper);box-shadow:0 10px 24px color-mix(in srgb,var(--iv-accent) 24%,transparent);transform:translateY(-1px)}
+.attendance-choice input:focus-visible+b{outline:3px solid color-mix(in srgb,var(--iv-accent) 45%,white);outline-offset:3px}
+.attendance-choice:disabled b{cursor:default}
+.rsvp-preview .attendance-choice{width:100%}
+.rsvp-preview .attendance-choice legend{text-align:center}
+.rsvp-preview .attendance-choice label:first-of-type b{border-color:var(--iv-accent);background:var(--iv-accent);color:var(--iv-paper)}
+
+/* Photo-story invitation with a distinct editorial gallery. */
+.invite-photo-story{padding:86px 22px 96px;background:var(--iv-paper)}
+.invite-photo-story>.invite-overline{margin-bottom:30px}
+.invite-photo-grid{display:grid;grid-template-columns:1.1fr .9fr;grid-template-rows:210px 210px;gap:10px}
+.invite-photo-grid figure{position:relative;margin:0;overflow:hidden;border-radius:22px;background:var(--iv-bg);box-shadow:0 14px 34px color-mix(in srgb,var(--iv-ink) 12%,transparent)}
+.invite-photo-grid figure:first-child{grid-row:1/3;border-radius:120px 22px 22px 22px}
+.invite-photo-grid img{width:100%;height:100%;object-fit:cover;transition:transform 7s ease}
+.invite-photo-grid figure:nth-child(2) img{object-position:center 48%}
+.invite-photo-grid figure:nth-child(3) img{object-position:center 55%}
+.invite-photo-story.is-visible img{transform:scale(1.045)}
+.invite-template-mahabbat-hikayasy{--iv-bg:#eef3f3;--iv-paper:#fffefa;--iv-ink:#17383c;--iv-accent:#ca8f5c;--iv-soft:#cad9d8;background:var(--iv-paper)}
+.invite-template-mahabbat-hikayasy .invite-cover{min-height:820px}
+.invite-template-mahabbat-hikayasy .invite-cover-image{object-position:center 42%;animation:photo-story-cover 14s ease-in-out infinite alternate}
+.invite-template-mahabbat-hikayasy .invite-cover-shade{background:linear-gradient(180deg,rgba(13,42,47,.04) 20%,rgba(13,42,47,.16) 46%,rgba(10,31,35,.88) 100%)}
+.invite-template-mahabbat-hikayasy .invite-cover-copy{padding-bottom:76px}
+.invite-template-mahabbat-hikayasy .invite-cover h1{font-family:'Noto Serif Display',Georgia,serif;font-size:61px}
+.invite-template-mahabbat-hikayasy .invite-monogram{border-radius:24px 24px 8px 24px;background:rgba(255,255,255,.08)}
+.invite-template-mahabbat-hikayasy .invite-intro{background:radial-gradient(circle at 0 0,rgba(202,143,92,.12),transparent 34%),var(--iv-paper)}
+.invite-template-mahabbat-hikayasy .orbit-mark i{border-radius:38% 62% 42% 58%}
+.invite-template-mahabbat-hikayasy .invite-photo-story{background:linear-gradient(155deg,#e8f1f1,#fffefa 62%)}
+.invite-template-mahabbat-hikayasy .invite-photo-story>.invite-overline{color:#6f8586}
+.invite-template-mahabbat-hikayasy .date-section{background:#17383c;color:#fffefa}
+.invite-template-mahabbat-hikayasy .date-orb{border-color:#dfb27f}
+.invite-template-mahabbat-hikayasy .date-orb::before,.invite-template-mahabbat-hikayasy .date-orb::after{border-color:rgba(255,255,255,.24)}
+.invite-template-mahabbat-hikayasy .venue-section{background:#f1f6f5}
+.invite-template-mahabbat-hikayasy .venue-location{border-color:#c9d9d7;background:#fff;box-shadow:0 18px 42px rgba(23,56,60,.1)}
+.invite-template-mahabbat-hikayasy .two-gis-logo{background:#17383c}
+.invite-template-mahabbat-hikayasy .countdown-section{background:#d8a272;color:#17383c}
+.invite-template-mahabbat-hikayasy .countdown-grid>div{border-color:rgba(23,56,60,.35);background:rgba(255,255,255,.16)}
+.invite-template-mahabbat-hikayasy .rsvp-section{background:#eef4f3}
+.invite-template-mahabbat-hikayasy .invite-form button{border-radius:15px;background:#17383c}
+.invite-template-mahabbat-hikayasy .finale-circle{border-radius:120px 120px 30px 30px}
+.music-theme-photo-story{--music-bg:#f8fbfa;--music-ink:#17383c;--music-accent:#ca8f5c;--music-ring:#c7d9d6;--music-ornament:#ca8f5c}
+@keyframes photo-story-cover{from{transform:scale(1)}to{transform:scale(1.06)}}
+@media(max-width:600px){.invite-photo-grid{grid-template-rows:190px 190px}.invite-template-mahabbat-hikayasy .invite-cover{min-height:calc(100svh - 58px)}}
+@media(prefers-reduced-motion:reduce){.invite-photo-grid img,.invite-template-mahabbat-hikayasy .invite-cover-image{transition:none;animation:none}.invite-photo-story.is-visible img{transform:none}}
+
+/* Text glyph decorations are hidden on phones; SVG ornaments and CSS shapes remain. */
+@media(max-width:600px){
+    .invite-theme-botanical .invite-cover::before,
+    .invite-theme-botanical .invite-cover::after,
+    .invite-theme-nomad .invite-section::before,
+    .invite-theme-heritage-modern .invite-section::before,
+    .invite-template-nazik-botanika .invite-cover-copy::before{content:none!important}
 }

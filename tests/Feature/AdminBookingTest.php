@@ -55,7 +55,7 @@ class AdminBookingTest extends TestCase
     {
         $admin = User::factory()->create(['role' => 'admin']);
 
-        $this->actingAs($admin)->post(route('admin.restaurants.store'), [
+        $create = $this->actingAs($admin)->post(route('admin.restaurants.store'), [
             'name' => 'Restaurant Altyn',
             'city' => 'Алматы',
             'address' => 'Абая, 1',
@@ -65,13 +65,20 @@ class AdminBookingTest extends TestCase
             'password' => 'SecurePass77',
             'max_seats' => 250,
             'bonus_percent' => 8.5,
-        ])->assertRedirect();
+        ]);
 
         $restaurant = Restaurant::where('name', 'Restaurant Altyn')->firstOrFail();
         $this->assertSame('https://2gis.kz/almaty/geo/700000010', $restaurant->two_gis_url);
         $this->assertSame('partner@example.com', $restaurant->partner?->email);
         $this->assertSame('8.50', $restaurant->bonus_percent);
         $this->assertCount(3, $restaurant->slots);
+        $create->assertRedirect()->assertSessionHas('new_restaurant_id', $restaurant->id);
+
+        $this->get(route('admin.restaurants.invitation-card', $restaurant))
+            ->assertOk()
+            ->assertSee('Restaurant Altyn')
+            ->assertSee('Распечатать A5')
+            ->assertSee('data:image/svg+xml;base64,', false);
     }
 
     public function test_admin_can_filter_bookings_and_search_by_partial_phone_or_name(): void

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Booking;
 use App\Models\RestaurantService;
 use App\Models\RestaurantTariff;
+use App\Support\RestaurantInvitationCard;
 use Carbon\Carbon;
 use chillerlan\QRCode\Output\QRGdImagePNG;
 use chillerlan\QRCode\Output\QRMarkupSVG;
@@ -115,6 +116,17 @@ class RestaurantController extends Controller
             'Content-Disposition' => 'attachment; filename="zharzhar-bookings.csv"',
             'Content-Length' => (string) strlen($csv),
             'Cache-Control' => 'no-store, private',
+        ]);
+    }
+
+    public function invitationCard(Request $request, RestaurantInvitationCard $card): View
+    {
+        $restaurant = $request->user()->restaurant()->firstOrFail();
+
+        return view('restaurant.invitation-card', [
+            'restaurant' => $restaurant,
+            'qrDataUrl' => $card->qrDataUrl($restaurant),
+            'whatsappUrl' => $card->whatsappUrl($restaurant),
         ]);
     }
 

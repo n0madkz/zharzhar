@@ -13,6 +13,7 @@ use App\Models\RestaurantService;
 use App\Models\RestaurantTariff;
 use App\Models\Template;
 use App\Models\User;
+use App\Support\RestaurantInvitationCard;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -52,6 +53,25 @@ class PartnerCalendarTest extends TestCase
             ->assertDontSee('Написать в WhatsApp')
             ->assertDontSee('booking-support', false)
             ->assertDontSee('</small></span><span class="status">', false);
+    }
+
+    public function test_partner_can_open_restaurant_invitation_qr_card(): void
+    {
+        [$partner, $restaurant] = $this->partnerFixture();
+
+        $response = $this->actingAs($partner)
+            ->get('http://partner.zharzhar.kz/restaurant/invitation-card');
+
+        $response->assertOk()
+            ->assertSee($restaurant->name)
+            ->assertDontSee('+7 706 716 01 99')
+            ->assertSee('Распечатать A5')
+            ->assertSee('data:image/svg+xml;base64,', false);
+
+        $whatsappUrl = app(RestaurantInvitationCard::class)->whatsappUrl($restaurant);
+        $this->assertStringStartsWith('https://wa.me/77067160199?text=', $whatsappUrl);
+        $this->assertStringContainsString(rawurlencode($restaurant->name), $whatsappUrl);
+        $this->assertStringContainsString(rawurlencode('#'.$restaurant->id), $whatsappUrl);
     }
 
     public function test_partner_calendar_rejects_invalid_month_and_uses_svg_controls(): void

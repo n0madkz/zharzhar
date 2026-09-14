@@ -921,7 +921,14 @@
     border: 2px dotted #e89d32;
     border-radius: 52% 48% 50% 50%;
 }
-.invite-card-sky-birthday .card-design-name { border-radius: 24px 74px 24px 74px !important; }
+.catalog-grid .invite-card-sky-birthday .card-design-name {
+    width: calc(100% - 20px);
+    max-width: 252px;
+    padding: 10px 9px 12px;
+    border-radius: 24px 74px 24px 74px !important;
+    font-size: clamp(26px, 1.7vw, 30px);
+    line-height: 1.02;
+}
 .invite-card-sky-birthday .card-theme-mark::before,
 .invite-card-sky-birthday .card-theme-mark::after {
     content: '✦';

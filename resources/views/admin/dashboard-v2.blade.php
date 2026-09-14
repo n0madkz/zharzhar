@@ -5,7 +5,7 @@
     <div><div class="brand">Жар-Жар · Администратор</div><div class="muted">Управление ресторанами и бронированиями</div></div>
     <div class="actions"><a class="button secondary" href="{{ route('admin.store.index') }}">Магазин приглашений</a><form method="POST" action="{{ route('logout') }}">@csrf<button class="button" type="submit">Выйти</button></form></div>
 </header>
-@if(session('success'))<p class="success">{{ session('success') }}</p>@endif
+@if(session('success'))<div class="success">{{ session('success') }}@if(session('new_restaurant_id')) <a class="button" style="margin-left:12px" href="{{ route('admin.restaurants.invitation-card', session('new_restaurant_id')) }}" target="_blank" rel="noopener">Открыть A5 QR-макет</a>@endif</div>@endif
 @if($errors->any())<div class="error card">{{ $errors->first() }}</div>@endif
 
 <h1>Рестораны</h1>
@@ -30,11 +30,12 @@
     <section>
         <h2>Рестораны в системе</h2>
         @forelse($restaurants as $restaurant)
-            <article class="card restaurant-card">
+            <article class="card restaurant-card" id="restaurant-{{ $restaurant->id }}">
                 <div class="card-head"><div><h3>{{ $restaurant->name }}</h3><p>{{ $restaurant->city }} · {{ $restaurant->address ?? 'Адрес не указан' }}</p></div><span class="status status-{{ $restaurant->status }}">{{ $restaurant->status === 'active' ? 'Активен' : 'Отключён' }}</span></div>
                 <p>@if($restaurant->phone)<a href="tel:{{ $restaurant->phone }}">{{ $restaurant->phone }}</a>@else Телефон не указан @endif · {{ $restaurant->max_seats !== null ? $restaurant->max_seats.' мест' : 'Количество мест не указано' }}</p>
                 <p class="muted">{{ $restaurant->partner?->email ?? 'Email не указан' }} · {{ $restaurant->bookings_count }} бронирований · бонус {{ rtrim(rtrim(number_format((float)$restaurant->bonus_percent, 2, '.', ''), '0'), '.') }}%</p>
                 @if($restaurant->two_gis_url)<p><a class="text-link" href="{{ $restaurant->two_gis_url }}" target="_blank" rel="noopener">Открыть ресторан в 2GIS ↗</a></p>@endif
+                <p><a class="button secondary" href="{{ route('admin.restaurants.invitation-card', $restaurant) }}" target="_blank" rel="noopener">A5 QR для приглашений</a></p>
                 <details>
                     <summary>Изменить ресторан и доступ</summary>
                     <form method="POST" action="{{ route('admin.restaurants.update', $restaurant) }}" class="form-stack edit-restaurant-form">

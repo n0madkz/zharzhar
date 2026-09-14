@@ -31,6 +31,16 @@ class StorefrontController extends Controller
         ]);
     }
 
+    public function photoFile(string $filename)
+    {
+        $relativePath = 'invitation-photos/'.$filename;
+        abort_unless(Storage::disk('public')->exists($relativePath), 404);
+
+        return response()->file(Storage::disk('public')->path($relativePath), [
+            'Cache-Control' => 'public, max-age=86400',
+        ]);
+    }
+
     public function index(Request $request): View
     {
         $category = $request->string('event')->toString();
@@ -131,45 +141,60 @@ class StorefrontController extends Controller
     {
         $data = $request->validated();
         abort_unless($request->session()->has('checkout_keys.'.$data['request_key']), 419);
-        $order = DB::transaction(function () use ($data) {
-            $template = Template::where('is_active', true)->lockForUpdate()->findOrFail($data['template_id']);
-            $existing = InvitationOrder::where('request_key', $data['request_key'])->first();
-            if ($existing) {
-                return $existing;
-            }
-            $promo = $this->promo($data['promo_code'] ?? '', true);
-            $discount = $promo?->discountFor($template->price) ?? 0;
-            if ($template->event_type && $template->event_type !== $data['event_type']) {
-                throw ValidationException::withMessages(['event_type' => app()->isLocale('kk') ? 'Бұл дизайн басқа мерекеге арналған.' : 'Этот дизайн предназначен для другого события.']);
-            }
-            $music = empty($data['music_id']) ? null : Music::where('is_active', true)->findOrFail($data['music_id']);
-            $restaurant = empty($data['restaurant_id']) ? null : Restaurant::where('status', 'active')->findOrFail($data['restaurant_id']);
-            if ($music && ! $music->supportsCategory($data['event_type'])) {
-                throw ValidationException::withMessages(['music_id' => app()->isLocale('kk') ? 'Бұл музыка таңдалған мерекеге қолжетімсіз.' : 'Эта музыка недоступна для выбранного события.']);
-            }
-            $details = collect($data)->only(['event_type', 'names', 'hosts', 'event_date', 'event_time', 'restaurant_id', 'venue_name', 'venue_address', 'language', 'invitation_text'])->all();
-            $details['theme'] = $template->config_json['theme'] ?? 'sage';
-            $details['template_name'] = $template->name;
-            $details['music_url'] = $music?->audio_url;
-            $details['music_name'] = $music?->name;
-            $details['two_gis_url'] = $restaurant?->two_gis_url;
-            $order = InvitationOrder::create([
-                'template_id' => $template->id, 'promo_code_id' => $promo?->id,
-                'token' => Str::random(64), 'responses_token' => Str::random(64), 'request_key' => $data['request_key'],
-                'customer_name' => $data['customer_name'], 'customer_phone' => $data['customer_phone'],
-                'details' => $details, 'subtotal' => $template->price, 'discount' => $discount,
-                'total' => $template->price - $discount, 'promo_code' => $promo?->code,
-            ]);
-            $promo?->increment('uses');
+        $storedPhotos = [];
+        try {
+            $order = DB::transaction(function () use ($data, &$storedPhotos) {
+                $template = Template::where('is_active', true)->lockForUpdate()->findOrFail($data['template_id']);
+                $existing = InvitationOrder::where('request_key', $data['request_key'])->first();
+                if ($existing) {
+                    return $existing;
+                }
+                $promo = $this->promo($data['promo_code'] ?? '', true);
+                $discount = $promo?->discountFor($template->price) ?? 0;
+                if ($template->event_type && $template->event_type !== $data['event_type']) {
+                    throw ValidationException::withMessages(['event_type' => app()->isLocale('kk') ? 'Бұл дизайн басқа мерекеге арналған.' : 'Этот дизайн предназначен для другого события.']);
+                }
+                $music = empty($data['music_id']) ? null : Music::where('is_active', true)->findOrFail($data['music_id']);
+                $restaurant = empty($data['restaurant_id']) ? null : Restaurant::where('status', 'active')->findOrFail($data['restaurant_id']);
+                if ($music && ! $music->supportsCategory($data['event_type'])) {
+                    throw ValidationException::withMessages(['music_id' => app()->isLocale('kk') ? 'Бұл музыка таңдалған мерекеге қолжетімсіз.' : 'Эта музыка недоступна для выбранного события.']);
+                }
+                $details = collect($data)->only(['event_type', 'names', 'hosts', 'event_date', 'event_time', 'restaurant_id', 'venue_name', 'venue_address', 'language', 'invitation_text'])->all();
+                $details['theme'] = $template->config_json['theme'] ?? 'sage';
+                $details['template_name'] = $template->name;
+                $details['music_url'] = $music?->audio_url;
+                $details['music_name'] = $music?->name;
+                $details['two_gis_url'] = $restaurant?->two_gis_url;
+                if ((bool) data_get($template->config_json, 'supports_photos', false)) {
+                    $storedPhotos = collect($data['photos'] ?? [])->map(
+                        fn ($photo) => $photo->store('invitation-photos', 'public')
+                    )->all();
+                    $details['photo_paths'] = $storedPhotos;
+                }
+                $order = InvitationOrder::create([
+                    'template_id' => $template->id, 'promo_code_id' => $promo?->id,
+                    'token' => Str::random(64), 'responses_token' => Str::random(64), 'request_key' => $data['request_key'],
+                    'customer_name' => $data['customer_name'], 'customer_phone' => $data['customer_phone'],
+                    'details' => $details, 'subtotal' => $template->price, 'discount' => $discount,
+                    'total' => $template->price - $discount, 'promo_code' => $promo?->code,
+                ]);
+                $promo?->increment('uses');
 
-            return $order;
-        }, 3);
+                return $order;
+            }, 3);
+        } catch (\Throwable $exception) {
+            foreach ($storedPhotos as $photoPath) {
+                Storage::disk('public')->delete($photoPath);
+            }
+            throw $exception;
+        }
 
         return redirect()->route('store.payment', $order->token);
     }
 
     public function payment(string $token): Response
     {
+        Invitation::archiveExpired();
         $order = InvitationOrder::with('invitation')->where('token', $token)->firstOrFail();
 
         return $this->privateView('store.payment', compact('order'));
@@ -195,6 +220,7 @@ class StorefrontController extends Controller
 
     public function invitation(string $slug): View
     {
+        Invitation::archiveExpired();
         $invitation = Invitation::with('template')->where('slug', $slug)->where('status', 'published')->firstOrFail();
         $order = InvitationOrder::where('invitation_id', $invitation->id)->where('status', 'paid')->firstOrFail();
 
@@ -203,11 +229,12 @@ class StorefrontController extends Controller
 
     public function rsvp(Request $request, string $slug): RedirectResponse
     {
+        Invitation::archiveExpired();
         $invitation = Invitation::where('slug', $slug)->where('status', 'published')->firstOrFail();
         abort_unless(InvitationOrder::where('invitation_id', $invitation->id)->where('status', 'paid')->exists(), 404);
         $data = $request->validate([
             'guest_name' => ['required', 'string', 'max:120'],
-            'attendance_status' => ['required', 'in:yes,no,maybe'],
+            'attendance_status' => ['required', 'in:yes,no'],
             'guest_count' => ['required', 'integer', 'min:1', 'max:20'],
             'message' => ['nullable', 'string', 'max:1000'],
         ]);

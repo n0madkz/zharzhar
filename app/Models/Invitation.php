@@ -2,9 +2,12 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
+use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\DB;
 
 class Invitation extends Model
 {
@@ -13,4 +16,34 @@ class Invitation extends Model
     public function event(): BelongsTo { return $this->belongsTo(Event::class); }
     public function template(): BelongsTo { return $this->belongsTo(Template::class); }
     public function rsvps(): HasMany { return $this->hasMany(Rsvp::class); }
+
+    public function moveToArchive(): void
+    {
+        DB::transaction(function (): void {
+            $this->update(['status' => 'archived']);
+            $this->event()->update(['status' => 'archived']);
+        });
+    }
+
+    public static function archiveExpired(?CarbonInterface $today = null): int
+    {
+        $today = ($today ? Carbon::instance($today) : today())->copy()->startOfDay();
+        $candidateCutoff = $today->copy()->subDays(28)->toDateString();
+        $archivedCount = 0;
+
+        static::query()
+            ->with('event:id,event_date,status')
+            ->where('status', 'published')
+            ->whereHas('event', fn ($query) => $query->whereDate('event_date', '<=', $candidateCutoff))
+            ->eachById(function (Invitation $invitation) use ($today, &$archivedCount): void {
+                if (! $invitation->event?->event_date->copy()->startOfDay()->addMonthNoOverflow()->lte($today)) {
+                    return;
+                }
+
+                $invitation->moveToArchive();
+                $archivedCount++;
+            }, 100);
+
+        return $archivedCount;
+    }
 }

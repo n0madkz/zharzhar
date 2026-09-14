@@ -4,6 +4,7 @@
 @php
     $value = fn (string $key, mixed $default = '') => old($key, data_get($details, $key, $default));
     $selectedRestaurant = $restaurants->firstWhere('id', (int) $value('restaurant_id'));
+    $invitationArchived = $order->invitation?->status === 'archived';
     $copyFields = [
         'event_label' => ['Название события на обложке', false],
         'intro' => ['Обращение к гостям', true],
@@ -38,7 +39,7 @@
             <h1>Заказ №{{ $order->id }}</h1>
             <p class="hint">Изменения оплаченного заказа сразу появятся в готовом приглашении.</p>
         </div>
-        <span class="badge badge-{{ $order->status }}">{{ $order->statusLabel() }}</span>
+        <span class="badge badge-{{ $invitationArchived ? 'archived' : $order->status }}">{{ $invitationArchived ? 'В архиве' : $order->statusLabel() }}</span>
     </div>
 
     @if($errors->any())<div class="error panel" role="alert"><strong>Не удалось сохранить.</strong><br>{{ $errors->first() }}</div>@endif
@@ -92,14 +93,39 @@
             </div>
         </fieldset>
 
+        @if(!empty($details['photo_paths']))
+            <section class="panel order-photo-panel">
+                <h2>Фотографии приглашения</h2>
+                <p class="hint">Эти фотографии загрузил клиент при оформлении заказа.</p>
+                <div class="order-photo-grid">
+                    @foreach($details['photo_paths'] as $photoPath)
+                        <a href="{{ route('store.photo', ['filename' => basename($photoPath)]) }}" target="_blank" rel="noopener">
+                            <img src="{{ route('store.photo', ['filename' => basename($photoPath)]) }}" alt="Фото приглашения {{ $loop->iteration }}">
+                        </a>
+                    @endforeach
+                </div>
+            </section>
+        @endif
+
         <div class="admin-order-actions panel">
             <button class="button primary" type="submit">Сохранить все изменения</button>
             @if($order->invitation)
-                <a class="button outline" href="{{ $order->publicUrl('i/'.$order->invitation->slug) }}" target="_blank" rel="noopener">Открыть приглашение ↗</a>
+                @if(!$invitationArchived)<a class="button outline" href="{{ $order->publicUrl('i/'.$order->invitation->slug) }}" target="_blank" rel="noopener">Открыть приглашение ↗</a>@endif
                 <a class="button outline" href="{{ $order->publicUrl('responses/'.$order->responses_token) }}" target="_blank" rel="noopener">Ответы гостей ↗</a>
             @endif
         </div>
     </form>
+
+    @if($order->status === 'paid' && $order->invitation && !$invitationArchived)
+        <section class="panel archive-order-panel">
+            <h2>Архив приглашения</h2>
+            <p class="hint">Заказ, все тексты и ответы гостей сохранятся. Публичная ссылка приглашения перестанет открываться.</p>
+            <form method="POST" action="{{ route('admin.store.orders.archive', $order) }}" onsubmit="return confirm('Перенести приглашение в архив? Публичная ссылка перестанет открываться.')">
+                @csrf
+                <button class="button outline archive-button" type="submit">В архив</button>
+            </form>
+        </section>
+    @endif
 
     <section class="panel delete-order-panel">
         <h2>Удаление заказа</h2>

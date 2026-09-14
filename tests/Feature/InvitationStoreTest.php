@@ -2,12 +2,14 @@
 
 namespace Tests\Feature;
 
+use App\Models\Invitation;
 use App\Models\InvitationOrder;
 use App\Models\Music;
 use App\Models\PromoCode;
 use App\Models\Restaurant;
 use App\Models\Template;
 use App\Models\User;
+use Carbon\Carbon;
 use Database\Seeders\InvitationCatalogSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -155,6 +157,78 @@ class InvitationStoreTest extends TestCase
         $this->get('/media/music/missing.mp3')->assertNotFound();
     }
 
+    public function test_photo_story_template_previews_samples_and_stores_customer_photos(): void
+    {
+        Storage::fake('public');
+        $template = Template::where('slug', 'mahabbat-hikayasy')->firstOrFail();
+        $template->update([
+            'name' => 'Махаббат хикаясы',
+            'event_type' => 'wedding',
+            'config_json' => [
+                'theme' => 'photo-story',
+                'supports_photos' => true,
+                'sample_photos' => [
+                    '/invitation-assets/wedding-hands.webp',
+                    '/invitation-assets/botanical-wedding.webp',
+                ],
+                'content_kk' => ['gallery_title' => 'Біздің ерекше сәттеріміз'],
+            ],
+        ]);
+
+        $this->get('/designs/'.$template->id.'/preview')
+            ->assertOk()
+            ->assertSee('invite-photo-story', false)
+            ->assertSee('wedding-hands.webp', false)
+            ->assertSee('botanical-wedding.webp', false)
+            ->assertSee('Біздің ерекше сәттеріміз')
+            ->assertSee('Иә')
+            ->assertSee('Жоқ')
+            ->assertDontSee('value="maybe"', false);
+
+        $this->get('/checkout/'.$template->id)
+            ->assertOk()
+            ->assertSee('name="photos[]"', false)
+            ->assertSee('data-photo-preview', false);
+
+        $data = $this->checkoutData($template);
+        $data['photos'] = [
+            UploadedFile::fake()->image('first.jpg', 900, 1200),
+            UploadedFile::fake()->image('second.png', 900, 1200),
+        ];
+
+        $this->placeOrder($data)->assertRedirect();
+        $order = InvitationOrder::firstOrFail();
+        $this->assertCount(2, $order->details['photo_paths']);
+        foreach ($order->details['photo_paths'] as $photoPath) {
+            Storage::disk('public')->assertExists($photoPath);
+        }
+    }
+
+    public function test_photo_story_template_requires_at_least_one_photo(): void
+    {
+        $template = Template::factory()->create([
+            'event_type' => 'wedding',
+            'config_json' => ['theme' => 'photo-story', 'supports_photos' => true],
+        ]);
+
+        $this->placeOrder($this->checkoutData($template))
+            ->assertSessionHasErrors('photos');
+
+        $this->assertDatabaseCount('invitation_orders', 0);
+    }
+
+    public function test_uploaded_invitation_photo_is_served_without_a_public_storage_symlink(): void
+    {
+        Storage::fake('public');
+        Storage::disk('public')->put('invitation-photos/moment.jpg', 'fake-image-content');
+
+        $this->get('/media/invitation-photo/moment.jpg')
+            ->assertOk()
+            ->assertHeader('cache-control', 'max-age=86400, public');
+
+        $this->get('/media/invitation-photo/missing.jpg')->assertNotFound();
+    }
+
     public function test_checkout_suggests_catalog_restaurants_in_a_searchable_field(): void
     {
         $template = Template::factory()->create();
@@ -210,7 +284,8 @@ class InvitationStoreTest extends TestCase
         $this->assertDatabaseHas('templates', ['slug' => 'happy-birthday', 'is_active' => true, 'preview_image' => '/invitation-assets/modern-birthday.webp']);
         $this->assertDatabaseHas('templates', ['slug' => 'aru-qyz-uzatu', 'preview_image' => '/invitation-assets/modern-qyz-uzatu.webp']);
         $this->assertDatabaseHas('templates', ['slug' => 'altyn-nomad', 'preview_image' => '/invitation-assets/nomad-horse.webp']);
-        $this->assertSame(8, Template::where('event_type', 'wedding')->where('is_active', true)->pluck('preview_image')->unique()->count());
+        $this->assertDatabaseHas('templates', ['slug' => 'mahabbat-hikayasy', 'preview_image' => '/invitation-assets/wedding-hands.webp']);
+        $this->assertSame(9, Template::where('event_type', 'wedding')->where('is_active', true)->pluck('preview_image')->unique()->count());
         $activeDesigns = Template::where('is_active', true)->get();
         $this->assertSame($activeDesigns->count(), $activeDesigns->pluck('preview_image')->unique()->count());
         $this->assertSame($activeDesigns->count(), $activeDesigns->pluck('config_json')->pluck('theme')->unique()->count());
@@ -222,7 +297,7 @@ class InvitationStoreTest extends TestCase
             'sage-wedding', 'rose-wedding', 'gold-wedding',
             'classic-anniversary', 'gold-anniversary', 'happy-birthday',
             'ak-inju', 'royal-kesh', 'nazik-botanika', 'ak-zhibek',
-            'altyn-nomad', 'mereyli-shenber', 'aru-qyz-uzatu', 'dala-shattygy',
+            'altyn-nomad', 'mereyli-shenber', 'aru-qyz-uzatu', 'dala-shattygy', 'mahabbat-hikayasy',
         ])->get() as $design) {
             $this->get('/designs/'.$design->id.'/preview')
                 ->assertOk()
@@ -385,6 +460,66 @@ class InvitationStoreTest extends TestCase
         $this->assertDatabaseHas('rsvps', ['guest_name' => 'Айдос', 'attendance_status' => 'no', 'guest_count' => 0]);
     }
 
+    public function test_admin_can_archive_an_invitation_and_expired_invitations_archive_automatically(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $manualOrder = InvitationOrder::factory()->create(['status' => 'review']);
+
+        $this->actingAs($admin)->post(route('admin.store.confirm', $manualOrder))->assertRedirect();
+        $manualOrder->refresh();
+        $manualInvitation = $manualOrder->invitation;
+        $manualSlug = $manualInvitation->slug;
+        $manualInvitation->rsvps()->create([
+            'guest_name' => 'Сақталған қонақ',
+            'attendance_status' => 'yes',
+            'guest_count' => 2,
+        ]);
+
+        $this->get(route('admin.store.index'))
+            ->assertOk()
+            ->assertSee(route('admin.store.orders.archive', $manualOrder), false)
+            ->assertSee('В архив');
+        $this->post(route('admin.store.orders.archive', $manualOrder))->assertRedirect();
+        $this->assertSame('archived', $manualInvitation->fresh()->status);
+        $this->assertSame('archived', $manualInvitation->event->fresh()->status);
+        $this->get('/i/'.$manualSlug)->assertNotFound();
+        $this->get('/orders/'.$manualOrder->token)
+            ->assertOk()
+            ->assertSee('Шақыру архивте')
+            ->assertDontSee('/i/'.$manualSlug, false);
+        $this->get('/responses/'.$manualOrder->responses_token)
+            ->assertOk()
+            ->assertSee('Сақталған қонақ');
+        $this->get(route('admin.store.index', ['status' => 'archived']))
+            ->assertOk()
+            ->assertSee($manualOrder->details['names'])
+            ->assertSee('В архиве');
+        $this->get(route('admin.store.orders.edit', $manualOrder))
+            ->assertOk()
+            ->assertSee('В архиве')
+            ->assertDontSee('Открыть приглашение');
+
+        $expiredOrder = InvitationOrder::factory()->create(['status' => 'review']);
+        $this->post(route('admin.store.confirm', $expiredOrder))->assertRedirect();
+        $expiredOrder->refresh();
+        $expiredInvitation = $expiredOrder->invitation;
+        $expiredInvitation->event->update(['event_date' => today()->subMonthNoOverflow()->toDateString()]);
+
+        $this->get('/i/'.$expiredInvitation->slug)->assertNotFound();
+        $this->assertSame('archived', $expiredInvitation->fresh()->status);
+        $this->assertSame('archived', $expiredInvitation->event->fresh()->status);
+
+        $monthEndOrder = InvitationOrder::factory()->create(['status' => 'review']);
+        $this->post(route('admin.store.confirm', $monthEndOrder))->assertRedirect();
+        $monthEndInvitation = $monthEndOrder->fresh()->invitation;
+        $monthEndInvitation->event->update(['event_date' => '2026-01-31']);
+
+        $this->assertSame(0, Invitation::archiveExpired(Carbon::createMidnightDate(2026, 2, 27)));
+        $this->assertSame('published', $monthEndInvitation->fresh()->status);
+        $this->assertSame(1, Invitation::archiveExpired(Carbon::createMidnightDate(2026, 2, 28)));
+        $this->assertSame('archived', $monthEndInvitation->fresh()->status);
+    }
+
     public function test_paid_invitation_accrues_restaurant_bonus_once(): void
     {
         $admin = User::factory()->create(['role' => 'admin']);
@@ -433,7 +568,7 @@ class InvitationStoreTest extends TestCase
         $this->get('/admin/store/orders/'.$order->id.'/edit')->assertForbidden();
         $this->put('/admin/store/orders/'.$order->id)->assertForbidden();
         $this->delete('/admin/store/orders/'.$order->id)->assertForbidden();
-        foreach (['orders/'.$order->id.'/confirm', 'orders/'.$order->id.'/reject', 'templates', 'music', 'promos', 'restaurants'] as $path) {
+        foreach (['orders/'.$order->id.'/confirm', 'orders/'.$order->id.'/reject', 'orders/'.$order->id.'/archive', 'templates', 'music', 'promos', 'restaurants'] as $path) {
             $this->post('/admin/store/'.$path)->assertForbidden();
         }
         $this->assertSame('pending', $order->fresh()->status);
@@ -471,14 +606,14 @@ class InvitationStoreTest extends TestCase
             ->assertOk()
             ->assertViewHas('orders', fn ($orders) => $orders->count() === 2);
 
-        foreach (['Мария', '77775556677', '5566', 'Алтын Сарай', (string) $target->id] as $search) {
+        foreach (['Мария', '77775556677', '5566', 'Алтын Сарай', '№'.$target->id] as $search) {
             $this->get(route('admin.store.index', ['q' => $search]))
                 ->assertOk()
                 ->assertSee('Мария Касымова')
                 ->assertViewHas('orders', fn ($orders) => $orders->total() === 1 && $orders->first()->is($target));
         }
 
-        $partialOrderNumber = substr((string) $target->id, -1);
+        $partialOrderNumber = '#'.substr((string) $target->id, -1);
         $this->get(route('admin.store.index', ['q' => $partialOrderNumber]))
             ->assertOk()
             ->assertViewHas('orders', fn ($orders) => $orders->contains(fn ($order) => $order->is($target)));
@@ -496,7 +631,7 @@ class InvitationStoreTest extends TestCase
             'preview_image_file' => UploadedFile::fake()->image('ak-arman.png', 800, 1000),
         ]);
         $this->post('/admin/store/templates', $data)->assertRedirect();
-        $template = Template::firstOrFail();
+        $template = Template::where('slug', $data['slug'])->firstOrFail();
         $this->post('/admin/store/templates/'.$template->id, [...$data, 'price' => 500])->assertSessionHasErrors('price');
         $this->post('/admin/store/templates/'.$template->id, [...$data, 'name' => 'Жаңарған ақ арман', 'content_invitation_text' => 'Жаңартылған қазақша шақыру мәтіні.', 'price' => 12990, 'is_active' => 0])->assertRedirect();
         $this->assertDatabaseHas('templates', ['id' => $template->id, 'price' => 12990, 'is_active' => false]);

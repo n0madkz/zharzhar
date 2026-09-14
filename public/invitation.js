@@ -12,6 +12,18 @@ document.addEventListener('DOMContentLoaded', () => {
     reveals.forEach(element => element.classList.add('is-visible'));
   }
 
+  const attendanceChoices = document.querySelectorAll('input[name="attendance_status"]');
+  const guestCountField = document.querySelector('[data-guest-count]');
+  const guestCountInput = guestCountField?.querySelector('input');
+  const syncGuestCount = () => {
+    const selected = document.querySelector('input[name="attendance_status"]:checked');
+    const isNotAttending = selected?.value === 'no';
+    if (guestCountField) guestCountField.hidden = isNotAttending;
+    if (guestCountInput && isNotAttending) guestCountInput.value = '1';
+  };
+  attendanceChoices.forEach(choice => choice.addEventListener('change', syncGuestCount));
+  syncGuestCount();
+
   const countdown = document.querySelector('[data-countdown]');
   if (countdown) {
     const target = new Date(countdown.dataset.countdown).getTime();

@@ -25,6 +25,9 @@ Route::post('/checkout/quote', [StorefrontController::class, 'quote'])->middlewa
 Route::get('/media/music/{filename}', [StorefrontController::class, 'musicFile'])
     ->where('filename', '[A-Za-z0-9._-]+')
     ->name('store.music');
+Route::get('/media/invitation-photo/{filename}', [StorefrontController::class, 'photoFile'])
+    ->where('filename', '[A-Za-z0-9._-]+')
+    ->name('store.photo');
 Route::get('/orders/{token}', [StorefrontController::class, 'payment'])->name('store.payment');
 Route::post('/orders/{token}/payment', [StorefrontController::class, 'submitPayment'])->middleware('throttle:5,1')->name('store.payment.submit');
 Route::get('/i/{slug}', [StorefrontController::class, 'invitation'])->name('store.invitation');
@@ -37,6 +40,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin/store')->name('admin.st
     Route::delete('/orders/{order}', [StoreAdminController::class, 'destroyOrder'])->name('orders.destroy');
     Route::post('/orders/{order}/confirm', [StoreAdminController::class, 'confirm'])->name('confirm');
     Route::post('/orders/{order}/reject', [StoreAdminController::class, 'reject'])->name('reject');
+    Route::post('/orders/{order}/archive', [StoreAdminController::class, 'archiveInvitation'])->name('orders.archive');
     Route::post('/templates/{template?}', [StoreAdminController::class, 'saveTemplate'])->name('templates');
     Route::post('/music/{music?}', [StoreAdminController::class, 'saveMusic'])->name('music');
     Route::post('/promos/{promo?}', [StoreAdminController::class, 'savePromo'])->name('promos');
@@ -51,12 +55,14 @@ Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->n
 Route::get('/admin', [AdminController::class, 'index'])->middleware(['auth', 'role:admin'])->name('admin.dashboard');
 Route::post('/admin/restaurants', [AdminController::class, 'storeRestaurant'])->middleware(['auth', 'role:admin'])->name('admin.restaurants.store');
 Route::put('/admin/restaurants/{restaurant}', [AdminController::class, 'updateRestaurant'])->middleware(['auth', 'role:admin'])->name('admin.restaurants.update');
+Route::get('/admin/restaurants/{restaurant}/invitation-card', [AdminController::class, 'restaurantInvitationCard'])->middleware(['auth', 'role:admin'])->name('admin.restaurants.invitation-card');
 Route::get('/admin/bookings/pdf', [AdminController::class, 'bookingsPdf'])->middleware(['auth', 'role:admin'])->name('admin.bookings.pdf');
 Route::get('/admin/bookings/{booking}', [AdminController::class, 'showBooking'])->middleware(['auth', 'role:admin'])->name('admin.bookings.show');
 Route::domain(config('store.partner_domain'))->middleware(['partner.domain', 'auth', 'role:partner', SetPartnerLocale::class])->group(function () {
     Route::get('/restaurant', [RestaurantController::class, 'index'])->name('restaurant.dashboard');
     Route::get('/restaurant/calendar-data', [RestaurantController::class, 'calendarData'])->name('restaurant.calendar.data');
     Route::get('/restaurant/reports/export', [RestaurantController::class, 'exportReports'])->name('restaurant.reports.export');
+    Route::get('/restaurant/invitation-card', [RestaurantController::class, 'invitationCard'])->name('restaurant.invitation-card');
     Route::post('/restaurant/bookings', [RestaurantController::class, 'store'])->name('restaurant.bookings.store');
     Route::put('/restaurant/bookings/{booking}', [RestaurantController::class, 'updateBooking'])->name('restaurant.bookings.update');
     Route::delete('/restaurant/bookings/{booking}', [RestaurantController::class, 'destroyBooking'])->name('restaurant.bookings.destroy');

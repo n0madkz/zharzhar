@@ -6,6 +6,7 @@ use App\Models\Booking;
 use App\Models\Restaurant;
 use App\Models\RestaurantSlot;
 use App\Models\User;
+use App\Support\RestaurantInvitationCard;
 use Dompdf\Dompdf;
 use Dompdf\Options;
 use Illuminate\Http\RedirectResponse;
@@ -78,7 +79,7 @@ class AdminController extends Controller
             'bonus_percent' => ['nullable', 'numeric', 'min:0', 'max:100'],
         ]);
 
-        DB::transaction(function () use ($data): void {
+        $restaurant = DB::transaction(function () use ($data): Restaurant {
             $partner = User::create(['name' => $data['name'], 'email' => $data['email'], 'phone' => $data['phone'], 'role' => 'partner', 'password' => Hash::make($data['password'])]);
             $restaurant = Restaurant::create([
                 'name' => $data['name'], 'city' => $data['city'], 'address' => $data['address'] ?? null,
@@ -88,9 +89,13 @@ class AdminController extends Controller
             foreach ([['morning', 'Утро', '09:00', '12:00', '#6fa982'], ['day', 'День', '13:00', '17:00', '#d8b36a'], ['evening', 'Вечер', '18:00', '22:00', '#c46b58']] as [$key, $label, $start, $end, $color]) {
                 $restaurant->slots()->create(['slot_key' => $key, 'label' => $label, 'start_time' => $start, 'end_time' => $end, 'color' => $color]);
             }
+
+            return $restaurant;
         });
 
-        return back()->with('success', 'Ресторан добавлен. Данные для входа сохранены.');
+        return back()
+            ->with('success', 'Ресторан добавлен. Данные для входа сохранены, A5 QR-макет готов.')
+            ->with('new_restaurant_id', $restaurant->id);
     }
 
     public function updateRestaurant(Request $request, Restaurant $restaurant): RedirectResponse
@@ -137,6 +142,15 @@ class AdminController extends Controller
         $booking->load(['restaurant', 'slot', 'tariff.service']);
 
         return view('admin.booking-show', compact('booking'));
+    }
+
+    public function restaurantInvitationCard(Restaurant $restaurant, RestaurantInvitationCard $card): View
+    {
+        return view('restaurant.invitation-card', [
+            'restaurant' => $restaurant,
+            'qrDataUrl' => $card->qrDataUrl($restaurant),
+            'whatsappUrl' => $card->whatsappUrl($restaurant),
+        ]);
     }
 
     public function bookingsPdf(): Response

@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Template;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -14,6 +15,9 @@ class StoreInvitationOrderRequest extends FormRequest
 
     public function rules(): array
     {
+        $template = Template::find($this->integer('template_id'));
+        $supportsPhotos = (bool) data_get($template?->config_json, 'supports_photos', false);
+
         return [
             'request_key' => ['required', 'uuid'],
             'template_id' => ['required', 'integer', Rule::exists('templates', 'id')->where('is_active', true)],
@@ -30,6 +34,8 @@ class StoreInvitationOrderRequest extends FormRequest
             'language' => ['required', Rule::in(['ru', 'kk'])],
             'music_id' => ['nullable', 'integer', Rule::exists('music', 'id')->where('is_active', true)],
             'invitation_text' => ['nullable', 'string', 'max:2000'],
+            'photos' => [$supportsPhotos ? 'required' : 'nullable', 'array', 'min:1', 'max:3'],
+            'photos.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
             'promo_code' => ['nullable', 'string', 'max:40', 'regex:/^[A-Za-z0-9-]+$/'],
         ];
     }
@@ -39,6 +45,11 @@ class StoreInvitationOrderRequest extends FormRequest
         if (app()->isLocale('kk')) {
             return [
                 'required' => 'Бұл өрісті толтырыңыз.', 'exists' => 'Таңдалған нұсқа енді қолжетімсіз.',
+                'photos.required' => 'Осы шаблонға кемінде бір фото таңдаңыз.',
+                'photos.max' => 'Ең көбі 3 фото таңдауға болады.',
+                'photos.*.image' => 'Тек сурет файлын жүктеңіз.',
+                'photos.*.mimes' => 'Фото JPG, PNG немесе WebP форматында болуы керек.',
+                'photos.*.max' => 'Әр фото 5 МБ-тан аспауы керек.',
                 'event_date.after_or_equal' => 'Бүгінгі немесе болашақ күнді таңдаңыз.',
                 'customer_phone.regex' => 'Телефон нөмірін көрсетіңіз, мысалы +7 700 123 45 67.',
                 'max' => 'Мән тым ұзын.', 'date_format' => 'Күн немесе уақыт пішімін тексеріңіз.',
@@ -46,6 +57,11 @@ class StoreInvitationOrderRequest extends FormRequest
         }
 
         return ['required' => 'Заполните это поле.', 'exists' => 'Выбранный вариант больше недоступен.',
+            'photos.required' => 'Для этого шаблона выберите минимум одну фотографию.',
+            'photos.max' => 'Можно выбрать не более 3 фотографий.',
+            'photos.*.image' => 'Загрузите файл изображения.',
+            'photos.*.mimes' => 'Фото должно быть в формате JPG, PNG или WebP.',
+            'photos.*.max' => 'Размер каждого фото не должен превышать 5 МБ.',
             'event_date.after_or_equal' => 'Выберите сегодняшнюю или будущую дату.',
             'customer_phone.regex' => 'Укажите телефон, например +7 700 123 45 67.',
             'max' => 'Слишком длинное значение.', 'date_format' => 'Проверьте формат даты или времени.'];

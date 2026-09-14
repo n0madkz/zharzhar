@@ -125,7 +125,25 @@ class InvitationCatalogSeeder extends Seeder
                 'hosts_name' => 'Туған күн иесі', 'rsvp_hint' => 'Кешке қатысуыңызды растауыңызды сұраймыз.',
                 'closing_text' => 'Шаттықты күнімізді бірге қарсы алайық!',
             ]],
+            ['Махаббат хикаясы', 'mahabbat-hikayasy', 'wedding', 'photo-story', 12990, '/invitation-assets/wedding-hands.webp', [
+                'title' => 'Махаббат хикаясы', 'event_label' => 'ҮЙЛЕНУ ТОЙЫ',
+                'intro_title' => 'ЕКІ ЖҮРЕКТІҢ БІР ХИКАЯСЫ',
+                'invitation_text' => 'Өміріміздің ең әдемі тарауын сіздермен бірге бастап, қуанышымыздың қадірлі қонағы болуға шақырамыз.',
+                'date_title' => 'Біздің ерекше күніміз', 'gallery_title' => 'Біздің ерекше сәттеріміз',
+                'venue_name' => 'Ақ Отау мейрамханасы', 'hosts_title' => 'Той иелері',
+                'hosts_name' => 'Қуаныш иелері', 'closing_text' => 'Махаббат хикаямызға ортақ болыңыз!',
+                '_settings' => [
+                    'supports_photos' => true,
+                    'sample_photos' => [
+                        '/invitation-assets/wedding-hands.webp',
+                        '/invitation-assets/botanical-wedding.webp',
+                        '/invitation-assets/modern-evening-wedding.webp',
+                    ],
+                ],
+            ]],
         ] as [$name, $slug, $event, $theme, $price, $image, $content]) {
+            $settings = $content['_settings'] ?? [];
+            unset($content['_settings']);
             $content = array_replace($base, $content);
             Template::updateOrCreate(['slug' => $slug], [
                 'name' => $name,
@@ -133,7 +151,7 @@ class InvitationCatalogSeeder extends Seeder
                 'event_type' => $event,
                 'price' => $price,
                 'preview_image' => $image,
-                'config_json' => ['theme' => $theme, 'sample_names' => $name, 'content_kk' => $content],
+                'config_json' => array_replace(['theme' => $theme, 'sample_names' => $name, 'content_kk' => $content], $settings),
                 'is_active' => true,
             ]);
         }

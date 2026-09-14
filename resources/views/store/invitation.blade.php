@@ -6,6 +6,17 @@
     $image = $template->preview_image
         ? (str_starts_with($template->preview_image, '/') ? asset(ltrim($template->preview_image, '/')) : $template->preview_image)
         : null;
+    $supportsPhotos = (bool) data_get($template->config_json, 'supports_photos', false);
+    $photoGallery = $preview
+        ? collect(data_get($template->config_json, 'sample_photos', []))->map(
+            fn ($path) => str_starts_with($path, '/') ? asset(ltrim($path, '/')) : $path
+        )->all()
+        : collect($details['photo_paths'] ?? [])->map(
+            fn ($path) => route('store.photo', ['filename' => basename($path)])
+        )->all();
+    if ($supportsPhotos && $photoGallery) {
+        $image = $photoGallery[0];
+    }
     $eventLabels = [
         'wedding' => 'ҮЙЛЕНУ ТОЙЫ',
         'qyz_uzatu' => 'ҚЫЗ ҰЗАТУ',
@@ -24,7 +35,7 @@
         'rsvp' => 'Сізді күтеміз!',
         'hint' => 'Тойға қатысуыңызды растауыңызды сұраймыз.',
         'name' => 'Аты-жөніңіз', 'answer' => 'Тойға қатысасыз ба?',
-        'yes' => 'Иә, қуана қатысамын', 'no' => 'Өкінішке қарай, қатыса алмаймын', 'maybe' => 'Кейінірек айтамын',
+        'yes' => 'Иә', 'no' => 'Жоқ', 'maybe' => 'Кейінірек айтамын',
         'count' => 'Қонақ саны', 'message' => 'Ақ тілегіңіз', 'send' => 'Жауап жіберу',
         'preview_form' => 'Дайын шақыруда қонақтар осы жерден жауабын жібереді. Барлық жауап сіздің жеке парақшаңызда жиналады.',
         'back' => 'Шаблондарға қайту', 'choose' => 'Осы дизайнды таңдау',
@@ -37,8 +48,8 @@
         'days' => 'дней', 'hours' => 'часов', 'minutes' => 'минут', 'seconds' => 'секунд',
         'hosts' => 'Хозяева торжества', 'rsvp' => 'Будем ждать вас!',
         'hint' => 'Пожалуйста, сообщите, сможете ли вы прийти.',
-        'name' => 'Ваше имя', 'answer' => 'Вы придёте?', 'yes' => 'С удовольствием приду',
-        'no' => 'К сожалению, не смогу', 'maybe' => 'Сообщу позже', 'count' => 'Количество гостей',
+        'name' => 'Ваше имя', 'answer' => 'Вы придёте?', 'yes' => 'Да',
+        'no' => 'Нет', 'maybe' => 'Сообщу позже', 'count' => 'Количество гостей',
         'message' => 'Ваше пожелание', 'send' => 'Отправить ответ',
         'preview_form' => 'В готовом приглашении гости отправят ответ здесь. Все ответы будут собраны на вашей личной странице.',
         'back' => 'Назад к шаблонам', 'choose' => 'Выбрать этот дизайн',
@@ -75,6 +86,7 @@
     }
     $copy['map'] = $kk ? '2GIS-те ашу' : 'Открыть в 2GIS';
     $copy['event_label'] ??= $templateCopy['event_label'] ?? ($eventLabels[$eventType] ?? $eventLabels['wedding']);
+    $galleryTitle = $templateCopy['gallery_title'] ?? ($kk ? 'Біздің ерекше сәттеріміз' : 'Наши особенные моменты');
     $monthNames = $kk
         ? ['қаңтар', 'ақпан', 'наурыз', 'сәуір', 'мамыр', 'маусым', 'шілде', 'тамыз', 'қыркүйек', 'қазан', 'қараша', 'желтоқсан']
         : ['январь', 'февраль', 'март', 'апрель', 'май', 'июнь', 'июль', 'август', 'сентябрь', 'октябрь', 'ноябрь', 'декабрь'];
@@ -128,10 +140,21 @@
     </header>
 
     <section class="invite-section invite-intro" data-reveal>
-        <div class="orbit-mark" aria-hidden="true"><i></i><i></i><span>♥</span></div>
+        <div class="orbit-mark" aria-hidden="true"><i></i><i></i></div>
         <p class="invite-small-title">{{ $copy['intro'] }}</p>
         <p class="invite-message">{{ $details['invitation_text'] ?? '' }}</p>
     </section>
+
+    @if($supportsPhotos && $photoGallery)
+        <section class="invite-section invite-photo-story" data-reveal>
+            <p class="invite-overline">{{ $galleryTitle }}</p>
+            <div class="invite-photo-grid">
+                @foreach($photoGallery as $photo)
+                    <figure><img src="{{ $photo }}" alt="{{ $kk ? 'Шақыру фотосы' : 'Фотография приглашения' }} {{ $loop->iteration }}" loading="lazy"></figure>
+                @endforeach
+            </div>
+        </section>
+    @endif
 
     <section class="invite-section date-section" data-reveal>
         <p class="invite-script">{{ $copy['date_title'] }}</p>
@@ -174,7 +197,9 @@
         <p>{{ $copy['hint'] }}</p>
         @if($preview)
             <div class="rsvp-preview">
-                <span>{{ $copy['name'] }}</span><span>{{ $copy['answer'] }}</span><button type="button" disabled>{{ $copy['send'] }}</button>
+                <span>{{ $copy['name'] }}</span>
+                <fieldset class="attendance-choice" disabled><legend>{{ $copy['answer'] }}</legend><label><input type="radio"><b>{{ $copy['yes'] }}</b></label><label><input type="radio"><b>{{ $copy['no'] }}</b></label></fieldset>
+                <button type="button" disabled>{{ $copy['send'] }}</button>
             </div>
             <p class="rsvp-note">{{ $copy['preview_form'] }}</p>
         @else
@@ -182,8 +207,8 @@
             <form method="POST" action="{{ route('store.rsvp', $invitation->slug) }}" class="invite-form" data-submit-once>
                 @csrf
                 <label>{{ $copy['name'] }}<input name="guest_name" value="{{ old('guest_name') }}" autocomplete="name" maxlength="120" required></label>
-                <label>{{ $copy['answer'] }}<select name="attendance_status" required>@foreach(['yes','no','maybe'] as $status)<option value="{{ $status }}" @selected(old('attendance_status') === $status)>{{ $copy[$status] }}</option>@endforeach</select></label>
-                <label>{{ $copy['count'] }}<input type="number" name="guest_count" min="1" max="20" value="{{ old('guest_count', 1) }}" required></label>
+                <fieldset class="attendance-choice"><legend>{{ $copy['answer'] }}</legend>@foreach(['yes','no'] as $status)<label><input type="radio" name="attendance_status" value="{{ $status }}" @checked(old('attendance_status', 'yes') === $status) required><b>{{ $copy[$status] }}</b></label>@endforeach</fieldset>
+                <label data-guest-count>{{ $copy['count'] }}<input type="number" name="guest_count" min="1" max="20" value="{{ old('guest_count', 1) }}" required></label>
                 <label>{{ $copy['message'] }}<textarea name="message" maxlength="1000">{{ old('message') }}</textarea></label>
                 <button type="submit">{{ $copy['send'] }}</button>
             </form>
@@ -191,7 +216,7 @@
     </section>
 
     <footer class="invite-finale" data-reveal>
-        <div class="finale-circle"><span aria-hidden="true">♥</span><p>{{ $copy['closing'] }}</p></div>
+        <div class="finale-circle"><p>{{ $copy['closing'] }}</p></div>
         <small>ZharZhar · {{ $eventDate->format('Y') }}</small>
     </footer>
 
