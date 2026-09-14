@@ -75,9 +75,7 @@ class InvitationStoreTest extends TestCase
             'content_intro_title' => 'АҚ ТІЛЕКПЕН БАСТАЛҒАН КҮН',
             'content_invitation_text' => 'Қуанышымыздың қадірлі қонағы болуға шақырамыз.',
             'content_event_date' => now()->addMonth()->format('Y-m-d'), 'content_event_time' => '18:00',
-            'content_date_title' => 'Той салтанаты', 'content_program_title' => 'Той бағдарламасы',
-            'content_welcome_text' => 'Қонақтардың жиналуы', 'content_ceremony_text' => 'Салтанатты рәсім',
-            'content_celebration_text' => 'Мерекелік кеш', 'content_venue_title' => 'Мекенжайымыз',
+            'content_date_title' => 'Той салтанаты', 'content_venue_title' => 'Мекенжайымыз',
             'content_venue_name' => 'Ақ Отау', 'content_venue_address' => 'Алматы қаласы, Абай даңғылы, 50',
             'content_countdown_title' => 'Салтанатқа дейін', 'content_hosts_title' => 'Той иелері',
             'content_hosts_name' => 'Қуаныш иелері', 'content_rsvp_title' => 'Сізді күтеміз!',
@@ -106,11 +104,9 @@ class InvitationStoreTest extends TestCase
             'language' => $details['language'],
             'music_id' => $details['music_id'] ?? null,
             'invitation_text' => $details['invitation_text'] ?? '',
-            'program_times' => ['17:00', '18:00', '19:00'],
             'copy' => [
                 'event_label' => 'ҮЙЛЕНУ ТОЙЫ', 'intro' => 'ҚҰРМЕТТІ ҚОНАҚТАР!', 'date_title' => 'Той салтанаты',
-                'program' => 'Той бағдарламасы', 'welcome' => 'Қонақтардың жиналуы', 'ceremony' => 'Салтанатты рәсім',
-                'celebration' => 'Мерекелік кеш', 'venue' => 'Мекенжайымыз', 'map' => 'Картадан көру',
+                'venue' => 'Мекенжайымыз', 'map' => 'Картадан көру',
                 'countdown' => 'Салтанатқа дейін', 'days' => 'күн', 'hours' => 'сағат', 'minutes' => 'минут',
                 'seconds' => 'секунд', 'hosts' => 'Той иелері', 'rsvp' => 'Сізді күтеміз!',
                 'hint' => 'Қатысуыңызды растаңыз.', 'name' => 'Аты-жөніңіз', 'answer' => 'Тойға қатысасыз ба?',
@@ -127,12 +123,20 @@ class InvitationStoreTest extends TestCase
         ], $overrides);
     }
 
-    public function test_catalog_filters_active_designs_and_shows_individual_prices(): void
+    public function test_catalog_loads_active_designs_for_instant_client_side_filtering(): void
     {
         $wedding = Template::factory()->create(['name' => 'Свадебный дизайн', 'price' => 9990]);
         Template::factory()->create(['name' => 'Скрытый дизайн', 'is_active' => false]);
         Template::factory()->create(['name' => 'Юбилейный дизайн', 'event_type' => 'anniversary']);
-        $this->get('/?event=wedding')->assertOk()->assertSee('Свадебный дизайн')->assertSee('9 990')->assertDontSee('Скрытый дизайн')->assertDontSee('Юбилейный дизайн');
+        $this->get('/?event=wedding')
+            ->assertOk()
+            ->assertSee('Свадебный дизайн')
+            ->assertSee('Юбилейный дизайн')
+            ->assertSee('data-catalog-filters', false)
+            ->assertSee('data-event-filter="wedding"', false)
+            ->assertSee('data-event-type="anniversary"', false)
+            ->assertSee('9 990')
+            ->assertDontSee('Скрытый дизайн');
         $this->get('/designs/'.$wedding->id.'/preview')->assertOk();
         $this->get('/checkout/'.$wedding->id)->assertOk()->assertSee('Той иелері');
     }
@@ -263,7 +267,7 @@ class InvitationStoreTest extends TestCase
         $this->withSession(['store_locale' => 'ru'])
             ->get('/designs/'.$royal->id.'/preview')
             ->assertOk()
-            ->assertSee('Той бағдарламасы')
+            ->assertDontSee('Той бағдарламасы')
             ->assertDontSee('Программа вечера');
     }
 
@@ -547,7 +551,6 @@ class InvitationStoreTest extends TestCase
             'venue_address' => 'Алматы, Достық 10',
             'music_id' => $music->id,
             'invitation_text' => 'Арнайы жаңартылған шақыру мәтіні.',
-            'program_times' => ['16:30', '18:15', '20:00'],
             'subtotal' => 15990,
             'discount' => 2000,
             'total' => 13990,
@@ -562,7 +565,6 @@ class InvitationStoreTest extends TestCase
         $this->assertSame('Жаңарған клиент', $order->customer_name);
         $this->assertSame(13990, $order->total);
         $this->assertSame('Арман & Аяла', $order->details['names']);
-        $this->assertSame(['16:30', '18:15', '20:00'], $order->details['program_times']);
         $this->assertSame('Жауабымды сақтау', $order->details['copy']['send']);
         $this->assertSame($newTemplate->id, $order->invitation->template_id);
         $this->assertSame('Арман & Аяла', $order->invitation->event->title);
@@ -575,7 +577,7 @@ class InvitationStoreTest extends TestCase
             ->assertSee('Арнайы жаңартылған шақыру мәтіні.')
             ->assertSee('Жауабымды сақтау')
             ->assertSee('Ақ тілегіңізбен келіңіз!')
-            ->assertSee('16:30');
+            ->assertDontSee('Той бағдарламасы');
         $this->post('/i/'.$order->invitation->slug.'/rsvp', ['guest_name' => 'Қонақ', 'attendance_status' => 'yes', 'guest_count' => 2])->assertRedirect();
 
         $this->delete('/admin/store/orders/'.$order->id)->assertRedirect('/admin/store');

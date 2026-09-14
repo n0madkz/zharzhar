@@ -9,6 +9,63 @@ document.addEventListener('DOMContentLoaded', () => {
     checking: 'Проверяем промокод…', promoError: 'Не удалось проверить промокод. Попробуйте ещё раз.',
     applied: 'Промокод применён.', noPromo: 'Цена без промокода.', saving: 'Сохраняем…',
   };
+  const catalogFilters = document.querySelector('[data-catalog-filters]');
+  const catalogGrid = document.querySelector('[data-catalog-grid]');
+  if (catalogFilters && catalogGrid) {
+    const filterLinks = Array.from(catalogFilters.querySelectorAll('[data-event-filter]'));
+    const cards = Array.from(catalogGrid.querySelectorAll('[data-event-type]'));
+    const emptyState = catalogGrid.querySelector('[data-catalog-empty]');
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const applyCatalogFilter = (eventType, updateHistory = false) => {
+      const validFilter = filterLinks.some(link => link.dataset.eventFilter === eventType) ? eventType : '';
+      let visibleCount = 0;
+
+      filterLinks.forEach(link => {
+        const active = link.dataset.eventFilter === validFilter;
+        link.classList.toggle('active', active);
+        if (active) link.setAttribute('aria-current', 'true');
+        else link.removeAttribute('aria-current');
+      });
+
+      cards.forEach(card => {
+        const visible = !validFilter || !card.dataset.eventType || card.dataset.eventType === validFilter;
+        card.hidden = !visible;
+        if (visible) {
+          visibleCount += 1;
+          if (!reduceMotion && typeof card.animate === 'function') {
+            card.animate([
+              { opacity: 0, transform: 'translateY(10px)' },
+              { opacity: 1, transform: 'translateY(0)' },
+            ], { duration: 260, easing: 'cubic-bezier(.2,.75,.3,1)' });
+          }
+        }
+      });
+
+      if (emptyState) emptyState.hidden = visibleCount !== 0;
+
+      if (updateHistory) {
+        const url = new URL(window.location.href);
+        if (validFilter) url.searchParams.set('event', validFilter);
+        else url.searchParams.delete('event');
+        url.hash = 'designs';
+        window.history.pushState({ eventType: validFilter }, '', url);
+      }
+    };
+
+    catalogFilters.addEventListener('click', event => {
+      const link = event.target.closest('[data-event-filter]');
+      if (!link || !catalogFilters.contains(link)) return;
+      event.preventDefault();
+      applyCatalogFilter(link.dataset.eventFilter || '', true);
+    });
+
+    window.addEventListener('popstate', () => {
+      applyCatalogFilter(new URL(window.location.href).searchParams.get('event') || '');
+    });
+
+    applyCatalogFilter(new URL(window.location.href).searchParams.get('event') || '');
+  }
   document.querySelectorAll('[data-copy]').forEach(button => button.addEventListener('click', async () => {
     try { await navigator.clipboard.writeText(button.dataset.copy); button.textContent = copy.copied; }
     catch { button.textContent = copy.copyFallback; }

@@ -4,15 +4,10 @@
 @php
     $value = fn (string $key, mixed $default = '') => old($key, data_get($details, $key, $default));
     $selectedRestaurant = $restaurants->firstWhere('id', (int) $value('restaurant_id'));
-    $programTimes = old('program_times', $details['program_times'] ?? ['17:00', '18:00', '19:00']);
     $copyFields = [
         'event_label' => ['Название события на обложке', false],
         'intro' => ['Обращение к гостям', true],
         'date_title' => ['Заголовок даты', false],
-        'program' => ['Заголовок программы', false],
-        'welcome' => ['Пункт программы №1', false],
-        'ceremony' => ['Пункт программы №2', false],
-        'celebration' => ['Пункт программы №3', false],
         'venue' => ['Заголовок места проведения', false],
         'map' => ['Текст кнопки карты', false],
         'countdown' => ['Заголовок обратного отсчёта', false],
@@ -82,13 +77,6 @@
                 <label class="field wide">Название ресторана или места<input id="venue_name" name="venue_name" value="{{ $value('venue_name') }}" maxlength="160" required></label>
                 <label class="field wide">Адрес<input id="venue_address" name="venue_address" value="{{ $value('venue_address') }}" maxlength="255" required></label>
                 <label class="field wide">Основной текст приглашения<textarea name="invitation_text" maxlength="2000">{{ $value('invitation_text') }}</textarea></label>
-            </div>
-        </fieldset>
-
-        <fieldset class="panel form-section">
-            <legend>Время программы</legend>
-            <div class="form-grid program-time-grid">
-                @foreach(['Сбор гостей','Церемония','Праздничный вечер'] as $index=>$label)<label class="field">{{ $label }}<input type="time" name="program_times[]" value="{{ $programTimes[$index] ?? ['17:00','18:00','19:00'][$index] }}" required></label>@endforeach
             </div>
         </fieldset>
 

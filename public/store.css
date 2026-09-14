@@ -207,6 +207,7 @@ body.catalog-ui{
 .catalog-ui .catalog-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:26px 20px}
 .catalog-ui .design-card{padding:11px;border:1px solid #e1e4f0;border-radius:25px;background:#fff;box-shadow:0 12px 34px rgba(50,55,105,.08);transition:transform .25s,box-shadow .25s,border-color .25s}
 .catalog-ui .design-card:hover{border-color:#c9cced;box-shadow:0 20px 45px rgba(50,55,105,.13);transform:translateY(-4px)}
+.catalog-ui .design-card[hidden],.catalog-ui [data-catalog-empty][hidden]{display:none}
 .catalog-ui .design-preview{min-height:365px}
 .catalog-ui .design-info{min-height:94px;padding:17px 5px 12px}
 .catalog-ui .design-info .eyebrow{width:auto;padding:0;background:none;color:#717893}

@@ -341,3 +341,133 @@ body.invitation-shell{margin:0;background:#e6e2dc;color:#28231f;font-family:Manr
 .venue-location-arrow{display:grid;width:28px;height:28px;place-items:center;border:1px solid color-mix(in srgb,var(--iv-accent) 48%,var(--iv-soft));border-radius:50%;color:var(--iv-accent);font-size:14px;transition:transform .2s ease,background .2s ease,color .2s ease}
 .venue-location:hover{border-color:var(--iv-accent);box-shadow:0 18px 38px color-mix(in srgb,var(--iv-ink) 15%,transparent)}
 .venue-location:hover .venue-location-arrow{transform:translate(1px,-1px);background:var(--iv-accent);color:var(--iv-paper)}
+
+/* "Нәзік гүлдер" — light botanical wedding story with Kazakh textile details. */
+.invite-template-nazik-botanika{--iv-bg:#f4eee9;--iv-paper:#fffdf9;--iv-ink:#283d36;--iv-accent:#b66f70;--iv-soft:#d8c9b8;background:var(--iv-paper)}
+.invite-template-nazik-botanika .invite-cover{min-height:820px;align-items:flex-end;background:#f7f3eb}
+.invite-template-nazik-botanika .invite-cover-image{object-position:50% 50%;filter:saturate(.92) brightness(1.03);transform:scale(1.025);animation:nazik-cover-breathe 12s ease-in-out infinite alternate}
+.invite-template-nazik-botanika .invite-cover-shade{background:linear-gradient(180deg,rgba(255,255,255,.01) 0 42%,rgba(255,252,246,.38) 58%,#fffdf8 92%),linear-gradient(90deg,rgba(255,253,248,.12),transparent 28% 72%,rgba(255,253,248,.12))}
+.invite-template-nazik-botanika .invite-cover::before,.invite-template-nazik-botanika .invite-cover::after{content:'';position:absolute;z-index:2;width:92px;height:92px;border:1px solid rgba(182,111,112,.42);border-radius:63% 37% 66% 34% / 38% 58% 42% 62%;pointer-events:none}
+.invite-template-nazik-botanika .invite-cover::before{top:36px;right:24px;left:auto;transform:rotate(28deg)}
+.invite-template-nazik-botanika .invite-cover::after{right:auto;bottom:222px;left:19px;transform:rotate(-34deg) scale(.72)}
+.invite-template-nazik-botanika .invite-cover-copy{width:calc(100% - 44px);margin:0 22px 28px;padding:83px 28px 38px;border:1px solid rgba(92,113,91,.28);border-radius:180px 180px 28px 28px;background:rgba(255,253,248,.88);box-shadow:0 20px 60px rgba(66,74,55,.13),inset 0 0 0 7px rgba(255,255,255,.35);color:var(--iv-ink);text-shadow:none;backdrop-filter:blur(7px)}
+.invite-template-nazik-botanika .invite-cover-copy::before{content:'✦';position:absolute;top:35px;left:50%;color:var(--iv-accent);font-size:13px;transform:translateX(-50%)}
+.invite-template-nazik-botanika .invite-overline{color:#667765;letter-spacing:4.2px}
+.invite-template-nazik-botanika .invite-cover-date{margin:13px 0 18px;color:#876a60;font-size:10px;letter-spacing:5px}
+.invite-template-nazik-botanika .invite-cover h1{color:#314d42;font-family:'Noto Serif Display',Georgia,serif;font-size:58px;font-style:italic;font-weight:400;line-height:.96;letter-spacing:-2px}
+.invite-template-nazik-botanika .invite-monogram{width:72px;height:72px;margin-top:29px;border:1px solid rgba(182,111,112,.62);background:rgba(255,255,255,.48);color:#9a5f63;box-shadow:0 0 0 8px rgba(182,111,112,.06);font-family:'Noto Serif Display',Georgia,serif}
+
+.invite-template-nazik-botanika .invite-intro{min-height:650px;display:flex;flex-direction:column;justify-content:center;padding:118px 42px 104px;overflow:hidden;background:radial-gradient(circle at 8% 9%,rgba(218,174,168,.24),transparent 26%),radial-gradient(circle at 92% 88%,rgba(129,151,116,.18),transparent 28%),var(--iv-paper)}
+.invite-template-nazik-botanika .invite-intro::before,.invite-template-nazik-botanika .invite-intro::after{content:'';position:absolute;width:170px;height:235px;border:1px solid rgba(120,143,108,.26);border-radius:50% 50% 42% 58% / 62% 40% 60% 38%;pointer-events:none}
+.invite-template-nazik-botanika .invite-intro::before{top:-76px;left:-98px;transform:rotate(36deg)}
+.invite-template-nazik-botanika .invite-intro::after{right:-107px;bottom:-92px;transform:rotate(-18deg)}
+.invite-template-nazik-botanika .orbit-mark{width:112px;height:112px;margin-bottom:46px;border-radius:50%;background:radial-gradient(ellipse at 50% 16%,rgba(199,127,129,.9) 0 10%,transparent 11%),radial-gradient(ellipse at 84% 50%,rgba(199,127,129,.82) 0 10%,transparent 11%),radial-gradient(ellipse at 50% 84%,rgba(199,127,129,.72) 0 10%,transparent 11%),radial-gradient(ellipse at 16% 50%,rgba(199,127,129,.82) 0 10%,transparent 11%),radial-gradient(circle,#f7e7e2 0 17%,#b87778 18% 20%,transparent 21%)}
+.invite-template-nazik-botanika .orbit-mark i{inset:7px;border-color:rgba(121,145,108,.44)}
+.invite-template-nazik-botanika .orbit-mark i+i{inset:23px -5px;border-color:rgba(182,111,112,.32)}
+.invite-template-nazik-botanika .orbit-mark span{color:#fff;font-size:13px}
+.invite-template-nazik-botanika .invite-small-title{max-width:310px;margin:0 auto;color:#7a5d55;font-size:9px;line-height:1.9;letter-spacing:2.4px}
+.invite-template-nazik-botanika .invite-message{max-width:310px;margin-top:28px;color:#31483e;font-family:'Noto Serif Display',Georgia,serif;font-size:28px;font-style:italic;line-height:1.46}
+
+.invite-template-nazik-botanika .date-section{padding:104px 34px 112px;overflow:hidden;background:linear-gradient(rgba(245,231,226,.92),rgba(245,231,226,.92)),url('/invitation-assets/botanical-ethno.webp') center/cover}
+.invite-template-nazik-botanika .date-section::before{content:'';position:absolute;inset:22px;border:1px solid rgba(182,111,112,.2);border-radius:210px 210px 30px 30px}
+.invite-template-nazik-botanika .invite-script{position:relative;z-index:1;color:#8f585c;font-family:'Noto Serif Display',Georgia,serif;font-size:36px}
+.invite-template-nazik-botanika .date-orb{position:relative;z-index:1;width:236px;height:274px;border-color:rgba(77,105,87,.45);border-radius:120px 120px 34px 34px;background:rgba(255,253,249,.76);box-shadow:0 18px 50px rgba(91,84,72,.1);backdrop-filter:blur(4px)}
+.invite-template-nazik-botanika .date-orb::before,.invite-template-nazik-botanika .date-orb::after{width:236px;height:274px;border-radius:120px 120px 34px 34px}
+.invite-template-nazik-botanika .date-orb::before{transform:translate(9px,-8px)}
+.invite-template-nazik-botanika .date-orb::after{transform:translate(-8px,8px)}
+.invite-template-nazik-botanika .date-orb strong{color:#315044;font-family:'Noto Serif Display',Georgia,serif;font-size:102px}
+.invite-template-nazik-botanika .date-orb span{color:#765d56;letter-spacing:3.6px}
+.invite-template-nazik-botanika .invite-time{position:relative;z-index:1;color:#314d42;font-family:'Noto Serif Display',Georgia,serif;font-size:32px}
+
+.invite-template-nazik-botanika .venue-section{min-height:630px;display:flex;flex-direction:column;justify-content:center;padding:110px 35px;overflow:hidden;background:linear-gradient(rgba(255,253,248,.88),rgba(255,253,248,.94)),url('/invitation-assets/botanical-ethno.webp') 48% 42%/155% auto}
+.invite-template-nazik-botanika .venue-rings::before,.invite-template-nazik-botanika .venue-rings::after{border-color:rgba(182,111,112,.58);border-radius:70% 30% 65% 35% / 45% 62% 38% 55%}
+.invite-template-nazik-botanika .venue-rings::before{transform:rotate(22deg)}
+.invite-template-nazik-botanika .venue-rings::after{transform:rotate(-22deg)}
+.invite-template-nazik-botanika .venue-section h2{max-width:330px;margin:15px auto 10px;color:#314d42;font-family:'Noto Serif Display',Georgia,serif;font-size:42px}
+.invite-template-nazik-botanika .venue-location{margin-top:34px;padding:13px;border:1px solid rgba(73,105,83,.2);border-radius:22px;background:rgba(255,255,255,.82);box-shadow:0 18px 42px rgba(53,76,61,.1)}
+.invite-template-nazik-botanika .two-gis-logo{border-color:#426b56;border-radius:50% 50% 48% 52%/56% 44% 56% 44%;background:#426b56;box-shadow:inset 0 0 0 5px rgba(255,255,255,.14);color:#fff}
+.invite-template-nazik-botanika .venue-location-copy>span{color:#9a6265}
+
+.invite-template-nazik-botanika .countdown-section{padding:96px 28px;background:radial-gradient(circle at 50% -20%,rgba(255,255,255,.22),transparent 52%),#c58c8b;color:#fffdf9}
+.invite-template-nazik-botanika .countdown-section .invite-script{color:#fff}
+.invite-template-nazik-botanika .countdown-grid{gap:7px}
+.invite-template-nazik-botanika .countdown-grid>div{border-color:rgba(255,255,255,.52);background:rgba(255,255,255,.09);box-shadow:inset 0 0 0 5px rgba(255,255,255,.04)}
+.invite-template-nazik-botanika .countdown-grid strong{font-family:'Noto Serif Display',Georgia,serif}
+.invite-template-nazik-botanika .hosts-section{padding-top:112px;padding-bottom:112px;background:#fffdf9}
+.invite-template-nazik-botanika .joined-rings i{border-color:rgba(129,150,118,.68);border-radius:65% 35% 60% 40%/48% 62% 38% 52%}
+.invite-template-nazik-botanika .joined-rings i:first-child{transform:rotate(26deg)}
+.invite-template-nazik-botanika .joined-rings i:last-child{transform:rotate(-26deg)}
+.invite-template-nazik-botanika .hosts-section h2{color:#945e63;font-family:'Noto Serif Display',Georgia,serif;font-size:42px}
+.invite-template-nazik-botanika .rsvp-section{padding:104px 34px;background:radial-gradient(circle at 100% 0,rgba(255,255,255,.7),transparent 34%),#edf2e8}
+.invite-template-nazik-botanika .rsvp-preview span,.invite-template-nazik-botanika .invite-form input,.invite-template-nazik-botanika .invite-form select,.invite-template-nazik-botanika .invite-form textarea{border-color:rgba(77,105,87,.24);border-radius:15px;background:rgba(255,255,255,.72)}
+.invite-template-nazik-botanika .rsvp-preview button,.invite-template-nazik-botanika .invite-form button{border-radius:15px;background:#345647;box-shadow:0 12px 26px rgba(42,75,59,.16)}
+.invite-template-nazik-botanika .invite-finale{min-height:580px;overflow:hidden;background:linear-gradient(rgba(255,252,247,.73),rgba(255,252,247,.89)),url('/invitation-assets/botanical-ethno.webp') 50% 63%/cover}
+.invite-template-nazik-botanika .finale-circle{width:276px;height:320px;border-color:rgba(49,77,66,.38);border-radius:145px 145px 44px 44px;background:rgba(255,253,249,.7);box-shadow:0 20px 60px rgba(64,80,62,.12);backdrop-filter:blur(4px)}
+.invite-template-nazik-botanika .finale-circle span{color:#b66f70}
+.invite-template-nazik-botanika .finale-circle p{color:#314d42;font-family:'Noto Serif Display',Georgia,serif;font-size:32px}
+.music-template-nazik-botanika{--music-bg:#fffaf5;--music-ink:#315044;--music-accent:#b66f70;--music-ring:#cad6c1;--music-ornament:#b66f70}
+@keyframes nazik-cover-breathe{from{transform:scale(1.025) translate3d(0,0,0)}to{transform:scale(1.08) translate3d(-1.5%,1%,0)}}
+@media(max-width:600px){.invite-template-nazik-botanika .invite-cover{min-height:calc(100svh - 58px)}}
+@media(prefers-reduced-motion:reduce){.invite-template-nazik-botanika .invite-cover-image{animation:none}}
+
+/* Large qoshqar muiiz player shared by every invitation theme. */
+.music-orb{
+    width:84px;
+    height:84px;
+    right:max(64px,calc(50% - 150px));
+    bottom:max(70px,calc(env(safe-area-inset-bottom) + 62px));
+    border:0;
+    border-radius:0;
+    background:transparent;
+    box-shadow:none;
+    overflow:visible;
+}
+.music-orb::before,
+.music-orb::after,
+.music-orb .music-ornament{display:none}
+.music-kazakh-ornament{
+    position:absolute;
+    z-index:1;
+    top:50%;
+    left:50%;
+    width:152px;
+    height:152px;
+    background:var(--music-ornament,var(--music-accent));
+    -webkit-mask:url('/invitation-assets/music-kazakh-ornament.svg') center/contain no-repeat;
+    mask:url('/invitation-assets/music-kazakh-ornament.svg') center/contain no-repeat;
+    filter:drop-shadow(0 7px 8px color-mix(in srgb,var(--music-ink) 24%,transparent));
+    pointer-events:none;
+    transform:translate(-50%,-50%);
+    transform-origin:center;
+    animation:music-qoshqar-turn 42s linear infinite;
+}
+.music-control-icon{
+    z-index:4;
+    width:50px;
+    height:50px;
+    border:0;
+    border-radius:0;
+    clip-path:none;
+    background:transparent;
+    box-shadow:none;
+}
+.music-orb:hover .music-control-icon,
+.music-orb:active .music-control-icon{box-shadow:none}
+.music-control-icon .music-play-icon{border-left-color:var(--music-ornament,var(--music-accent))}
+.music-control-icon .music-pause-icon i{background:var(--music-ornament,var(--music-accent))}
+.music-orb:hover{
+    box-shadow:none;
+}
+.music-orb.is-playing .music-kazakh-ornament{animation-duration:29s}
+@keyframes music-qoshqar-turn{
+    from{transform:translate(-50%,-50%) rotate(0)}
+    to{transform:translate(-50%,-50%) rotate(360deg)}
+}
+@media(max-width:600px){
+    .music-orb{right:max(62px,env(safe-area-inset-right));bottom:max(68px,calc(env(safe-area-inset-bottom) + 60px));width:80px;height:80px}
+    .music-kazakh-ornament{width:142px;height:142px}
+}
+@media(prefers-reduced-motion:reduce){
+    .music-kazakh-ornament,
+    .music-orb.is-playing .music-kazakh-ornament{animation:none}
+}

@@ -127,8 +127,6 @@ class StoreAdminController extends Controller
             'language' => ['required', Rule::in(['kk', 'ru'])],
             'music_id' => ['nullable', 'integer', Rule::exists('music', 'id')],
             'invitation_text' => ['nullable', 'string', 'max:2000'],
-            'program_times' => ['required', 'array', 'size:3'],
-            'program_times.*' => ['required', 'date_format:H:i'],
             'copy' => ['required', 'array'],
             'copy.*' => ['required', 'string', 'max:300'],
             'subtotal' => ['required', 'integer', 'min:0', 'max:10000000'],
@@ -140,7 +138,6 @@ class StoreAdminController extends Controller
         ], [
             'customer_phone.regex' => 'Укажите телефон, например +7 700 123 45 67.',
             'copy.*.required' => 'Заполните все тексты приглашения.',
-            'program_times.size' => 'Укажите время для трёх пунктов программы.',
         ]);
 
         DB::transaction(function () use ($data, $order, $request): void {
@@ -166,9 +163,9 @@ class StoreAdminController extends Controller
                 'music_id' => $music?->id,
                 'music_url' => $music?->audio_url,
                 'music_name' => $music?->name,
-                'program_times' => array_values($data['program_times']),
                 'copy' => $data['copy'],
             ]);
+            unset($details['program_times']);
 
             if ($oldStatus !== 'rejected' && $data['status'] === 'rejected' && $order->promo_code_id) {
                 PromoCode::whereKey($order->promo_code_id)->where('uses', '>', 0)->decrement('uses');
@@ -254,10 +251,6 @@ class StoreAdminController extends Controller
             'content_event_date' => ['required', 'date'],
             'content_event_time' => ['required', 'date_format:H:i'],
             'content_date_title' => ['required', 'string', 'max:120'],
-            'content_program_title' => ['required', 'string', 'max:120'],
-            'content_welcome_text' => ['required', 'string', 'max:120'],
-            'content_ceremony_text' => ['required', 'string', 'max:120'],
-            'content_celebration_text' => ['required', 'string', 'max:120'],
             'content_venue_title' => ['required', 'string', 'max:120'],
             'content_venue_name' => ['required', 'string', 'max:160'],
             'content_venue_address' => ['required', 'string', 'max:255'],
@@ -461,8 +454,7 @@ class StoreAdminController extends Controller
         if ($language === 'ru') {
             return [
                 'event_label' => 'ТОРЖЕСТВО', 'intro' => 'ДОРОГИЕ РОДНЫЕ И ДРУЗЬЯ!', 'date_title' => 'Дата торжества',
-                'program' => 'Программа вечера', 'welcome' => 'Сбор гостей', 'ceremony' => 'Торжественная церемония',
-                'celebration' => 'Праздничный вечер', 'venue' => 'Место проведения', 'map' => 'Посмотреть на карте',
+                'venue' => 'Место проведения', 'map' => 'Посмотреть на карте',
                 'countdown' => 'До торжества', 'days' => 'дней', 'hours' => 'часов', 'minutes' => 'минут', 'seconds' => 'секунд',
                 'hosts' => 'Хозяева торжества', 'rsvp' => 'Будем ждать вас!', 'hint' => 'Пожалуйста, сообщите, сможете ли вы прийти.',
                 'name' => 'Ваше имя', 'answer' => 'Вы придёте?', 'yes' => 'С удовольствием приду', 'no' => 'К сожалению, не смогу',
@@ -476,8 +468,7 @@ class StoreAdminController extends Controller
                 'qyz_uzatu' => 'ҚЫЗ ҰЗАТУ', 'anniversary' => 'МЕРЕЙТОЙ', 'birthday' => 'ТУҒАН КҮН', default => 'ҮЙЛЕНУ ТОЙЫ'
             },
             'intro' => 'ҚҰРМЕТТІ АҒАЙЫН-ТУЫС, БАУЫРЛАР, ҚҰДА-ЖЕКЖАТ, ДОС-ЖАРАНДАР!', 'date_title' => 'Той салтанаты',
-            'program' => 'Той бағдарламасы', 'welcome' => 'Қонақтардың жиналуы', 'ceremony' => $eventType === 'qyz_uzatu' ? 'Қыз ұзату рәсімі' : 'Салтанатты рәсім',
-            'celebration' => 'Мерекелік кеш', 'venue' => 'Мекенжайымыз', 'map' => 'Картадан көру', 'countdown' => 'Салтанатқа дейін',
+            'venue' => 'Мекенжайымыз', 'map' => 'Картадан көру', 'countdown' => 'Салтанатқа дейін',
             'days' => 'күн', 'hours' => 'сағат', 'minutes' => 'минут', 'seconds' => 'секунд', 'hosts' => 'Той иелері',
             'rsvp' => 'Сізді күтеміз!', 'hint' => 'Тойға қатысуыңызды растауыңызды сұраймыз.', 'name' => 'Аты-жөніңіз',
             'answer' => 'Тойға қатысасыз ба?', 'yes' => 'Иә, қуана қатысамын', 'no' => 'Өкінішке қарай, қатыса алмаймын',

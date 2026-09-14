@@ -15,10 +15,6 @@
     $copy = $kk ? [
         'intro' => 'ҚҰРМЕТТІ АҒАЙЫН-ТУЫС, БАУЫРЛАР, ҚҰДА-ЖЕКЖАТ, ДОС-ЖАРАНДАР!',
         'date_title' => 'Той салтанаты',
-        'program' => 'Той бағдарламасы',
-        'welcome' => 'Қонақтардың жиналуы',
-        'ceremony' => $eventType === 'qyz_uzatu' ? 'Қыз ұзату рәсімі' : 'Салтанатты рәсім',
-        'celebration' => 'Мерекелік кеш',
         'venue' => 'Мекенжайымыз',
         'address_label' => 'Мекенжай',
         'map' => '2GIS-те ашу',
@@ -36,8 +32,7 @@
         'closing' => 'Қуанышымызға ортақ болыңыз!',
     ] : [
         'intro' => 'ДОРОГИЕ РОДНЫЕ И ДРУЗЬЯ!',
-        'date_title' => 'Дата торжества', 'program' => 'Программа вечера',
-        'welcome' => 'Сбор гостей', 'ceremony' => 'Торжественная церемония', 'celebration' => 'Праздничный вечер',
+        'date_title' => 'Дата торжества',
         'venue' => 'Место проведения', 'address_label' => 'Адрес', 'map' => 'Открыть в 2GIS', 'countdown' => 'До торжества',
         'days' => 'дней', 'hours' => 'часов', 'minutes' => 'минут', 'seconds' => 'секунд',
         'hosts' => 'Хозяева торжества', 'rsvp' => 'Будем ждать вас!',
@@ -57,10 +52,6 @@
             'event_label' => $customCopy['event_label'] ?? null,
             'intro' => $customCopy['intro_title'] ?? ($customCopy['intro'] ?? null),
             'date_title' => $customCopy['date_title'] ?? null,
-            'program' => $customCopy['program_title'] ?? ($customCopy['program'] ?? null),
-            'welcome' => $customCopy['welcome_text'] ?? ($customCopy['welcome'] ?? null),
-            'ceremony' => $customCopy['ceremony_text'] ?? ($customCopy['ceremony'] ?? null),
-            'celebration' => $customCopy['celebration_text'] ?? ($customCopy['celebration'] ?? null),
             'venue' => $customCopy['venue_title'] ?? ($customCopy['venue'] ?? null),
             'map' => $customCopy['map'] ?? null,
             'countdown' => $customCopy['countdown_title'] ?? ($customCopy['countdown'] ?? null),
@@ -84,12 +75,6 @@
     }
     $copy['map'] = $kk ? '2GIS-те ашу' : 'Открыть в 2GIS';
     $copy['event_label'] ??= $templateCopy['event_label'] ?? ($eventLabels[$eventType] ?? $eventLabels['wedding']);
-    $programTimes = array_values($details['program_times'] ?? ['17:00', '18:00', '19:00']);
-    $times = [
-        [$programTimes[0] ?? '17:00', $copy['welcome']],
-        [$programTimes[1] ?? '18:00', $copy['ceremony']],
-        [$programTimes[2] ?? '19:00', $copy['celebration']],
-    ];
     $monthNames = $kk
         ? ['қаңтар', 'ақпан', 'наурыз', 'сәуір', 'мамыр', 'маусым', 'шілде', 'тамыз', 'қыркүйек', 'қазан', 'қараша', 'желтоқсан']
         : ['январь', 'февраль', 'март', 'апрель', 'май', 'июнь', 'июль', 'август', 'сентябрь', 'октябрь', 'ноябрь', 'декабрь'];
@@ -129,7 +114,7 @@
     </nav>
 @endif
 
-<article class="invite-mobile invite-theme-{{ $theme }}" data-invite-theme="{{ $theme }}">
+<article class="invite-mobile invite-theme-{{ $theme }} invite-template-{{ $template->slug }}" data-invite-theme="{{ $theme }}" data-template-slug="{{ $template->slug }}">
     <header class="invite-cover">
         @if($image)<img class="invite-cover-image" src="{{ $image }}" alt="" fetchpriority="high">@endif
         <span class="invite-cover-shade" aria-hidden="true"></span>
@@ -156,15 +141,6 @@
             <span>{{ $weekdayNames[$eventDate->dayOfWeekIso - 1] }}</span>
         </div>
         <p class="invite-time">{{ $details['event_time'] }}</p>
-    </section>
-
-    <section class="invite-section program-section" data-reveal>
-        <p class="invite-overline">{{ $copy['program'] }}</p>
-        <div class="program-list">
-            @foreach($times as [$time, $label])
-                <div class="program-item"><time>{{ $time }}</time><span class="program-dot"></span><p>{{ $label }}</p></div>
-            @endforeach
-        </div>
     </section>
 
     <section class="invite-section venue-section" data-reveal>
@@ -224,29 +200,8 @@
 @if(!empty($details['music_url']))
     <audio id="invite-audio" loop preload="none" src="{{ \App\Models\Music::playbackUrlFor($details['music_url']) }}"></audio>
 @endif
-<button class="music-orb music-theme-{{ $theme }}" type="button" data-invite-music @if(empty($details['music_url'])) data-preview-tone @endif aria-label="{{ $copy['music_play'] }}" aria-pressed="false" data-play-label="{{ $copy['music_play'] }}" data-pause-label="{{ $copy['music_pause'] }}">
-    <span class="music-ornament" aria-hidden="true"></span>
-    <svg class="music-ethno-ring" viewBox="0 0 120 120" aria-hidden="true" focusable="false">
-        <defs>
-            <g id="music-koshkar-motif">
-                <path d="M60 5c-8 0-13 4-13 10 0 6 5 10 10 10 5 0 9-4 9-9 0-4-3-7-7-7-4 0-7 3-7 6 0 3 2 5 5 5 3 0 5-2 5-5"/>
-                <path d="M60 5c8 0 13 4 13 10 0 6-5 10-10 10-5 0-9-4-9-9 0-4 3-7 7-7 4 0 7 3 7 6 0 3-2 5-5 5-3 0-5-2-5-5"/>
-                <path d="M51 22l-5 7m23-7 5 7"/>
-            </g>
-        </defs>
-        <circle class="music-ethno-track music-ethno-track-outer" cx="60" cy="60" r="54"/>
-        <circle class="music-ethno-track music-ethno-track-inner" cx="60" cy="60" r="39"/>
-        <g class="music-koshkar-ring">
-            <use href="#music-koshkar-motif"/>
-            <use href="#music-koshkar-motif" transform="rotate(45 60 60)"/>
-            <use href="#music-koshkar-motif" transform="rotate(90 60 60)"/>
-            <use href="#music-koshkar-motif" transform="rotate(135 60 60)"/>
-            <use href="#music-koshkar-motif" transform="rotate(180 60 60)"/>
-            <use href="#music-koshkar-motif" transform="rotate(225 60 60)"/>
-            <use href="#music-koshkar-motif" transform="rotate(270 60 60)"/>
-            <use href="#music-koshkar-motif" transform="rotate(315 60 60)"/>
-        </g>
-    </svg>
+<button class="music-orb music-theme-{{ $theme }} music-template-{{ $template->slug }}" type="button" data-invite-music @if(empty($details['music_url'])) data-preview-tone @endif aria-label="{{ $copy['music_play'] }}" aria-pressed="false" data-play-label="{{ $copy['music_play'] }}" data-pause-label="{{ $copy['music_pause'] }}">
+    <span class="music-kazakh-ornament" aria-hidden="true"></span>
     <span class="music-control-icon" aria-hidden="true">
         <span class="music-play-icon"></span>
         <span class="music-pause-icon"><i></i><i></i></span>

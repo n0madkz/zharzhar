@@ -34,7 +34,8 @@ class StorefrontController extends Controller
     public function index(Request $request): View
     {
         $category = $request->string('event')->toString();
-        $templates = Template::where('is_active', true)->when(array_key_exists($category, config('store.event_types')), fn ($query) => $query->where(fn ($q) => $q->where('event_type', $category)->orWhereNull('event_type')))->orderBy('price')->get();
+        $category = array_key_exists($category, config('store.event_types')) ? $category : '';
+        $templates = Template::where('is_active', true)->orderBy('price')->get();
 
         return view('store.catalog', compact('templates', 'category'));
     }

@@ -64,8 +64,8 @@
 </section>
 <div class="occasion-band"><span>Үйлену той</span><b>✦</b><span>Қыз ұзату</span><b>✦</b><span>Мерейтой</span><b>✦</b><span>Туған күн</span><b>✦</b><span>{{ $copy['special'] }}</span></div>
 <section class="shell section" id="designs"><div class="section-title"><div><p class="eyebrow">{{ $copy['collection'] }}</p><h2>{{ $copy['find'] }} <em>{{ $copy['find_em'] }}</em></h2></div><p>{{ $copy['design_note'] }}</p></div>
-<nav class="filters" aria-label="{{ $kk ? 'Мереке түрі' : 'Тип события' }}"><a class="{{ !$category ? 'active' : '' }}" href="{{ route('store.catalog') }}#designs">{{ $copy['all'] }}</a>@foreach($eventLabels as $key => $label)<a class="{{ $category === $key ? 'active' : '' }}" href="{{ route('store.catalog', ['event' => $key]) }}#designs">{{ $label }}</a>@endforeach</nav>
-<div class="catalog-grid" role="region" aria-label="{{ $kk ? 'Дизайндар каталогы' : 'Каталог дизайнов' }}">
+<nav class="filters" data-catalog-filters aria-label="{{ $kk ? 'Мереке түрі' : 'Тип события' }}"><a class="{{ !$category ? 'active' : '' }}" data-event-filter="" href="{{ route('store.catalog') }}#designs" @if(!$category) aria-current="true" @endif>{{ $copy['all'] }}</a>@foreach($eventLabels as $key => $label)<a class="{{ $category === $key ? 'active' : '' }}" data-event-filter="{{ $key }}" href="{{ route('store.catalog', ['event' => $key]) }}#designs" @if($category === $key) aria-current="true" @endif>{{ $label }}</a>@endforeach</nav>
+<div class="catalog-grid" data-catalog-grid role="region" aria-label="{{ $kk ? 'Дизайндар каталогы' : 'Каталог дизайнов' }}" aria-live="polite">
 @forelse($templates as $template)
 @php
     $theme = $template->config_json['theme'] ?? 'sage';
@@ -73,7 +73,7 @@
     $titleFirstLine = array_shift($titleWords);
     $titleSecondLine = implode(' ', $titleWords);
 @endphp
-<article class="design-card design-card-{{ $theme }}">
+<article class="design-card design-card-{{ $theme }}" data-event-type="{{ $template->event_type }}" @if($category && $template->event_type && $template->event_type !== $category) hidden @endif>
 <a href="{{ route('store.preview', $template) }}" class="design-preview invite-card-{{ $theme }} theme-{{ $theme }} event-card-{{ $template->event_type }}" aria-label="{{ $copy['view'] }}: {{ $template->name }}">
 @if($template->preview_image)<img src="{{ $template->preview_image }}" alt="" loading="lazy">@endif
 <span class="card-shade" aria-hidden="true"></span>
@@ -88,6 +88,7 @@
 @empty
 <div class="empty-state"><h3>{{ $copy['empty'] }}</h3><p>{{ $copy['empty_text'] }}</p><a href="tel:{{ preg_replace('/[^+0-9]/', '', config('store.kaspi_phone')) }}">{{ $copy['contact'] }}</a></div>
 @endforelse
+<div class="empty-state" data-catalog-empty hidden><h3>{{ $copy['empty'] }}</h3><p>{{ $copy['empty_text'] }}</p></div>
 </div></section>
 <section class="how-section" id="how"><div class="shell section"><p class="eyebrow">{{ $copy['how_label'] }}</p><h2>{{ $copy['how'] }} <em>{{ $copy['how_em'] }}</em></h2><div class="steps-grid">@foreach($steps as $step)<article><span class="step-number">0{{ $loop->iteration }}</span><h3>{{ $step[0] }}</h3><p>{{ $step[1] }}</p></article>@endforeach</div></div></section>
 <section class="shell section faq" id="faq"><div><p class="eyebrow">{{ $copy['faq_label'] }}</p><h2>{{ $copy['faq'] }}<br><em>{{ $copy['faq_em'] }}</em></h2></div><div>@foreach($faqs as $faq)<details><summary>{{ $faq[0] }}</summary><p>{{ $faq[1] }}</p></details>@endforeach</div></section>
