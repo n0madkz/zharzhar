@@ -133,10 +133,12 @@ class InvitationStoreTest extends TestCase
             ->assertSee('Свадебный дизайн')
             ->assertSee('Юбилейный дизайн')
             ->assertSee('data-catalog-filters', false)
+            ->assertSee('data-catalog-pagination', false)
             ->assertSee('data-event-filter="wedding"', false)
             ->assertSee('data-event-type="anniversary"', false)
             ->assertSee('9 990')
             ->assertDontSee('Скрытый дизайн');
+        $this->assertStringContainsString('const pageSize = 8;', file_get_contents(public_path('store.js')));
         $this->get('/designs/'.$wedding->id.'/preview')->assertOk();
         $this->get('/checkout/'.$wedding->id)->assertOk()->assertSee('Той иелері');
     }

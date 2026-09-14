@@ -15,11 +15,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const filterLinks = Array.from(catalogFilters.querySelectorAll('[data-event-filter]'));
     const cards = Array.from(catalogGrid.querySelectorAll('[data-event-type]'));
     const emptyState = catalogGrid.querySelector('[data-catalog-empty]');
+    const pagination = document.querySelector('[data-catalog-pagination]');
+    const paginationNumbers = pagination?.querySelector('[data-page-numbers]');
+    const previousPage = pagination?.querySelector('[data-page-action="previous"]');
+    const nextPage = pagination?.querySelector('[data-page-action="next"]');
+    const pageSize = 8;
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    const applyCatalogFilter = (eventType, updateHistory = false) => {
+    const applyCatalogFilter = (eventType, requestedPage = 1, updateHistory = false) => {
       const validFilter = filterLinks.some(link => link.dataset.eventFilter === eventType) ? eventType : '';
-      let visibleCount = 0;
+      const matchingCards = cards.filter(card => !validFilter || !card.dataset.eventType || card.dataset.eventType === validFilter);
+      const totalPages = Math.max(1, Math.ceil(matchingCards.length / pageSize));
+      const currentPage = Math.min(Math.max(Number(requestedPage) || 1, 1), totalPages);
+      const firstVisibleIndex = (currentPage - 1) * pageSize;
+      const visibleCards = matchingCards.slice(firstVisibleIndex, firstVisibleIndex + pageSize);
 
       filterLinks.forEach(link => {
         const active = link.dataset.eventFilter === validFilter;
@@ -29,10 +38,9 @@ document.addEventListener('DOMContentLoaded', () => {
       });
 
       cards.forEach(card => {
-        const visible = !validFilter || !card.dataset.eventType || card.dataset.eventType === validFilter;
+        const visible = visibleCards.includes(card);
         card.hidden = !visible;
         if (visible) {
-          visibleCount += 1;
           if (!reduceMotion && typeof card.animate === 'function') {
             card.animate([
               { opacity: 0, transform: 'translateY(10px)' },
@@ -42,14 +50,34 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       });
 
-      if (emptyState) emptyState.hidden = visibleCount !== 0;
+      if (emptyState) emptyState.hidden = matchingCards.length !== 0;
+      if (pagination) pagination.hidden = matchingCards.length <= pageSize;
+      if (previousPage) previousPage.disabled = currentPage === 1;
+      if (nextPage) nextPage.disabled = currentPage === totalPages;
+      if (paginationNumbers) {
+        paginationNumbers.replaceChildren();
+        for (let page = 1; page <= totalPages; page += 1) {
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.dataset.catalogPage = String(page);
+          button.textContent = String(page);
+          button.className = 'catalog-page-number';
+          if (page === currentPage) {
+            button.classList.add('active');
+            button.setAttribute('aria-current', 'page');
+          }
+          paginationNumbers.append(button);
+        }
+      }
 
       if (updateHistory) {
         const url = new URL(window.location.href);
         if (validFilter) url.searchParams.set('event', validFilter);
         else url.searchParams.delete('event');
+        if (currentPage > 1) url.searchParams.set('catalog_page', String(currentPage));
+        else url.searchParams.delete('catalog_page');
         url.hash = 'designs';
-        window.history.pushState({ eventType: validFilter }, '', url);
+        window.history.pushState({ eventType: validFilter, catalogPage: currentPage }, '', url);
       }
     };
 
@@ -57,14 +85,29 @@ document.addEventListener('DOMContentLoaded', () => {
       const link = event.target.closest('[data-event-filter]');
       if (!link || !catalogFilters.contains(link)) return;
       event.preventDefault();
-      applyCatalogFilter(link.dataset.eventFilter || '', true);
+      applyCatalogFilter(link.dataset.eventFilter || '', 1, true);
+    });
+
+    pagination?.addEventListener('click', event => {
+      const button = event.target.closest('button');
+      if (!button || button.disabled) return;
+      const url = new URL(window.location.href);
+      const activeFilter = url.searchParams.get('event') || '';
+      const currentPage = Number(url.searchParams.get('catalog_page')) || 1;
+      const requestedPage = button.dataset.catalogPage
+        ? Number(button.dataset.catalogPage)
+        : currentPage + (button.dataset.pageAction === 'previous' ? -1 : 1);
+      applyCatalogFilter(activeFilter, requestedPage, true);
+      document.querySelector('#designs')?.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
     });
 
     window.addEventListener('popstate', () => {
-      applyCatalogFilter(new URL(window.location.href).searchParams.get('event') || '');
+      const url = new URL(window.location.href);
+      applyCatalogFilter(url.searchParams.get('event') || '', Number(url.searchParams.get('catalog_page')) || 1);
     });
 
-    applyCatalogFilter(new URL(window.location.href).searchParams.get('event') || '');
+    const initialUrl = new URL(window.location.href);
+    applyCatalogFilter(initialUrl.searchParams.get('event') || '', Number(initialUrl.searchParams.get('catalog_page')) || 1);
   }
   document.querySelectorAll('[data-copy]').forEach(button => button.addEventListener('click', async () => {
     try { await navigator.clipboard.writeText(button.dataset.copy); button.textContent = copy.copied; }

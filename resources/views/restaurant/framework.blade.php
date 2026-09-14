@@ -332,7 +332,7 @@
         </div>
 
         <section class="panel booking-list"><div class="booking-list-head"><h2>{{ $bookingSearch !== '' ? __('partner.search.results') : __('partner.booking.selected_day') }}</h2><form class="booking-search" method="GET" action="{{ route('restaurant.dashboard') }}#schedule" role="search"><input type="hidden" name="month" value="{{ $month->format('Y-m') }}"><input name="q" type="search" value="{{ $bookingSearch }}" placeholder="{{ __('partner.search.placeholder') }}" aria-label="{{ __('partner.search.label') }}"><button class="button button-secondary" type="submit">{{ __('partner.search.submit') }}</button>@if($bookingSearch !== '')<a class="booking-search-reset" href="{{ route('restaurant.dashboard', ['month' => $month->format('Y-m'), 'date' => $selectedDate->format('Y-m-d')]) }}#schedule">{{ __('partner.search.reset') }}</a>@endif</form></div>
-            @forelse($bookings->sortByDesc('booking_date') as $booking)
+            @forelse($bookings as $booking)
                 <details class="booking-card" id="booking-{{ $booking->id }}"><summary><i class="booking-color" style="--booking-color:{{ $booking->color }}"></i><span><strong>{{ $booking->visitor_name }}</strong><small>{{ $booking->booking_date->format('d.m.Y') }} · {{ $booking->tariff?->name ?? __('partner.packages.package') }} · {{ $booking->slot?->label ?? __('partner.booking.not_selected') }} · {{ $booking->guest_count }} {{ __('partner.booking.guests') }}</small></span></summary>
                     <form method="POST" action="{{ route('restaurant.bookings.update', $booking) }}" class="booking-edit-form">@csrf @method('PUT')
                         <input type="hidden" name="event_type" value="{{ $booking->event_type }}"><input type="hidden" name="status" value="{{ $booking->status }}">
@@ -345,6 +345,15 @@
                     <form method="POST" action="{{ route('restaurant.bookings.destroy', $booking) }}" onsubmit="return window.confirm(this.dataset.confirm)" data-confirm="{{ __('partner.booking.delete_confirm') }}">@csrf @method('DELETE')<button class="button button-danger" type="submit">{{ __('partner.booking.delete') }}</button></form>
                 </details>
             @empty<p class="muted">{{ $bookingSearch !== '' ? __('partner.search.empty') : __('partner.booking.no_month') }}</p>@endforelse
+            @if($bookings->hasPages())
+                <div class="pagination booking-pagination"><nav aria-label="{{ __('partner.nav.bookings') }}"><div>
+                    @if($bookings->previousPageUrl())<a href="{{ $bookings->previousPageUrl() }}#schedule" aria-label="Previous">←</a>@endif
+                    @foreach($bookings->getUrlRange(max(1, $bookings->currentPage() - 1), min($bookings->lastPage(), $bookings->currentPage() + 1)) as $page => $url)
+                        @if($page === $bookings->currentPage())<span aria-current="page">{{ $page }}</span>@else<a href="{{ $url }}#schedule">{{ $page }}</a>@endif
+                    @endforeach
+                    @if($bookings->nextPageUrl())<a href="{{ $bookings->nextPageUrl() }}#schedule" aria-label="Next">→</a>@endif
+                </div></nav></div>
+            @endif
         </section>
 
         <section class="panel info-panel" id="bonuses">

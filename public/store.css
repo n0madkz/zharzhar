@@ -271,3 +271,30 @@ body.catalog-ui{
     .catalog-ui .design-preview{min-height:390px}
 }
 @media(prefers-reduced-motion:reduce){.catalog-ui .hero-ornament{animation:none}}
+
+/* Compact order cards keep long order tools available without filling the viewport. */
+.admin-ui .order-card{padding:16px 18px;margin-bottom:12px}
+.admin-ui .order-card .eyebrow{margin-bottom:5px}
+.admin-ui .order-card .order-head h3{margin:0 0 3px;font-size:20px}
+.admin-ui .order-card .order-head .hint{margin:0}
+.admin-ui .order-card-brief{margin:10px 0 0;color:#667085;font-size:12px;line-height:1.45}
+.admin-ui .order-management{margin-top:11px;padding:0;border-top:1px solid #eef1f5;border-bottom:0}
+.admin-ui .order-management>summary{min-height:38px;padding:5px 0;color:#2563eb;font-size:12px}
+.admin-ui .order-management>summary:after{width:24px;height:24px;border-radius:7px;font-size:18px}
+.admin-ui .order-management-body{padding:5px 0 2px}
+.admin-ui .order-management-body>.hint{margin:8px 0}
+.admin-ui .order-management-body>.field{margin:10px 0 5px}
+.admin-ui .order-management-body>.notice{margin:10px 0;padding:10px 12px}
+.admin-ui .order-management-body>.stack{gap:10px;margin:10px 0}
+.admin-ui .order-management-body>.stack .button{width:max-content;max-width:100%}
+
+/* Client-side catalog pages preserve instant category filtering. */
+.catalog-pagination{display:flex;align-items:center;justify-content:center;gap:10px;margin:34px auto 0}
+.catalog-pagination[hidden]{display:none}
+.catalog-pagination button{display:inline-flex;min-width:44px;min-height:44px;padding:0 14px;align-items:center;justify-content:center;gap:7px;border:1px solid #dfe3f1;border-radius:12px;background:#fff;color:#3c4265;font:700 13px/1 'Noto Sans',Arial,sans-serif;cursor:pointer;transition:background .18s,border-color .18s,color .18s,transform .18s}
+.catalog-pagination button:hover:not(:disabled){border-color:#b9bdf1;background:#f0f1ff;color:#4548cd;transform:translateY(-1px)}
+.catalog-pagination button:disabled{opacity:.4;cursor:not-allowed}
+.catalog-page-numbers{display:flex;gap:7px}
+.catalog-page-numbers .catalog-page-number{min-width:44px;padding:0}
+.catalog-page-numbers .catalog-page-number.active{border-color:#5052dc;background:#5052dc;color:#fff;box-shadow:0 7px 16px rgba(80,82,220,.2)}
+@media(max-width:560px){.catalog-pagination{gap:6px}.catalog-pagination button{min-width:40px;min-height:40px;padding:0 10px}.catalog-page-numbers .catalog-page-number{min-width:40px}.admin-ui .order-card{padding:14px}.admin-ui .order-card .order-head{gap:8px}.admin-ui .order-card .order-head h3{font-size:18px}}

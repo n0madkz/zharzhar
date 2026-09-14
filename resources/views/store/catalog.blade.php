@@ -89,7 +89,13 @@
 <div class="empty-state"><h3>{{ $copy['empty'] }}</h3><p>{{ $copy['empty_text'] }}</p><a href="tel:{{ preg_replace('/[^+0-9]/', '', config('store.kaspi_phone')) }}">{{ $copy['contact'] }}</a></div>
 @endforelse
 <div class="empty-state" data-catalog-empty hidden><h3>{{ $copy['empty'] }}</h3><p>{{ $copy['empty_text'] }}</p></div>
-</div></section>
+</div>
+<nav class="catalog-pagination" data-catalog-pagination hidden aria-label="{{ $kk ? 'Дизайндар беттері' : 'Страницы дизайнов' }}">
+<button type="button" data-page-action="previous"><span aria-hidden="true">←</span> {{ $kk ? 'Артқа' : 'Назад' }}</button>
+<span class="catalog-page-numbers" data-page-numbers></span>
+<button type="button" data-page-action="next">{{ $kk ? 'Келесі' : 'Далее' }} <span aria-hidden="true">→</span></button>
+</nav>
+</section>
 <section class="how-section" id="how"><div class="shell section"><p class="eyebrow">{{ $copy['how_label'] }}</p><h2>{{ $copy['how'] }} <em>{{ $copy['how_em'] }}</em></h2><div class="steps-grid">@foreach($steps as $step)<article><span class="step-number">0{{ $loop->iteration }}</span><h3>{{ $step[0] }}</h3><p>{{ $step[1] }}</p></article>@endforeach</div></div></section>
 <section class="shell section faq" id="faq"><div><p class="eyebrow">{{ $copy['faq_label'] }}</p><h2>{{ $copy['faq'] }}<br><em>{{ $copy['faq_em'] }}</em></h2></div><div>@foreach($faqs as $faq)<details><summary>{{ $faq[0] }}</summary><p>{{ $faq[1] }}</p></details>@endforeach</div></section>
 @endsection

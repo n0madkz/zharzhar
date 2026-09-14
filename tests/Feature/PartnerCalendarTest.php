@@ -262,6 +262,33 @@ class PartnerCalendarTest extends TestCase
         }
     }
 
+    public function test_partner_booking_list_is_paginated_by_ten(): void
+    {
+        [$partner, $restaurant, $slot] = $this->partnerFixture();
+
+        foreach (range(1, 12) as $number) {
+            Booking::create([
+                'restaurant_id' => $restaurant->id,
+                'restaurant_slot_id' => $slot->id,
+                'visitor_name' => 'Қонақ '.$number,
+                'event_type' => 'wedding',
+                'phone' => '+7 700 000 '.str_pad((string) $number, 4, '0', STR_PAD_LEFT),
+                'booking_date' => '2027-03-10',
+                'guest_count' => 20,
+                'price_per_guest' => 10000,
+                'prepayment' => 0,
+                'status' => 'confirmed',
+            ]);
+        }
+
+        $this->actingAs($partner)
+            ->get('http://partner.zharzhar.kz/restaurant?month=2027-03&date=2027-03-10')
+            ->assertOk()
+            ->assertViewHas('bookings', fn ($bookings) => $bookings->total() === 12
+                && $bookings->count() === 10
+                && $bookings->lastPage() === 2);
+    }
+
     public function test_booking_price_is_taken_from_own_active_tariff(): void
     {
         [$partner, $restaurant, $slot] = $this->partnerFixture();

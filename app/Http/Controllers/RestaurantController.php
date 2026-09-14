@@ -31,22 +31,23 @@ class RestaurantController extends Controller
         $bookingSearch = trim(mb_substr($request->string('q')->toString(), 0, 100));
         $phoneSearch = preg_replace('/\D+/', '', $bookingSearch);
         $allBookings = Booking::where('restaurant_id', $restaurant->id)->with(['slot', 'tariff.service'])->whereBetween('booking_date', [$calendarStart->toDateString(), $calendarEnd->toDateString()])->latest('booking_date')->latest()->get();
-        $bookings = $bookingSearch === ''
-            ? $allBookings->filter(fn (Booking $booking) => $booking->booking_date->isSameDay($selectedDate))
-            : Booking::where('restaurant_id', $restaurant->id)
-                ->with(['slot', 'tariff.service'])
-                ->where(function ($query) use ($bookingSearch, $phoneSearch): void {
+        $bookings = Booking::where('restaurant_id', $restaurant->id)
+            ->with(['slot', 'tariff.service'])
+            ->when($bookingSearch === '', fn ($query) => $query->whereDate('booking_date', $selectedDate->toDateString()))
+            ->when($bookingSearch !== '', function ($query) use ($bookingSearch, $phoneSearch): void {
+                $query->where(function ($query) use ($bookingSearch, $phoneSearch): void {
                     $query->where('visitor_name', 'like', '%'.$bookingSearch.'%')
                         ->orWhere('phone', 'like', '%'.$bookingSearch.'%');
                     if ($phoneSearch !== '') {
                         $query->orWhereRaw("REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(phone, '+', ''), ' ', ''), '-', ''), '(', ''), ')', '') LIKE ?", ['%'.$phoneSearch.'%']);
                     }
-                })
-                ->latest('booking_date')
-                ->latest()
-                ->limit(100)
-                ->get();
-        $selectedBookings = $bookings;
+                });
+            })
+            ->latest('booking_date')
+            ->latest()
+            ->paginate(10, ['*'], 'bookings_page')
+            ->withQueryString();
+        $selectedBookings = $bookings->getCollection();
         $calendarBookingData = $allBookings->map(fn (Booking $booking) => [
             'id' => $booking->id,
             'date' => $booking->booking_date->format('Y-m-d'),
@@ -71,7 +72,7 @@ class RestaurantController extends Controller
         $reportBookings = Booking::where('restaurant_id', $restaurant->id)->with(['slot', 'tariff.service'])
             ->when($reportFrom, fn ($query) => $query->whereDate('booking_date', '>=', $reportFrom))
             ->when($reportTo, fn ($query) => $query->whereDate('booking_date', '<=', $reportTo))
-            ->latest('booking_date')->latest()->paginate(10)->withQueryString();
+            ->latest('booking_date')->latest()->paginate(10, ['*'], 'report_page')->withQueryString();
         $reportRows = $reportBookings->map(fn (Booking $booking) => [
             'date' => $booking->booking_date->format('d.m.Y'), 'event' => $booking->event_type, 'name' => $booking->visitor_name,
             'slot' => $this->slotLabel($booking->slot), 'guests' => $booking->guest_count, 'total' => number_format($booking->total_amount, 2, ',', ' ').' ₸', 'status' => $booking->statusLabel(),

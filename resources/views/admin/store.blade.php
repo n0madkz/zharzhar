@@ -11,6 +11,8 @@
 </form>
 <nav class="filters" aria-label="Статус заказов">@foreach([''=>'Все','pending'=>'Ожидают оплаты','review'=>'На проверке','paid'=>'Готовы','rejected'=>'Отклонены'] as $key=>$label)<a class="{{ $status === $key ? 'active' : '' }}" href="{{ route('admin.store.index', array_filter(['status'=>$key,'q'=>$search])) }}#orders">{{ $label }}</a>@endforeach</nav>
 @forelse($orders as $order)<article class="panel order-card"><div class="order-head"><div><p class="eyebrow">ЗАКАЗ №{{ $order->id }} · {{ $order->created_at->format('d.m.Y H:i') }}</p><h3>{{ $order->details['names'] }}</h3><p class="hint">{{ $order->customer_name }} · {{ $order->customer_phone }}</p></div><div><strong>{{ number_format($order->total, 0, ',', ' ') }} ₸</strong><br><span class="badge badge-{{ $order->status }}">{{ $order->statusLabel() }}</span></div></div>
+<p class="order-card-brief">{{ $order->details['template_name'] }} · {{ $order->details['event_date'] }} · {{ $order->details['venue_name'] }}</p>
+<details class="order-management"><summary>Детали и управление заказом</summary><div class="order-management-body">
 <p class="hint">{{ $order->details['template_name'] }} · {{ $order->details['event_date'] }} {{ $order->details['event_time'] }} · {{ $order->details['venue_name'] }}<br>Той иелері: {{ $order->details['hosts'] }}<br>{{ $order->details['venue_address'] }} · {{ $order->details['music_name'] ?? 'Без музыки' }}</p>
 @if($order->promo_code)<p class="hint">Промокод <strong>{{ $order->promo_code }}</strong> · скидка {{ number_format($order->discount, 0, ',', ' ') }} ₸ · исходная цена {{ number_format($order->subtotal, 0, ',', ' ') }} ₸</p>@endif
 @if($order->payment_reference)<p class="notice">Сообщение об оплате: {{ $order->payment_reference }}</p>@endif
@@ -25,6 +27,7 @@
 @if($order->admin_note)<p class="hint">{{ $order->admin_note }}</p>@endif
 <p><a class="button primary" href="{{ route('admin.store.orders.edit', $order) }}">Редактировать весь заказ →</a></p>
 <details><summary>Личная страница заказа</summary><div class="copy-row"><input readonly aria-label="Страница заказа {{ $order->id }}" value="{{ $order->publicUrl('orders/'.$order->token) }}"><button type="button" class="button outline" data-copy="{{ $order->publicUrl('orders/'.$order->token) }}">Копировать</button></div></details>
+</div></details>
 </article>@empty<div class="empty-state">@if($search !== '')По запросу «{{ $search }}» заказов не найдено.@elseЗаказов с таким статусом пока нет.@endif</div>@endforelse
 @if($orders->hasPages())<div class="pagination">@if($orders->previousPageUrl())<a href="{{ $orders->previousPageUrl() }}#orders">← Назад</a>@else<span></span>@endif<span>Страница {{ $orders->currentPage() }} из {{ $orders->lastPage() }}</span>@if($orders->nextPageUrl())<a href="{{ $orders->nextPageUrl() }}#orders">Далее →</a>@else<span></span>@endif</div>@endif
 </section>

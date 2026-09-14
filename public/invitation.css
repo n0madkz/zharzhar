@@ -430,8 +430,8 @@ body.invitation-shell{margin:0;background:#e6e2dc;color:#28231f;font-family:Manr
     z-index:1;
     top:50%;
     left:50%;
-    width:152px;
-    height:152px;
+    width:136px;
+    height:136px;
     background:var(--music-ornament,var(--music-accent));
     -webkit-mask:url('/invitation-assets/music-kazakh-ornament.svg') center/contain no-repeat;
     mask:url('/invitation-assets/music-kazakh-ornament.svg') center/contain no-repeat;
@@ -465,7 +465,7 @@ body.invitation-shell{margin:0;background:#e6e2dc;color:#28231f;font-family:Manr
 }
 @media(max-width:600px){
     .music-orb{right:max(62px,env(safe-area-inset-right));bottom:max(68px,calc(env(safe-area-inset-bottom) + 60px));width:80px;height:80px}
-    .music-kazakh-ornament{width:142px;height:142px}
+    .music-kazakh-ornament{width:126px;height:126px}
 }
 @media(prefers-reduced-motion:reduce){
     .music-kazakh-ornament,
