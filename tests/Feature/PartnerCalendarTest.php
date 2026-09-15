@@ -270,7 +270,7 @@ class PartnerCalendarTest extends TestCase
         ])->assertSessionHasErrors('amount');
     }
 
-    public function test_partner_can_download_utf8_csv_report(): void
+    public function test_partner_can_download_pdf_report(): void
     {
         [$partner, $restaurant, $slot] = $this->partnerFixture();
         $tariff = $this->tariffFixture($restaurant, 18500);
@@ -291,12 +291,13 @@ class PartnerCalendarTest extends TestCase
         $response = $this->actingAs($partner)->get('http://partner.zharzhar.kz/restaurant/reports/export?report_period=all');
 
         $response->assertOk()
-            ->assertHeader('content-type', 'text/csv; charset=UTF-8')
-            ->assertHeader('content-disposition', 'attachment; filename="zharzhar-bookings.csv"');
-        $this->assertStringStartsWith("\xEF\xBB\xBF", $response->getContent());
-        $this->assertStringContainsString('Айдана', $response->getContent());
-        $this->assertStringContainsString('Пакет', $response->getContent());
-        $this->assertStringNotContainsString('Услуга', $response->getContent());
+            ->assertHeader('content-type', 'application/pdf')
+            ->assertHeader('content-disposition', 'attachment; filename="zharzhar-restaurant-report.pdf"');
+        $this->assertStringStartsWith('%PDF', $response->getContent());
+
+        $html = view('restaurant.reports-pdf', ['restaurant' => $restaurant, 'bookings' => Booking::with(['slot', 'tariff.service'])->get(), 'from' => null, 'to' => null])->render();
+        $this->assertStringContainsString('Айдана', $html);
+        $this->assertStringContainsString('Пакет', $html);
     }
 
     public function test_partner_searches_all_bookings_by_partial_name_or_normalized_phone(): void

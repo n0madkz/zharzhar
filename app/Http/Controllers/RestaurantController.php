@@ -13,6 +13,8 @@ use chillerlan\QRCode\Output\QRGdImagePNG;
 use chillerlan\QRCode\Output\QRMarkupSVG;
 use chillerlan\QRCode\QRCode;
 use chillerlan\QRCode\QROptions;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -140,27 +142,28 @@ class RestaurantController extends Controller
     public function exportReports(Request $request): mixed
     {
         $restaurant = $request->user()->restaurant()->firstOrFail();
-        $from = $request->input('report_from');
-        $to = $request->input('report_to');
+        $filters = $request->validate([
+            'report_from' => ['nullable', 'date'],
+            'report_to' => ['nullable', 'date', 'after_or_equal:report_from'],
+        ]);
+        $from = $filters['report_from'] ?? null;
+        $to = $filters['report_to'] ?? null;
         $bookings = Booking::where('restaurant_id', $restaurant->id)->with(['slot', 'tariff.service'])
             ->when($from, fn ($query) => $query->whereDate('booking_date', '>=', $from))
             ->when($to, fn ($query) => $query->whereDate('booking_date', '<=', $to))
             ->orderBy('booking_date')->orderBy('id')->get();
 
-        $out = fopen('php://temp', 'w+');
-        fwrite($out, "\xEF\xBB\xBF");
-        fputcsv($out, ['ID', 'Ресторан', 'Дата', 'Тип мероприятия', 'Пакет', 'Имя посетителя', 'Телефон', 'Количество гостей', 'Цена за 1 гостя', 'Предоплата', 'Итого', 'Период', 'Начало', 'Конец', 'Статус', 'Примечания', 'Создано'], ';', '"', '');
-        foreach ($bookings as $booking) {
-            fputcsv($out, [$booking->id, $restaurant->name, $booking->booking_date->format('d.m.Y'), $booking->event_type, $booking->tariff?->name, $booking->visitor_name, $booking->phone, $booking->guest_count, $booking->price_per_guest, $booking->prepayment, $booking->total_amount, $booking->slot?->label, $booking->slot?->start_time, $booking->slot?->end_time, $booking->statusLabel(), $booking->note, $booking->created_at?->format('d.m.Y H:i')], ';', '"', '');
-        }
-        rewind($out);
-        $csv = stream_get_contents($out);
-        fclose($out);
+        $options = new Options;
+        $options->set('defaultFont', 'DejaVu Sans');
+        $options->set('isRemoteEnabled', false);
+        $pdf = new Dompdf($options);
+        $pdf->loadHtml(view('restaurant.reports-pdf', compact('restaurant', 'bookings', 'from', 'to'))->render(), 'UTF-8');
+        $pdf->setPaper('A4', 'landscape');
+        $pdf->render();
 
-        return response($csv, 200, [
-            'Content-Type' => 'text/csv; charset=UTF-8',
-            'Content-Disposition' => 'attachment; filename="zharzhar-bookings.csv"',
-            'Content-Length' => (string) strlen($csv),
+        return response($pdf->output(), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="zharzhar-restaurant-report.pdf"',
             'Cache-Control' => 'no-store, private',
         ]);
     }
