@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Booking;
+use App\Models\PayoutRequest;
 use App\Models\Restaurant;
 use App\Models\RestaurantSlot;
 use App\Models\User;
@@ -157,6 +158,39 @@ class AdminBookingTest extends TestCase
         $this->assertSame('12.25', $restaurant->bonus_percent);
         $this->assertSame('new@example.com', $partner->email);
         $this->assertTrue(Hash::check('NewSecure99', $partner->password));
+    }
+
+    public function test_admin_can_sort_bookings_by_registration_date(): void
+    {
+        [$admin, $restaurant, $newer] = $this->bookingFixture();
+        $older = $newer->replicate(['phone', 'note']);
+        $older->visitor_name = 'Ранняя бронь';
+        $older->phone = '+7 700 000 00 02';
+        $older->save();
+        $older->forceFill(['created_at' => '2026-09-01 10:00:00', 'updated_at' => '2026-09-01 10:00:00'])->saveQuietly();
+        $newer->forceFill(['created_at' => '2026-09-02 10:00:00', 'updated_at' => '2026-09-02 10:00:00'])->saveQuietly();
+
+        $this->actingAs($admin)->get(route('admin.dashboard', ['sort' => 'registered_asc']))
+            ->assertOk()
+            ->assertViewHas('bookings', fn ($bookings) => $bookings->first()->is($older));
+        $this->get(route('admin.dashboard', ['sort' => 'registered_desc']))
+            ->assertOk()
+            ->assertViewHas('bookings', fn ($bookings) => $bookings->first()->is($newer));
+    }
+
+    public function test_admin_can_mark_payout_paid_or_reject_it(): void
+    {
+        [$admin, $restaurant] = $this->bookingFixture();
+        $paid = PayoutRequest::create(['restaurant_id' => $restaurant->id, 'amount' => 12000, 'kaspi_phone' => '+77070000001', 'status' => 'pending']);
+        $rejected = PayoutRequest::create(['restaurant_id' => $restaurant->id, 'amount' => 15000, 'kaspi_phone' => '+77070000002', 'status' => 'pending']);
+
+        $this->actingAs($admin)->get(route('admin.dashboard'))
+            ->assertOk()->assertSee('+77070000001')->assertSee('Заявки на вывод бонусов');
+        $this->post(route('admin.payouts.pay', $paid))->assertRedirect();
+        $this->assertSame('paid', $paid->fresh()->status);
+        $this->assertNotNull($paid->fresh()->paid_at);
+        $this->post(route('admin.payouts.reject', $rejected))->assertRedirect();
+        $this->assertSame('rejected', $rejected->fresh()->status);
     }
 
     public function test_non_admin_cannot_open_booking_or_pdf(): void

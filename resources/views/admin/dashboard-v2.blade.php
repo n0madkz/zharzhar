@@ -68,11 +68,12 @@
     <label>Мероприятие<select name="event_type"><option value="">Все мероприятия</option>@foreach($eventTypes as $eventType)<option value="{{ $eventType }}" @selected(($filters['event_type'] ?? '') === $eventType)>{{ $eventType }}</option>@endforeach</select></label>
     <label>Дата от<input name="date_from" type="date" value="{{ $filters['date_from'] ?? '' }}"></label>
     <label>Дата до<input name="date_to" type="date" value="{{ $filters['date_to'] ?? '' }}"></label>
+    <label>По дате регистрации<select name="sort"><option value="registered_desc" @selected(($filters['sort'] ?? 'registered_desc') === 'registered_desc')>Сначала новые</option><option value="registered_asc" @selected(($filters['sort'] ?? '') === 'registered_asc')>Сначала старые</option></select></label>
     <div class="booking-filter-actions"><button class="button" type="submit">Применить</button>@if(collect($filters)->filter(fn ($value) => $value !== null && $value !== '')->isNotEmpty())<a class="button secondary" href="{{ route('admin.dashboard') }}">Сбросить</a>@endif</div>
 </form>
 <div class="table-scroll">
     <table>
-        <thead><tr><th>Посетитель</th><th>Телефон / WhatsApp</th><th>Ресторан</th><th>Дата</th><th>Гостей</th><th>Сумма</th><th>Статус</th><th>Действия</th></tr></thead>
+        <thead><tr><th>Посетитель</th><th>Телефон / WhatsApp</th><th>Ресторан</th><th>Дата мероприятия</th><th>Регистрация брони</th><th>Гостей</th><th>Сумма</th><th>Статус</th><th>Действия</th></tr></thead>
         <tbody>
         @forelse($bookings as $booking)
             <tr>
@@ -80,16 +81,37 @@
                 <td>@if($booking->whatsappUrl())<a class="whatsapp-link" href="{{ $booking->whatsappUrl() }}" target="_blank" rel="noopener">{{ $booking->phone }} ↗</a>@else<span class="muted">Не указан</span>@endif</td>
                 <td>{{ $booking->restaurant?->name ?? '—' }}</td>
                 <td>{{ $booking->booking_date->format('d.m.Y') }}<br><small>{{ $booking->slot?->label ?? 'Период не выбран' }}</small></td>
+                <td>{{ $booking->created_at?->format('d.m.Y') }}<br><small>{{ $booking->created_at?->format('H:i') }}</small></td>
                 <td>{{ $booking->guest_count }}</td>
                 <td>{{ number_format($booking->total_amount, 0, ',', ' ') }} ₸</td>
                 <td><span class="status status-{{ $booking->status }}">{{ $booking->statusLabel() }}</span></td>
                 <td><div class="row-actions"><a href="{{ route('admin.bookings.show', $booking) }}">Просмотр</a></div></td>
             </tr>
         @empty
-            <tr><td colspan="8">Бронирований пока нет.</td></tr>
+            <tr><td colspan="9">Бронирований пока нет.</td></tr>
         @endforelse
         </tbody>
     </table>
 </div>
 @if($bookings->hasPages())<div class="booking-pagination">@if($bookings->previousPageUrl())<a class="button secondary" href="{{ $bookings->previousPageUrl() }}">← Назад</a>@else<span></span>@endif<span>Страница {{ $bookings->currentPage() }} из {{ $bookings->lastPage() }}</span>@if($bookings->nextPageUrl())<a class="button secondary" href="{{ $bookings->nextPageUrl() }}">Далее →</a>@else<span></span>@endif</div>@endif
+
+<div class="section-head payout-section-head"><div><h2>Заявки на вывод бонусов</h2><p class="muted">Перевод через Kaspi выполняется на номер, указанный рестораном.</p></div></div>
+<div class="table-scroll">
+    <table>
+        <thead><tr><th>Ресторан</th><th>Сумма</th><th>Номер Kaspi</th><th>Дата заявки</th><th>Статус</th><th>Действия</th></tr></thead>
+        <tbody>
+        @forelse($payoutRequests as $payout)
+            <tr>
+                <td><strong>{{ $payout->restaurant?->name ?? '—' }}</strong></td>
+                <td>{{ number_format((float) $payout->amount, 2, ',', ' ') }} ₸</td>
+                <td><a href="tel:{{ $payout->kaspi_phone }}">{{ $payout->kaspi_phone }}</a></td>
+                <td>{{ $payout->created_at?->format('d.m.Y H:i') }}</td>
+                <td><span class="status status-{{ $payout->status }}">{{ ['pending' => 'Новая', 'paid' => 'Выплачена', 'rejected' => 'Отклонена'][$payout->status] ?? $payout->status }}</span>@if($payout->admin_note)<br><small>{{ $payout->admin_note }}</small>@endif</td>
+                <td>@if($payout->status === 'pending')<div class="payout-actions"><form method="POST" action="{{ route('admin.payouts.pay', $payout) }}">@csrf<button class="button" type="submit">Выплачено</button></form><form method="POST" action="{{ route('admin.payouts.reject', $payout) }}" onsubmit="return window.confirm('Отклонить заявку? Сумма снова станет доступна ресторану.')">@csrf<button class="button secondary" type="submit">Отклонить</button></form></div>@else—@endif</td>
+            </tr>
+        @empty<tr><td colspan="6">Заявок на вывод пока нет.</td></tr>@endforelse
+        </tbody>
+    </table>
+</div>
+@if($payoutRequests->hasPages())<div class="booking-pagination">@if($payoutRequests->previousPageUrl())<a class="button secondary" href="{{ $payoutRequests->previousPageUrl() }}">← Назад</a>@else<span></span>@endif<span>Страница {{ $payoutRequests->currentPage() }} из {{ $payoutRequests->lastPage() }}</span>@if($payoutRequests->nextPageUrl())<a class="button secondary" href="{{ $payoutRequests->nextPageUrl() }}">Далее →</a>@else<span></span>@endif</div>@endif
 @endsection

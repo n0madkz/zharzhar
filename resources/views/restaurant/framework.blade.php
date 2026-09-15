@@ -250,13 +250,14 @@
     .bonus-history{margin-top:18px;border-top:1px solid #eef1f5}
     .bonus-row{display:flex;justify-content:space-between;gap:22px;align-items:center;padding:17px 2px;border-bottom:1px solid #eef1f5}
     .bonus-info,.bonus-side{display:flex;flex-direction:column;gap:4px}.bonus-row small{color:#667085}.bonus-side{align-items:flex-end;gap:9px}.bonus-amount{color:#067647;font-weight:800;white-space:nowrap}.bonus-invitation-link{display:inline-flex;align-items:center;justify-content:center;min-height:36px;padding:8px 12px;border:1px solid #b9c8ff;border-radius:9px;background:#eef3ff;color:#1746c9;font-size:12px;font-weight:800;text-decoration:none}.bonus-invitation-link:hover{background:#dfe8ff}.bonus-unavailable{font-size:12px;color:#98a2b3}.bonus-empty{padding:18px 0}
+    .payout-panel{margin-top:18px;padding:20px;border:1px solid #dbe4ff;border-radius:16px;background:#fff}.payout-panel h3{margin:0 0 6px}.payout-form{display:grid;grid-template-columns:minmax(150px,.7fr) minmax(220px,1fr) auto;gap:12px;align-items:end;margin-top:18px}.payout-form .field{margin:0}.payout-form .button{min-height:46px}.payout-notice{margin:16px 0 0;padding:13px 15px;border-radius:10px;background:#f2f4f7;color:#475467;font-weight:700}.payout-history{margin-top:20px;padding-top:18px;border-top:1px solid #eef1f5}.payout-history article{display:flex;justify-content:space-between;gap:16px;padding:12px 0;border-bottom:1px solid #eef1f5}.payout-history article strong{text-align:right}
     .booking-list-head{display:flex;align-items:end;justify-content:space-between;gap:18px;margin-bottom:10px}.booking-search{display:flex;gap:8px;width:min(480px,100%)}.booking-search input{flex:1;min-width:150px;padding:11px 13px;border:1px solid #d0d5dd;border-radius:9px;background:#fff}.booking-search .button{white-space:nowrap}.booking-search-reset{display:inline-flex;align-items:center;padding:0 5px;color:#475467;font-size:13px}
     @media(max-width:560px){
         .day-modal-backdrop{align-items:stretch;padding:8px}
         .day-modal{width:100%;max-height:calc(100dvh - 16px);padding:18px 14px;border-radius:16px}
         .day-modal-head h2{font-size:22px}
         .day-modal-form #new-booking{padding-top:14px}
-        .bonus-summary{grid-template-columns:1fr}.bonus-summary>div{min-height:94px}.bonus-row{align-items:flex-start;flex-direction:column}.bonus-side{width:100%;align-items:center;flex-direction:row;justify-content:space-between}
+        .bonus-summary{grid-template-columns:1fr}.bonus-summary>div{min-height:94px}.bonus-row{align-items:flex-start;flex-direction:column}.bonus-side{width:100%;align-items:center;flex-direction:row;justify-content:space-between}.payout-form{grid-template-columns:1fr}.payout-history article{align-items:flex-start;flex-direction:column}.payout-history article strong{text-align:left}
         .booking-list-head{align-items:stretch;flex-direction:column}.booking-search{width:100%;flex-wrap:wrap}.booking-search input{flex-basis:100%}.booking-search .button{flex:1}
     }
 </style>
@@ -363,6 +364,21 @@
             <div class="bonus-summary">
                 <div><small>{{ __('partner.bonuses.rate') }}</small><strong>{{ rtrim(rtrim(number_format((float)$restaurant->bonus_percent, 2, '.', ''), '0'), '.') }}%</strong></div>
                 <div><small>{{ __('partner.bonuses.balance') }}</small><strong>{{ number_format($bonusBalance, 2, ',', ' ') }} ₸</strong></div>
+            </div>
+            <div class="payout-panel">
+                <div><h3>{{ __('partner.payout.title') }}</h3><p class="muted">{{ __('partner.payout.rules') }}</p></div>
+                @if($hasMonthlyPayout)
+                    <p class="payout-notice">{{ __('partner.payout.already_requested') }}</p>
+                @elseif($bonusBalance >= 10000)
+                    <form class="payout-form" method="POST" action="{{ route('restaurant.bonuses.payout') }}">@csrf
+                        <label class="field">{{ __('partner.payout.amount') }}<input name="amount" type="number" min="10000" max="{{ $bonusBalance }}" step="0.01" value="{{ old('amount', $bonusBalance) }}" required></label>
+                        <label class="field">{{ __('partner.payout.kaspi_phone') }}<input name="kaspi_phone" type="tel" value="{{ old('kaspi_phone', $restaurant->phone) }}" placeholder="+7 700 000 00 00" required></label>
+                        <button class="button" type="submit">{{ __('partner.payout.submit') }}</button>
+                    </form>
+                @else
+                    <p class="payout-notice">{{ __('partner.payout.minimum_balance') }}</p>
+                @endif
+                @if($payoutRequests->isNotEmpty())<div class="payout-history"><h3>{{ __('partner.payout.history') }}</h3>@foreach($payoutRequests as $payout)<article><span>{{ $payout->created_at?->format('d.m.Y') }} · {{ $payout->kaspi_phone }}</span><strong>{{ number_format((float)$payout->amount, 2, ',', ' ') }} ₸ · {{ __('partner.payout.status_'.$payout->status) }}</strong></article>@endforeach</div>@endif
             </div>
             <div class="bonus-history">
                 @forelse($bonusTransactions as $transaction)

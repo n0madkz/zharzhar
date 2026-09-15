@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Booking;
+use App\Models\PayoutRequest;
+use App\Models\Restaurant;
 use App\Models\RestaurantService;
 use App\Models\RestaurantTariff;
 use App\Support\RestaurantInvitationCard;
@@ -14,6 +16,7 @@ use chillerlan\QRCode\QROptions;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class RestaurantController extends Controller
@@ -85,10 +88,53 @@ class RestaurantController extends Controller
             ->latest()
             ->limit(50)
             ->get();
-        $bonusBalance = (float) $restaurant->bonuses()->where('type', 'accrual')->where('status', 'available')->sum('amount');
+        $bonusBalance = $restaurant->availableBonusBalance();
+        $payoutRequests = $restaurant->payouts()->latest()->limit(24)->get();
+        $hasMonthlyPayout = $restaurant->payouts()
+            ->whereIn('status', ['pending', 'paid'])
+            ->whereBetween('created_at', [now()->startOfMonth(), now()->endOfMonth()])
+            ->exists();
         $packages = $restaurant->services->flatMap->tariffs->sortBy('sort_order')->sortBy('id')->values();
 
-        return view('restaurant.framework', compact('restaurant', 'bookings', 'allBookings', 'selectedBookings', 'selectedDate', 'month', 'calendarDays', 'calendarBookingData', 'reportBookings', 'reportPeriod', 'reportFrom', 'reportTo', 'reportRows', 'reportPeriods', 'bonusTransactions', 'bonusBalance', 'packages', 'bookingSearch'));
+        return view('restaurant.framework', compact('restaurant', 'bookings', 'allBookings', 'selectedBookings', 'selectedDate', 'month', 'calendarDays', 'calendarBookingData', 'reportBookings', 'reportPeriod', 'reportFrom', 'reportTo', 'reportRows', 'reportPeriods', 'bonusTransactions', 'bonusBalance', 'payoutRequests', 'hasMonthlyPayout', 'packages', 'bookingSearch'));
+    }
+
+    public function requestPayout(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'amount' => ['required', 'numeric', 'min:10000'],
+            'kaspi_phone' => ['required', 'string', 'max:30', 'regex:/^\+?[0-9 ()-]{10,25}$/'],
+        ]);
+        $phoneDigits = preg_replace('/\D+/', '', $data['kaspi_phone']);
+        if (! in_array(strlen($phoneDigits), [10, 11], true)) {
+            throw ValidationException::withMessages(['kaspi_phone' => __('partner.payout.invalid_phone')]);
+        }
+
+        $payout = DB::transaction(function () use ($request, $data): PayoutRequest {
+            $restaurantId = $request->user()->restaurant()->value('id');
+            $restaurant = Restaurant::query()->lockForUpdate()->findOrFail($restaurantId);
+            $alreadyRequested = $restaurant->payouts()
+                ->whereIn('status', ['pending', 'paid'])
+                ->whereBetween('created_at', [now()->startOfMonth(), now()->endOfMonth()])
+                ->exists();
+            if ($alreadyRequested) {
+                throw ValidationException::withMessages(['amount' => __('partner.payout.monthly_limit')]);
+            }
+
+            $amount = round((float) $data['amount'], 2);
+            if ($amount > $restaurant->availableBonusBalance()) {
+                throw ValidationException::withMessages(['amount' => __('partner.payout.insufficient')]);
+            }
+
+            return $restaurant->payouts()->create([
+                'amount' => $amount,
+                'kaspi_phone' => $this->normalizeKaspiPhone($data['kaspi_phone']),
+                'status' => 'pending',
+            ]);
+        });
+
+        return redirect()->to(route('restaurant.dashboard').'#bonuses')
+            ->with('success', __('partner.payout.requested', ['amount' => number_format((float) $payout->amount, 2, ',', ' ')]));
     }
 
     public function exportReports(Request $request): mixed
@@ -430,5 +476,17 @@ class RestaurantController extends Controller
         $translated = __($key);
 
         return $translated === $key ? $eventType : $translated;
+    }
+
+    private function normalizeKaspiPhone(string $phone): string
+    {
+        $digits = preg_replace('/\D+/', '', $phone);
+        if (strlen($digits) === 10) {
+            $digits = '7'.$digits;
+        } elseif (strlen($digits) === 11 && str_starts_with($digits, '8')) {
+            $digits = '7'.substr($digits, 1);
+        }
+
+        return '+'.$digits;
     }
 }

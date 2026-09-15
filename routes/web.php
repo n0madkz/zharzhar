@@ -58,11 +58,14 @@ Route::put('/admin/restaurants/{restaurant}', [AdminController::class, 'updateRe
 Route::get('/admin/restaurants/{restaurant}/invitation-card', [AdminController::class, 'restaurantInvitationCard'])->middleware(['auth', 'role:admin'])->name('admin.restaurants.invitation-card');
 Route::get('/admin/bookings/pdf', [AdminController::class, 'bookingsPdf'])->middleware(['auth', 'role:admin'])->name('admin.bookings.pdf');
 Route::get('/admin/bookings/{booking}', [AdminController::class, 'showBooking'])->middleware(['auth', 'role:admin'])->name('admin.bookings.show');
+Route::post('/admin/payouts/{payout}/pay', [AdminController::class, 'payPayout'])->middleware(['auth', 'role:admin'])->name('admin.payouts.pay');
+Route::post('/admin/payouts/{payout}/reject', [AdminController::class, 'rejectPayout'])->middleware(['auth', 'role:admin'])->name('admin.payouts.reject');
 Route::domain(config('store.partner_domain'))->middleware(['partner.domain', 'auth', 'role:partner', SetPartnerLocale::class])->group(function () {
     Route::get('/restaurant', [RestaurantController::class, 'index'])->name('restaurant.dashboard');
     Route::get('/restaurant/calendar-data', [RestaurantController::class, 'calendarData'])->name('restaurant.calendar.data');
     Route::get('/restaurant/reports/export', [RestaurantController::class, 'exportReports'])->name('restaurant.reports.export');
     Route::get('/restaurant/invitation-card', [RestaurantController::class, 'invitationCard'])->name('restaurant.invitation-card');
+    Route::post('/restaurant/bonuses/payout', [RestaurantController::class, 'requestPayout'])->name('restaurant.bonuses.payout');
     Route::post('/restaurant/bookings', [RestaurantController::class, 'store'])->name('restaurant.bookings.store');
     Route::put('/restaurant/bookings/{booking}', [RestaurantController::class, 'updateBooking'])->name('restaurant.bookings.update');
     Route::delete('/restaurant/bookings/{booking}', [RestaurantController::class, 'destroyBooking'])->name('restaurant.bookings.destroy');

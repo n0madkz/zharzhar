@@ -44,4 +44,17 @@ class Restaurant extends Model
     {
         return $this->hasMany(PayoutRequest::class);
     }
+
+    public function availableBonusBalance(): float
+    {
+        $accrued = (float) $this->bonuses()
+            ->where('type', 'accrual')
+            ->where('status', 'available')
+            ->sum('amount');
+        $reservedOrPaid = (float) $this->payouts()
+            ->whereIn('status', ['pending', 'paid'])
+            ->sum('amount');
+
+        return max(0, round($accrued - $reservedOrPaid, 2));
+    }
 }

@@ -7,6 +7,7 @@ use App\Models\BonusTransaction;
 use App\Models\Event;
 use App\Models\Invitation;
 use App\Models\InvitationOrder;
+use App\Models\PayoutRequest;
 use App\Models\Restaurant;
 use App\Models\RestaurantSlot;
 use App\Models\RestaurantService;
@@ -14,6 +15,7 @@ use App\Models\RestaurantTariff;
 use App\Models\Template;
 use App\Models\User;
 use App\Support\RestaurantInvitationCard;
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -214,6 +216,58 @@ class PartnerCalendarTest extends TestCase
             ->assertSee('href="#settings"', false)
             ->assertDontSee('href="#services"', false)
             ->assertDontSee('name="default_price_per_guest"', false);
+    }
+
+    public function test_partner_can_request_kaspi_payout_once_per_month_from_ten_thousand(): void
+    {
+        Carbon::setTestNow('2026-09-15 12:00:00');
+        try {
+            [$partner, $restaurant] = $this->partnerFixture();
+            BonusTransaction::create([
+                'restaurant_id' => $restaurant->id,
+                'amount' => 25000,
+                'type' => 'accrual',
+                'status' => 'available',
+            ]);
+
+            $this->actingAs($partner)->post('http://partner.zharzhar.kz/restaurant/bonuses/payout', [
+                'amount' => 12000,
+                'kaspi_phone' => '8 (707) 123-45-67',
+            ])->assertRedirect('http://partner.zharzhar.kz/restaurant#bonuses');
+
+            $this->assertDatabaseHas('payout_requests', [
+                'restaurant_id' => $restaurant->id,
+                'amount' => 12000,
+                'kaspi_phone' => '+77071234567',
+                'status' => 'pending',
+            ]);
+            $this->assertSame(13000.0, $restaurant->availableBonusBalance());
+
+            $this->post('http://partner.zharzhar.kz/restaurant/bonuses/payout', [
+                'amount' => 10000,
+                'kaspi_phone' => '+7 707 123 45 67',
+            ])->assertSessionHasErrors('amount');
+
+            $this->get('http://partner.zharzhar.kz/restaurant#bonuses')
+                ->assertOk()
+                ->assertSee('13 000,00 ₸')
+                ->assertSee('Осы айда шығару өтінімі берілген.');
+        } finally {
+            Carbon::setTestNow();
+        }
+    }
+
+    public function test_rejected_payout_restores_balance_and_minimum_is_enforced(): void
+    {
+        [$partner, $restaurant] = $this->partnerFixture();
+        BonusTransaction::create(['restaurant_id' => $restaurant->id, 'amount' => 15000, 'type' => 'accrual', 'status' => 'available']);
+        $payout = PayoutRequest::create(['restaurant_id' => $restaurant->id, 'amount' => 12000, 'kaspi_phone' => '+77071234567', 'status' => 'rejected']);
+        $this->assertSame(15000.0, $restaurant->availableBonusBalance());
+
+        $this->actingAs($partner)->post('http://partner.zharzhar.kz/restaurant/bonuses/payout', [
+            'amount' => 9999,
+            'kaspi_phone' => '+7 707 123 45 67',
+        ])->assertSessionHasErrors('amount');
     }
 
     public function test_partner_can_download_utf8_csv_report(): void

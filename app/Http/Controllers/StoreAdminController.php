@@ -121,7 +121,7 @@ class StoreAdminController extends Controller
     public function archiveInvitation(InvitationOrder $order): RedirectResponse
     {
         $order->load('invitation.event');
-        abort_unless($order->status === 'paid' && $order->invitation, 409, 'У этого заказа нет готового приглашения.');
+        abort_unless($order->invitation, 409, 'У этого заказа нет готового приглашения.');
 
         if ($order->invitation->status !== 'archived') {
             $order->invitation->moveToArchive();

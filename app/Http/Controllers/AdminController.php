@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Booking;
+use App\Models\PayoutRequest;
 use App\Models\Restaurant;
 use App\Models\RestaurantSlot;
 use App\Models\User;
@@ -30,6 +31,7 @@ class AdminController extends Controller
             'event_type' => ['nullable', 'string', 'max:120'],
             'date_from' => ['nullable', 'date'],
             'date_to' => ['nullable', 'date', 'after_or_equal:date_from'],
+            'sort' => ['nullable', Rule::in(['registered_desc', 'registered_asc'])],
         ]);
         $search = trim($filters['q'] ?? '');
         $phoneSearch = preg_replace('/\D+/', '', $search);
@@ -54,15 +56,20 @@ class AdminController extends Controller
             ->when(($filters['event_type'] ?? '') !== '', fn ($query) => $query->where('event_type', 'like', '%'.$filters['event_type'].'%'))
             ->when(! empty($filters['date_from']), fn ($query) => $query->whereDate('booking_date', '>=', $filters['date_from']))
             ->when(! empty($filters['date_to']), fn ($query) => $query->whereDate('booking_date', '<=', $filters['date_to']))
-            ->latest('booking_date')
-            ->latest()
+            ->when(($filters['sort'] ?? 'registered_desc') === 'registered_asc',
+                fn ($query) => $query->orderBy('created_at')->orderBy('id'),
+                fn ($query) => $query->latest('created_at')->latest('id'))
             ->paginate(10)
             ->withQueryString();
         $restaurants = Restaurant::with('partner')->withCount('bookings')->latest()->get();
         $periods = RestaurantSlot::query()->orderBy('start_time')->get()->unique('slot_key')->values();
         $eventTypes = Booking::query()->whereNotNull('event_type')->where('event_type', '!=', '')->distinct()->orderBy('event_type')->pluck('event_type');
+        $payoutRequests = PayoutRequest::with('restaurant')
+            ->latest()
+            ->paginate(10, ['*'], 'payout_page')
+            ->withQueryString();
 
-        return view('admin.dashboard-v2', compact('bookings', 'restaurants', 'periods', 'eventTypes', 'filters', 'search'));
+        return view('admin.dashboard-v2', compact('bookings', 'restaurants', 'periods', 'eventTypes', 'filters', 'search', 'payoutRequests'));
     }
 
     public function storeRestaurant(Request $request): RedirectResponse
@@ -142,6 +149,32 @@ class AdminController extends Controller
         $booking->load(['restaurant', 'slot', 'tariff.service']);
 
         return view('admin.booking-show', compact('booking'));
+    }
+
+    public function payPayout(Request $request, PayoutRequest $payout): RedirectResponse
+    {
+        $data = $request->validate(['admin_note' => ['nullable', 'string', 'max:1000']]);
+        abort_if($payout->status !== 'pending', 409, 'Заявка уже обработана.');
+        $payout->update([
+            'status' => 'paid',
+            'paid_at' => now(),
+            'admin_note' => $data['admin_note'] ?? null,
+        ]);
+
+        return back()->with('success', 'Выплата отмечена как выполненная.');
+    }
+
+    public function rejectPayout(Request $request, PayoutRequest $payout): RedirectResponse
+    {
+        $data = $request->validate(['admin_note' => ['nullable', 'string', 'max:1000']]);
+        abort_if($payout->status !== 'pending', 409, 'Заявка уже обработана.');
+        $payout->update([
+            'status' => 'rejected',
+            'paid_at' => null,
+            'admin_note' => $data['admin_note'] ?? null,
+        ]);
+
+        return back()->with('success', 'Заявка отклонена, сумма снова доступна ресторану.');
     }
 
     public function restaurantInvitationCard(Restaurant $restaurant, RestaurantInvitationCard $card): View

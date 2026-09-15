@@ -33,7 +33,7 @@ class Invitation extends Model
 
         static::query()
             ->with('event:id,event_date,status')
-            ->where('status', 'published')
+            ->whereIn('status', ['published', 'active'])
             ->whereHas('event', fn ($query) => $query->whereDate('event_date', '<=', $candidateCutoff))
             ->eachById(function (Invitation $invitation) use ($today, &$archivedCount): void {
                 if (! $invitation->event?->event_date->copy()->startOfDay()->addMonthNoOverflow()->lte($today)) {
