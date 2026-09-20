@@ -9,6 +9,7 @@
 @if($errors->any())<div class="error card">{{ $errors->first() }}</div>@endif
 
 <h1>Рестораны</h1>
+<p><a class="button secondary" href="{{ route('admin.brokers') }}">Сотрудники · Broker</a></p>
 <div class="admin-columns">
     <section class="card">
         <h2>Добавить ресторан</h2>

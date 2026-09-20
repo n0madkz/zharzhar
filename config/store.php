@@ -1,6 +1,7 @@
 <?php
 
 return [
+    'broker_domain' => env('STORE_BROKER_DOMAIN', 'broker.zharzhar.kz'),
     'public_url' => env('APP_URL', 'https://zharzhar.kz'),
     'admin_domain' => env('STORE_ADMIN_DOMAIN', 'admin.zharzhar.kz'),
     'partner_domain' => env('STORE_PARTNER_DOMAIN', 'partner.zharzhar.kz'),

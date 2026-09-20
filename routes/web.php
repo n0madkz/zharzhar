@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BrokerController;
 use App\Http\Controllers\RestaurantController;
 use App\Http\Controllers\StoreAdminController;
 use App\Http\Controllers\StorefrontController;
@@ -16,6 +17,17 @@ Route::post('/language/{locale}', function (string $locale) {
 })->name('store.language');
 
 Route::domain(config('store.admin_domain'))->get('/', fn () => redirect('/admin/store'));
+Route::domain(config('store.broker_domain'))->get('/', fn () => redirect('/broker'));
+Route::middleware(['auth', 'role:broker,admin'])->prefix('broker')->name('broker.')->group(function () {
+    Route::get('/', [BrokerController::class, 'index'])->name('index');
+    Route::post('/settings', [BrokerController::class, 'settings'])->name('settings');
+    Route::post('/import', [BrokerController::class, 'import'])->middleware('throttle:5,1')->name('import');
+    Route::post('/collect', [BrokerController::class, 'collect'])->middleware('throttle:2,60')->name('collect');
+    Route::post('/venues/{venue}/complete', [BrokerController::class, 'complete'])->name('complete');
+    Route::post('/venues/{venue}/register', [BrokerController::class, 'register'])->middleware('throttle:10,1')->name('register');
+});
+Route::get('/admin/brokers', [BrokerController::class, 'staff'])->middleware(['auth', 'role:admin'])->name('admin.brokers');
+Route::post('/admin/brokers', [BrokerController::class, 'createStaff'])->middleware(['auth', 'role:admin'])->name('admin.brokers.store');
 Route::domain(config('store.partner_domain'))->get('/', fn () => redirect(auth()->user()?->isRole('partner') ? '/restaurant' : '/login'))->name('partner.home');
 Route::get('/', [StorefrontController::class, 'index'])->name('store.catalog');
 Route::get('/designs/{template}/preview', [StorefrontController::class, 'preview'])->name('store.preview');
@@ -77,5 +89,5 @@ Route::domain(config('store.partner_domain'))->middleware(['partner.domain', 'au
     Route::delete('/restaurant/settings/packages/{tariff}', [RestaurantController::class, 'destroyPackage'])->name('restaurant.packages.destroy');
 });
 Route::get('/dashboard', function () {
-    return redirect(auth()->user()?->isRole('partner') ? '/restaurant' : '/admin');
+    return redirect(auth()->user()?->isRole('broker') ? '/broker' : (auth()->user()?->isRole('partner') ? '/restaurant' : '/admin'));
 })->middleware('auth');

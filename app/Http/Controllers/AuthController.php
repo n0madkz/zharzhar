@@ -30,7 +30,7 @@ class AuthController extends Controller
         }
         $request->session()->regenerate();
 
-        return redirect()->intended(Auth::user()->isRole('partner') ? '/restaurant' : '/admin/store');
+        return redirect()->intended(Auth::user()->isRole('broker') ? '/broker' : (Auth::user()->isRole('partner') ? '/restaurant' : '/admin/store'));
     }
 
     public function logout(Request $request): RedirectResponse

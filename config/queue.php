@@ -30,6 +30,14 @@ return [
     */
 
     'connections' => [
+        'broker' => [
+            'driver' => 'database',
+            'connection' => env('DB_QUEUE_CONNECTION'),
+            'table' => 'jobs',
+            'queue' => 'broker',
+            'retry_after' => 1860,
+            'after_commit' => true,
+        ],
 
         'sync' => [
             'driver' => 'sync',
