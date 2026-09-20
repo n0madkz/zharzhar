@@ -22,6 +22,18 @@ class BrokerDirectory
         return strlen($digits) === 11 && $digits[0] === '8' ? '7'.substr($digits, 1) : $digits;
     }
 
+    /** Reject businesses that 2GIS also returns for the banquet-hall rubric. */
+    public static function isClearlyNotBanquetHall(array $item): bool
+    {
+        $extension = mb_strtolower((string) data_get($item, 'name_ex.extension', ''));
+
+        if (str_contains($extension, 'банкет') || str_contains($extension, 'зал торжеств')) {
+            return false;
+        }
+
+        return preg_match('/кафе|кофейн|караоке|(?:^|[-\s])бар(?:$|[-\s])|паб|столов|пицц|кондитер|диско[\s-]*клуб|быстрое питание/u', $extension) === 1;
+    }
+
     /** Only unambiguous branch matches count as an existing partner. */
     public function match(BrokerVenue $venue, Collection $restaurants): ?Restaurant
     {
@@ -57,6 +69,7 @@ class BrokerDirectory
             throw ValidationException::withMessages(['file' => 'Нужен JSON-список, максимум 10 000 залов.']);
         }
         $rows = [];
+        $rejectedIds = [];
         foreach ($items as $item) {
             if (! is_array($item)) {
                 continue;
@@ -64,6 +77,11 @@ class BrokerDirectory
             $id = explode('_', (string) ($item['id'] ?? ''))[0];
             $name = data_get($item, 'name_ex.primary') ?: ($item['name'] ?? null);
             if (! preg_match('/^\d{1,100}$/D', $id) || ! is_string($name) || trim($name) === '') {
+                continue;
+            }
+            if (self::isClearlyNotBanquetHall($item)) {
+                $rejectedIds[] = $id;
+
                 continue;
             }
             $divisions = collect($item['adm_div'] ?? []);
@@ -83,11 +101,20 @@ class BrokerDirectory
                 'two_gis_url' => 'https://2gis.kz/firm/'.$id,
             ];
         }
-        if (! $rows) {
+        if (! $rows && ! $rejectedIds) {
             throw ValidationException::withMessages(['file' => 'В файле нет залов с идентификатором 2GIS и названием.']);
         }
 
-        return DB::transaction(function () use ($rows) {
+        return DB::transaction(function () use ($rows, $rejectedIds) {
+            if ($rejectedIds) {
+                BrokerVenue::query()
+                    ->whereIn('source_id', array_unique($rejectedIds))
+                    ->whereNull('restaurant_id')
+                    ->where(function ($query) {
+                        $query->whereNull('deal_status')->orWhere('deal_status', '!=', 'closed');
+                    })
+                    ->delete();
+            }
             foreach ($rows as $row) {
                 BrokerVenue::updateOrCreate(['source_id' => $row['source_id']], $row);
             }

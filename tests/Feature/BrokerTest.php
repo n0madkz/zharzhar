@@ -55,6 +55,40 @@ class BrokerTest extends TestCase
         $this->assertSame(43.2, $venue->fresh()->latitude);
     }
 
+    public function test_bundled_atyrau_directory_contains_geocoded_unique_venues(): void
+    {
+        $json = file_get_contents(database_path('data/broker-atyrau.json'));
+
+        $count = app(BrokerDirectory::class)->import($json, 'Атырау');
+
+        $this->assertSame(143, $count);
+        $this->assertSame(143, BrokerVenue::query()->count());
+        $this->assertSame(143, BrokerVenue::whereNotNull('latitude')->whereNotNull('longitude')->count());
+        $this->assertSame(143, BrokerVenue::query()->distinct()->count('source_id'));
+        $this->assertDatabaseMissing('broker_venues', ['source_id' => '70000001096939826']);
+    }
+
+    public function test_import_removes_unlinked_cafes_but_preserves_registered_partners(): void
+    {
+        $cafe = $this->venue(['source_id' => '700000010002', 'name' => 'Обычное кафе']);
+        $partner = User::factory()->create(['role' => 'partner']);
+        $restaurant = Restaurant::create(['name' => 'Кафе-партнёр', 'city' => 'Алматы', 'partner_user_id' => $partner->id]);
+        $registeredCafe = $this->venue([
+            'source_id' => '700000010003',
+            'name' => 'Кафе-партнёр',
+            'restaurant_id' => $restaurant->id,
+            'deal_status' => 'closed',
+        ]);
+        $payload = collect([$cafe, $registeredCafe])->map(fn (BrokerVenue $venue) => [
+            'id' => $venue->source_id,
+            'name_ex' => ['primary' => $venue->name, 'extension' => 'кафе'],
+        ])->all();
+
+        $this->assertSame(0, app(BrokerDirectory::class)->import(json_encode($payload), 'Алматы'));
+        $this->assertDatabaseMissing('broker_venues', ['id' => $cafe->id]);
+        $this->assertDatabaseHas('broker_venues', ['id' => $registeredCafe->id]);
+    }
+
     public function test_registration_creates_real_partner_and_cannot_be_repeated(): void
     {
         $broker = User::factory()->create(['role' => 'broker', 'broker_city' => 'Алматы', 'broker_cities' => ['Алматы']]);
