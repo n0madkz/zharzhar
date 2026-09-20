@@ -28,33 +28,51 @@ class BrokerParser
         }
 
         try {
-            $items = $this->webCollector->collect($alias);
+            $browserException = null;
+            if ($this->browserIsInstalled()) {
+                try {
+                    return $this->collectWithBrowser($city, $alias);
+                } catch (\Throwable $exception) {
+                    $browserException = $exception;
+                    report($exception);
+                }
+            }
 
-            return $this->directory->import(
-                json_encode($items, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE),
-                $city,
-            );
-        } catch (ValidationException $exception) {
-            throw $exception;
-        } catch (\Throwable $webException) {
-            report($webException);
+            try {
+                $items = $this->webCollector->collect($alias);
 
-            return $this->collectWithBrowser($city, $alias, $webException);
+                return $this->directory->import(
+                    json_encode($items, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE),
+                    $city,
+                );
+            } catch (ValidationException $exception) {
+                throw $exception;
+            } catch (\Throwable $webException) {
+                report($webException);
+                $message = 'Не удалось получить данные из публичной выдачи 2GIS: '.$webException->getMessage();
+                if ($browserException) {
+                    $message .= ' parser-2gis: '.$browserException->getMessage();
+                }
+
+                throw ValidationException::withMessages(['city' => $message]);
+            }
         } finally {
             $lock->release();
         }
     }
 
-    private function collectWithBrowser(string $city, string $alias, \Throwable $webException): int
+    private function browserIsInstalled(): bool
     {
         $python = config('broker.parser_python');
         $chrome = trim((string) @file_get_contents((string) config('broker.chrome_path_file')));
-        if (! $python || ! is_file($python) || ! is_file($chrome)) {
-            throw ValidationException::withMessages([
-                'city' => 'Не удалось получить данные из 2GIS: '.$webException->getMessage(),
-            ]);
-        }
 
+        return is_string($python) && is_file($python) && is_file($chrome);
+    }
+
+    private function collectWithBrowser(string $city, string $alias): int
+    {
+        $python = config('broker.parser_python');
+        $chrome = trim((string) @file_get_contents((string) config('broker.chrome_path_file')));
         $path = tempnam(storage_path('app'), 'broker-');
         try {
             $process = new Process([
@@ -69,13 +87,6 @@ class BrokerParser
             $process->mustRun();
 
             return $this->directory->import(file_get_contents($path), $city);
-        } catch (ValidationException $exception) {
-            throw $exception;
-        } catch (\Throwable $exception) {
-            report($exception);
-            throw ValidationException::withMessages([
-                'city' => 'Не удалось получить данные из 2GIS. Прямой сбор: '.$webException->getMessage().' Резервный parser-2gis: '.$exception->getMessage(),
-            ]);
         } finally {
             if ($path && is_file($path)) {
                 unlink($path);
