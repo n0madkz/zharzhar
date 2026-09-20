@@ -6,9 +6,10 @@ use App\Models\BrokerVenue;
 use App\Models\Restaurant;
 use App\Models\User;
 use App\Support\BrokerDirectory;
+use App\Support\BrokerParser;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Hash;
+use Mockery;
 use Tests\TestCase;
 
 class BrokerTest extends TestCase
@@ -46,23 +47,17 @@ class BrokerTest extends TestCase
             'address_name' => 'Абая, 2', 'point' => ['lat' => 43.2, 'lon' => 76.9],
             'contact_groups' => [['contacts' => [['type' => 'phone', 'value' => '77001112233']]]],
         ]];
-        $broker = User::factory()->create(['role' => 'broker']);
-        $this->actingAs($broker)->post('https://broker.zharzhar.kz/broker/import', [
-            'city' => 'Алматы', 'file' => UploadedFile::fake()->createWithContent('halls.json', json_encode($payload)),
-        ])->assertRedirect('/broker');
+        $directory = app(BrokerDirectory::class);
+        $directory->import(json_encode($payload), 'Алматы');
         $this->assertDatabaseCount('broker_venues', 1);
         $this->assertSame('Новое название', $venue->fresh()->name);
         $this->assertNotNull($venue->fresh()->completed_at);
         $this->assertSame(43.2, $venue->fresh()->latitude);
-        $this->assertSame('Алматы', $broker->fresh()->broker_city);
-        $this->post('https://broker.zharzhar.kz/broker/import', [
-            'city' => 'Алматы', 'file' => UploadedFile::fake()->createWithContent('invalid.json', '{bad'),
-        ])->assertSessionHasErrors('file');
     }
 
     public function test_registration_creates_real_partner_and_cannot_be_repeated(): void
     {
-        $broker = User::factory()->create(['role' => 'broker']);
+        $broker = User::factory()->create(['role' => 'broker', 'broker_city' => 'Алматы', 'broker_cities' => ['Алматы']]);
         $venue = $this->venue();
         $form = ['email' => 'hall@example.test', 'phone' => '8 (700) 123-45-67', 'password' => 'test-password', 'password_confirmation' => 'test-password'];
         $this->actingAs($broker)->post('https://broker.zharzhar.kz/broker/venues/'.$venue->id.'/register', $form)->assertSessionHasNoErrors()->assertRedirect();
@@ -95,7 +90,7 @@ class BrokerTest extends TestCase
 
     public function test_city_is_saved_and_completion_is_explicit_and_idempotent(): void
     {
-        $broker = User::factory()->create(['role' => 'broker']);
+        $broker = User::factory()->create(['role' => 'broker', 'broker_city' => 'Алматы', 'broker_cities' => ['Алматы']]);
         $venue = $this->venue();
         $this->actingAs($broker)->post('https://broker.zharzhar.kz/broker/settings', ['city' => 'Алматы'])->assertRedirect('/broker');
         $this->assertSame('Алматы', $broker->fresh()->broker_city);
@@ -106,5 +101,33 @@ class BrokerTest extends TestCase
         $this->assertSame($broker->id, $venue->fresh()->completed_by);
         $this->postJson($url, ['completed' => false])->assertOk()->assertJson(['completed' => false]);
         $this->assertNull($venue->fresh()->completed_by);
+    }
+
+    public function test_broker_can_add_a_city_and_online_parser_runs_immediately(): void
+    {
+        $broker = User::factory()->create(['role' => 'broker', 'broker_city' => 'Атырау', 'broker_cities' => ['Атырау']]);
+        $parser = Mockery::mock(BrokerParser::class);
+        $parser->shouldReceive('collect')->once()->with('Алматы')->andReturn(27);
+        $this->app->instance(BrokerParser::class, $parser);
+
+        $this->actingAs($broker)->post('https://broker.zharzhar.kz/broker/cities', ['city' => 'Алматы'])
+            ->assertRedirect('/broker?city='.urlencode('Алматы'));
+        $this->assertSame(['Атырау', 'Алматы'], $broker->fresh()->broker_cities);
+        $this->assertSame('Алматы', $broker->fresh()->broker_city);
+    }
+
+    public function test_admin_assigns_and_updates_broker_cities(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $this->actingAs($admin)->post('https://admin.zharzhar.kz/admin/brokers', [
+            'name' => 'Broker', 'email' => 'broker@example.test', 'password' => 'test-password',
+            'password_confirmation' => 'test-password', 'cities' => ['Атырау', 'Алматы'],
+        ])->assertSessionHasNoErrors();
+        $broker = User::where('email', 'broker@example.test')->firstOrFail();
+        $this->assertSame(['Атырау', 'Алматы'], $broker->broker_cities);
+
+        $this->put('https://admin.zharzhar.kz/admin/brokers/'.$broker->id, ['cities' => ['Астана']])
+            ->assertSessionHasNoErrors();
+        $this->assertSame(['Астана'], $broker->fresh()->broker_cities);
     }
 }

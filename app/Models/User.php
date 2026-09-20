@@ -7,22 +7,24 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password', 'phone', 'role', 'preferred_language', 'status'])]
+#[Fillable(['name', 'email', 'password', 'phone', 'role', 'preferred_language', 'status', 'broker_city', 'broker_cities'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
-    public function restaurant(): \Illuminate\Database\Eloquent\Relations\HasOne
+    public function restaurant(): HasOne
     {
         return $this->hasOne(Restaurant::class, 'partner_user_id');
     }
 
-    public function events(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function events(): HasMany
     {
         return $this->hasMany(Event::class);
     }
@@ -42,6 +44,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'broker_cities' => 'array',
         ];
     }
 }

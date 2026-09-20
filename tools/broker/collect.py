@@ -1,107 +1,96 @@
-"""2GIS collector compatible with parser-2gis JSON output.
+"""Compatibility launcher for interlark/parser-2gis on the current 2GIS site."""
 
-Recent 2GIS pages navigate away when parser-2gis clicks a result, which makes
-the remaining DOM nodes stale. The public search page already contains the
-same catalog items in its server-rendered state, so we read that state first
-and retain the upstream parser as a fallback for future markup changes.
-"""
-from __future__ import annotations
-
-import ast
 import json
 import os
+import queue
 import re
-import sys
-import time
-from pathlib import Path
-from urllib.parse import urlsplit
 
-import requests
-
+from parser_2gis import main
+from parser_2gis.chrome import ChromeRemote
 
 os.environ.pop("DEBUG", None)
+_state = {}
+_original_wait_response = ChromeRemote.wait_response
+_original_get_response_body = ChromeRemote.get_response_body
 
 
-def _argument(name: str, default: str | None = None) -> str | None:
-    try:
-        return sys.argv[sys.argv.index(name) + 1]
-    except (ValueError, IndexError):
-        return default
+def _compatible_wait_response(remote, response_pattern):
+    for _ in range(20):
+        response = _original_wait_response(remote, response_pattern)
+        if response is None:
+            return response
+        body = _original_get_response_body(remote, response, timeout=10)
+        try:
+            document = json.loads(body)
+        except (TypeError, json.JSONDecodeError):
+            continue
+        if document.get("meta", {}).get("code") == 200 and document.get("result", {}).get("items"):
+            response["_broker_body"] = body
+            return response
+    return None
 
 
-def _page_url(url: str, page: int) -> str:
-    base = re.sub(r"/page/\d+/?$", "", url.rstrip("/"), flags=re.I)
-    return base if page == 1 else f"{base}/page/{page}"
+def _compatible_get_response_body(remote, response, timeout=None):
+    return response.pop("_broker_body", None) or _original_get_response_body(remote, response, timeout=timeout)
 
 
-def _profiles(html: str) -> list[dict]:
-    match = re.search(r"var initialState = JSON\.parse\('(.*?)'\);", html, re.S)
-    if not match:
-        return []
-
-    state = json.loads(ast.literal_eval("'" + match.group(1) + "'"))
-    profiles = state.get("data", {}).get("entity", {}).get("profile", {})
-    return [entry.get("data", entry) for entry in profiles.values() if isinstance(entry, dict)]
+ChromeRemote.wait_response = _compatible_wait_response
+ChromeRemote.get_response_body = _compatible_get_response_body
 
 
-def collect(url: str, limit: int) -> list[dict]:
-    host = (urlsplit(url).hostname or "").lower()
-    if host != "2gis.kz" and not host.endswith(".2gis.kz"):
-        raise ValueError("Only public 2gis.kz search URLs are supported.")
+def _identity(href):
+    match = re.search(r"/(firm|station)/(\d+)", href or "")
+    return match.groups() if match else None
 
-    session = requests.Session()
-    session.headers.update({
-        "Accept-Language": "ru-KZ,ru;q=0.9,kk;q=0.8",
-        "User-Agent": "Mozilla/5.0",
-    })
-    records: list[dict] = []
-    seen: set[str] = set()
-    max_pages = min(100, max(1, (limit + 11) // 12 + 1))
 
-    for page in range(1, max_pages + 1):
-        response = session.get(_page_url(url, page), timeout=45)
-        response.raise_for_status()
-        fresh = []
-        for item in _profiles(response.text):
-            source_id = str(item.get("id", "")).split("_", 1)[0]
-            if not source_id or source_id in seen:
-                continue
-            seen.add(source_id)
-            fresh.append(item)
-            if len(records) + len(fresh) >= limit:
+def _compatible_click(remote, node, timeout=None):
+    state = _state.setdefault(id(remote), {})
+    current_url = remote.execute_script("window.location.href")
+    if "/search/" in current_url:
+        state["search_url"] = current_url
+    elif state.get("search_url"):
+        remote.navigate(state["search_url"], referer="https://2gis.kz", timeout=120)
+        remote.wait(1)
+
+    identity = _identity(node.attributes.get("href", ""))
+    if not identity:
+        raise RuntimeError("2GIS result link does not contain a firm identifier")
+    state["expected_id"] = identity[1]
+    fragment = json.dumps(f"/{identity[0]}/{identity[1]}")
+    script = f"""(() => {{
+        const link = [...document.querySelectorAll('a[href]')].find(item => item.href.includes({fragment}));
+        if (!link) return false;
+        link.scrollIntoView({{block: 'center'}});
+        link.click();
+        return true;
+    }})()"""
+    # 2GIS emits unrelated failed `items/byid` requests while arranging the
+    # map viewport. The upstream parser otherwise consumes that stale error as
+    # the clicked venue response.
+    for response_queue in remote._response_queues.values():
+        while True:
+            try:
+                response_queue.get_nowait()
+            except queue.Empty:
                 break
-        records.extend(fresh)
-        if not fresh or len(records) >= limit:
-            break
-        time.sleep(0.2)
+    def click_when_ready():
+        for _ in range(30):
+            if remote.execute_script(script):
+                return True
+            remote.wait(0.5)
+        return False
 
-    return records[:limit]
+    clicked = click_when_ready()
+    if not clicked:
+        if not state.get("search_url"):
+            raise RuntimeError("2GIS result disappeared before it could be opened")
+        remote.navigate(state["search_url"], referer="https://2gis.kz", timeout=120)
+        remote.wait(1)
+        if not click_when_ready():
+            raise RuntimeError("2GIS result could not be reacquired")
 
 
-def main() -> None:
-    url = _argument("-i")
-    output = _argument("-o")
-    limit = int(_argument("--parser.max-records", "1000") or "1000")
-    if not url or not output:
-        raise SystemExit("Both -i URL and -o output path are required.")
-
-    try:
-        records = collect(url, limit)
-    except Exception as error:
-        print(f"Server-rendered 2GIS collection failed: {error}", file=sys.stderr)
-        records = []
-
-    if not records:
-        from parser_2gis import main as upstream_main
-
-        upstream_main()
-        return
-
-    target = Path(output)
-    target.parent.mkdir(parents=True, exist_ok=True)
-    target.write_text(json.dumps(records, ensure_ascii=False, indent=2), encoding="utf-8")
-    print(f"Collected {len(records)} public 2GIS catalog records.")
-
+ChromeRemote.perform_click = _compatible_click
 
 if __name__ == "__main__":
     main()

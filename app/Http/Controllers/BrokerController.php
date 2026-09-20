@@ -2,14 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Jobs\CollectBrokerVenues;
 use App\Models\BrokerVenue;
 use App\Models\Restaurant;
 use App\Models\User;
 use App\Support\BrokerDirectory;
+use App\Support\BrokerParser;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
@@ -20,8 +21,9 @@ class BrokerController extends Controller
     public function index(Request $request, BrokerDirectory $directory): View
     {
         $data = $request->validate(['city' => ['nullable', 'string', 'max:100']]);
-        $cities = BrokerVenue::query()->distinct()->orderBy('city')->pluck('city')->merge(array_keys(config('broker.cities')))->unique()->sort()->values();
-        $city = $data['city'] ?? $request->user()->broker_city ?? 'Атырау';
+        $cities = $this->assignedCities($request->user());
+        $city = $data['city'] ?? $request->user()->broker_city ?? $cities->first();
+        abort_unless($cities->contains($city), 403);
         $restaurants = Restaurant::with('partner')->get();
         $venues = BrokerVenue::where('city', $city)->orderBy('name')->get()->map(function ($venue) use ($directory, $restaurants) {
             $restaurant = $directory->match($venue, $restaurants);
@@ -38,38 +40,43 @@ class BrokerController extends Controller
             ];
         });
 
-        return view('broker.index', compact('cities', 'city', 'venues'));
+        $availableCities = collect(array_keys(config('broker.cities')))->diff($cities)->values();
+
+        return view('broker.index', compact('cities', 'availableCities', 'city', 'venues'));
     }
 
     public function settings(Request $request): RedirectResponse
     {
-        $data = $request->validate(['city' => ['required', 'string', 'max:100']]);
+        $data = $request->validate(['city' => ['required', Rule::in($this->assignedCities($request->user())->all())]]);
         $request->user()->forceFill(['broker_city' => $data['city']])->save();
 
         return redirect('/broker')->with('success', 'Город сохранён.');
     }
 
-    public function collect(Request $request): RedirectResponse
+    public function addCity(Request $request, BrokerParser $parser): RedirectResponse
     {
         $data = $request->validate(['city' => ['required', Rule::in(array_keys(config('broker.cities')))]]);
-        if (! config('broker.parser_python')) {
-            throw ValidationException::withMessages(['city' => 'Автосбор пока не настроен на сервере. Используйте загрузку JSON или обратитесь к администратору.']);
+        $cities = $this->assignedCities($request->user());
+        if (! $cities->contains($data['city'])) {
+            $cities->push($data['city']);
         }
-        CollectBrokerVenues::dispatch($data['city']);
+        $request->user()->forceFill([
+            'broker_city' => $data['city'],
+            'broker_cities' => $cities->unique()->values()->all(),
+        ])->save();
+        $count = $parser->collect($data['city']);
 
-        return back()->with('success', 'Запрос сбора отправлен. Он выполнится, когда запущен обработчик парсера.');
+        return redirect('/broker?'.http_build_query(['city' => $data['city']]))
+            ->with('success', "Город добавлен. Из 2GIS загружено залов: {$count}.");
     }
 
-    public function import(Request $request, BrokerDirectory $directory): RedirectResponse
+    public function collect(Request $request, BrokerParser $parser): RedirectResponse
     {
-        $data = $request->validate([
-            'city' => ['required', 'string', 'max:100'],
-            'file' => ['required', 'file', 'max:20480'],
-        ]);
-        $count = $directory->import(file_get_contents($request->file('file')->getRealPath()), $data['city']);
-        $request->user()->forceFill(['broker_city' => $data['city']])->save();
+        $data = $request->validate(['city' => ['required', Rule::in($this->assignedCities($request->user())->all())]]);
+        $count = $parser->collect($data['city']);
 
-        return redirect('/broker')->with('success', "Загружено записей: {$count}. Повторные записи обновлены.");
+        return redirect('/broker?'.http_build_query(['city' => $data['city']]))
+            ->with('success', "Данные 2GIS обновлены. Загружено залов: {$count}.");
     }
 
     public function complete(Request $request, BrokerVenue $venue): JsonResponse
@@ -123,8 +130,9 @@ class BrokerController extends Controller
     public function staff(): View
     {
         $staff = User::where('role', 'broker')->orderBy('name')->paginate(10);
+        $cities = array_keys(config('broker.cities'));
 
-        return view('broker.staff', compact('staff'));
+        return view('broker.staff', compact('staff', 'cities'));
     }
 
     public function createStaff(Request $request): RedirectResponse
@@ -132,9 +140,41 @@ class BrokerController extends Controller
         $data = $request->validate([
             'name' => ['required', 'string', 'max:150'], 'email' => ['required', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'string', 'min:8', 'max:128', 'confirmed'],
+            'cities' => ['required', 'array', 'min:1'],
+            'cities.*' => ['required', Rule::in(array_keys(config('broker.cities')))],
         ]);
-        User::create([...$data, 'role' => 'broker', 'status' => 'active']);
+        $cities = array_values(array_unique($data['cities']));
+        User::create([
+            'name' => $data['name'], 'email' => $data['email'], 'password' => $data['password'],
+            'role' => 'broker', 'status' => 'active', 'broker_city' => $cities[0], 'broker_cities' => $cities,
+        ]);
 
         return back()->with('success', 'Сотрудник добавлен.');
+    }
+
+    public function updateStaff(Request $request, User $user): RedirectResponse
+    {
+        abort_unless($user->isRole('broker'), 404);
+        $data = $request->validate([
+            'cities' => ['required', 'array', 'min:1'],
+            'cities.*' => ['required', Rule::in(array_keys(config('broker.cities')))],
+        ]);
+        $cities = array_values(array_unique($data['cities']));
+        $user->update(['broker_city' => $cities[0], 'broker_cities' => $cities]);
+
+        return back()->with('success', 'Города сотрудника обновлены.');
+    }
+
+    private function assignedCities(User $user): Collection
+    {
+        if ($user->isRole('admin')) {
+            return collect(array_keys(config('broker.cities')));
+        }
+
+        return collect($user->broker_cities ?? [])
+            ->when($user->broker_city, fn ($cities) => $cities->prepend($user->broker_city))
+            ->filter(fn ($city) => array_key_exists($city, config('broker.cities')))
+            ->unique()->values()
+            ->whenEmpty(fn ($cities) => $cities->push('Атырау'));
     }
 }

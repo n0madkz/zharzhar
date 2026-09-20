@@ -21,13 +21,14 @@ Route::domain(config('store.broker_domain'))->get('/', fn () => redirect('/broke
 Route::middleware(['auth', 'role:broker,admin'])->prefix('broker')->name('broker.')->group(function () {
     Route::get('/', [BrokerController::class, 'index'])->name('index');
     Route::post('/settings', [BrokerController::class, 'settings'])->name('settings');
-    Route::post('/import', [BrokerController::class, 'import'])->middleware('throttle:5,1')->name('import');
+    Route::post('/cities', [BrokerController::class, 'addCity'])->middleware('throttle:2,60')->name('cities.store');
     Route::post('/collect', [BrokerController::class, 'collect'])->middleware('throttle:2,60')->name('collect');
     Route::post('/venues/{venue}/complete', [BrokerController::class, 'complete'])->name('complete');
     Route::post('/venues/{venue}/register', [BrokerController::class, 'register'])->middleware('throttle:10,1')->name('register');
 });
 Route::get('/admin/brokers', [BrokerController::class, 'staff'])->middleware(['auth', 'role:admin'])->name('admin.brokers');
 Route::post('/admin/brokers', [BrokerController::class, 'createStaff'])->middleware(['auth', 'role:admin'])->name('admin.brokers.store');
+Route::put('/admin/brokers/{user}', [BrokerController::class, 'updateStaff'])->middleware(['auth', 'role:admin'])->name('admin.brokers.update');
 Route::domain(config('store.partner_domain'))->get('/', fn () => redirect(auth()->user()?->isRole('partner') ? '/restaurant' : '/login'))->name('partner.home');
 Route::get('/', [StorefrontController::class, 'index'])->name('store.catalog');
 Route::get('/designs/{template}/preview', [StorefrontController::class, 'preview'])->name('store.preview');

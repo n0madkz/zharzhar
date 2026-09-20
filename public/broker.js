@@ -46,7 +46,8 @@
         items.sort((a,b) => {
             const da = origin && validPoint(a) ? distance(origin,a) : Infinity;
             const db = origin && validPoint(b) ? distance(origin,b) : Infinity;
-            return (da-db) || a.name.localeCompare(b.name);
+            if ($('sort-order').value === 'name' || !origin) return a.name.localeCompare(b.name);
+            return ($('sort-order').value === 'farthest' ? db-da : da-db) || a.name.localeCompare(b.name);
         });
         if ($('group-district').checked) {
             // Insertion order keeps the nearest district first and nearest venues first within it.
@@ -64,7 +65,7 @@
         $('page-label').textContent = `${page} / ${pages}`;
         $('prev').disabled = page===1; $('next').disabled = page===pages;
         $('venue-list').replaceChildren();
-        if (!items.length) $('venue-list').append(text('p', venues.length ? 'По этим условиям залы не найдены.' : 'В этом городе пока нет загруженных залов. Загрузите JSON из parser-2gis ниже.', 'card'));
+        if (!items.length) $('venue-list').append(text('p', venues.length ? 'По этим условиям залы не найдены.' : 'В этом городе пока нет залов. Нажмите «Обновить из 2GIS».', 'card'));
         let previousDistrict;
         visible.forEach(v => {
             if ($('group-district').checked && previousDistrict !== v.district) $('venue-list').append(text('h2', v.district, 'broker-district'));
@@ -104,12 +105,12 @@
         });
         if (markers) {
             markers.clearLayers();
-            items.filter(validPoint).forEach(v => {
+            items.filter(validPoint).forEach((v, index) => {
                 const popup = text('div', v.name + (v.partner ? ' · Уже партнёр' : ''));
                 const focus = text('button', 'Показать в списке'); focus.type='button';
                 focus.onclick=()=>{ page=Math.floor(items.indexOf(v)/10)+1; render(); document.getElementById(`venue-${v.id}`).scrollIntoView({block:'center',behavior:'smooth'}); };
                 popup.append(document.createElement('br'),focus);
-                L.marker([v.lat,v.lng], {icon:L.divIcon({className:`broker-pin${v.partner?' connected':''}`,html:v.partner?'✓':'',iconSize:[28,28]})}).addTo(markers).bindPopup(popup);
+                L.marker([v.lat,v.lng], {icon:L.divIcon({className:`broker-pin${v.partner?' connected':''}`,html:v.partner?'✓':String(index+1),iconSize:[28,28]})}).addTo(markers).bindPopup(popup);
             });
         }
         updateRoute(items);
@@ -132,7 +133,12 @@
         $('route').href = `https://www.google.com/maps/dir/?${params}`; $('route').hidden = false;
         $('route-note').textContent = `Ближайший объезд: ${stops.map(v=>v.name).join(' → ')}. До 4 залов; дорожный маршрут рассчитает Google Maps.`;
     }
-    ['search','district','connection','group-district'].forEach(id => $(id).addEventListener(id==='search'?'input':'change',()=>{page=1;render();}));
+    ['search','district','connection','group-district','sort-order'].forEach(id => $(id).addEventListener(id==='search'?'input':'change',()=>{page=1;render();}));
+    ['split','list','map'].forEach(mode => $(`view-${mode}`).onclick = () => {
+        $('broker-workspace').dataset.view = mode;
+        ['split','list','map'].forEach(item => $(`view-${item}`).classList.toggle('secondary', item !== mode));
+        if (map && mode !== 'list') setTimeout(() => map.invalidateSize(), 0);
+    });
     $('prev').onclick=()=>{page--;render();}; $('next').onclick=()=>{page++;render();};
     $('close-dialog').onclick=()=>$('registration').close();
     render();
