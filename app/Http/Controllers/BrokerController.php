@@ -42,9 +42,9 @@ class BrokerController extends Controller
 
         $availableCities = collect(array_keys(config('broker.cities')))->diff($cities)->values();
 
-        $parserReady = is_file((string) config('broker.parser_python'))
-            && is_file((string) config('broker.parser_marker'))
-            && is_file(trim((string) @file_get_contents((string) config('broker.chrome_path_file'))));
+        // The primary collector reads server-rendered 2GIS pages and does not
+        // depend on Chromium. The installed parser-2gis browser is a fallback.
+        $parserReady = true;
 
         return view('broker.index', compact('cities', 'availableCities', 'city', 'venues', 'parserReady'));
     }

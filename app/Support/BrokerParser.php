@@ -8,18 +8,16 @@ use Symfony\Component\Process\Process;
 
 class BrokerParser
 {
-    public function __construct(private readonly BrokerDirectory $directory) {}
+    public function __construct(
+        private readonly BrokerDirectory $directory,
+        private readonly BrokerWebCollector $webCollector,
+    ) {}
 
     public function collect(string $city): int
     {
         $alias = config("broker.cities.{$city}");
-        $python = config('broker.parser_python');
-        $chrome = trim((string) @file_get_contents((string) config('broker.chrome_path_file')));
-
-        if (! $alias || ! $python || ! is_file($python) || ! is_file((string) config('broker.parser_marker')) || ! is_file($chrome)) {
-            throw ValidationException::withMessages([
-                'city' => 'Парсер 2GIS или Chromium ещё не установлен на сервере. Выполните команду broker:parser-install.',
-            ]);
+        if (! $alias) {
+            throw ValidationException::withMessages(['city' => 'Неизвестный город 2GIS.']);
         }
 
         $lock = Cache::lock('broker-parser:'.sha1($city), 1800);
@@ -29,12 +27,39 @@ class BrokerParser
             ]);
         }
 
-        $path = tempnam(storage_path('app'), 'broker-');
+        try {
+            $items = $this->webCollector->collect($alias);
 
+            return $this->directory->import(
+                json_encode($items, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE),
+                $city,
+            );
+        } catch (ValidationException $exception) {
+            throw $exception;
+        } catch (\Throwable $webException) {
+            report($webException);
+
+            return $this->collectWithBrowser($city, $alias, $webException);
+        } finally {
+            $lock->release();
+        }
+    }
+
+    private function collectWithBrowser(string $city, string $alias, \Throwable $webException): int
+    {
+        $python = config('broker.parser_python');
+        $chrome = trim((string) @file_get_contents((string) config('broker.chrome_path_file')));
+        if (! $python || ! is_file($python) || ! is_file($chrome)) {
+            throw ValidationException::withMessages([
+                'city' => 'Не удалось получить данные из 2GIS: '.$webException->getMessage(),
+            ]);
+        }
+
+        $path = tempnam(storage_path('app'), 'broker-');
         try {
             $process = new Process([
                 $python, base_path('tools/broker/collect.py'),
-                '-i', 'https://2gis.kz/'.$alias.'/search/'.rawurlencode('Банкетные залы'),
+                '-i', 'https://2gis.kz/'.$alias.'/search/'.rawurlencode('Банкетные залы').'/filters/sort=name',
                 '-o', $path, '-f', 'json', '--chrome.headless', 'yes',
                 '--chrome.binary_path', $chrome,
                 '--chrome.start-maximized', 'yes', '--chrome.silent-browser', 'yes', '--chrome.disable-images', 'yes',
@@ -49,13 +74,12 @@ class BrokerParser
         } catch (\Throwable $exception) {
             report($exception);
             throw ValidationException::withMessages([
-                'city' => 'Не удалось получить данные из 2GIS. Проверьте установку parser-2gis и Chrome, затем повторите.',
+                'city' => 'Не удалось получить данные из 2GIS. Прямой сбор: '.$webException->getMessage().' Резервный parser-2gis: '.$exception->getMessage(),
             ]);
         } finally {
             if ($path && is_file($path)) {
                 unlink($path);
             }
-            $lock->release();
         }
     }
 }

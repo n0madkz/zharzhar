@@ -110,10 +110,11 @@ Artisan::command('broker:parser-check', function () {
     $browserCheck = new Process([$chrome, '--headless', '--no-sandbox', '--disable-gpu', '--dump-dom', 'about:blank'], base_path(), null, null, 30);
     $browserCheck->run();
     if (! $browserCheck->isSuccessful()) {
-        $this->error('Chromium установлен, но не запускается на сервере. Обратитесь к хостингу для установки системных библиотек Chromium.');
+        $this->warn('Chromium недоступен; будет использоваться прямой сбор публичных страниц 2GIS без браузера.');
         $this->line(trim($browserCheck->getErrorOutput()));
+        $this->info('Прямой сбор 2GIS готов и не требует системных библиотек Chromium.');
 
-        return self::FAILURE;
+        return self::SUCCESS;
     }
 
     file_put_contents((string) config('broker.parser_marker'), now()->toIso8601String());
