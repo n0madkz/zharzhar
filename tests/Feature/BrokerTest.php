@@ -96,10 +96,14 @@ class BrokerTest extends TestCase
         $this->assertSame('Алматы', $broker->fresh()->broker_city);
         $this->get('https://broker.zharzhar.kz/broker')->assertOk()->assertViewHas('venues', fn ($venues) => $venues->count() === 1);
         $url = 'https://broker.zharzhar.kz/broker/venues/'.$venue->id.'/complete';
-        $this->postJson($url, ['completed' => true])->assertOk()->assertJson(['completed' => true]);
-        $this->postJson($url, ['completed' => true])->assertOk()->assertJson(['completed' => true]);
+        $this->postJson($url, ['status' => 'closed'])->assertOk()->assertJson(['status' => 'closed']);
+        $this->postJson($url, ['status' => 'closed'])->assertOk()->assertJson(['status' => 'closed']);
         $this->assertSame($broker->id, $venue->fresh()->completed_by);
-        $this->postJson($url, ['completed' => false])->assertOk()->assertJson(['completed' => false]);
+        $this->assertSame('closed', $venue->fresh()->deal_status);
+        $this->postJson($url, ['status' => 'failed'])->assertOk()->assertJson(['status' => 'failed']);
+        $this->assertSame($broker->id, $venue->fresh()->completed_by);
+        $this->assertNull($venue->fresh()->completed_at);
+        $this->postJson($url, ['status' => 'open'])->assertOk()->assertJson(['status' => 'open']);
         $this->assertNull($venue->fresh()->completed_by);
     }
 

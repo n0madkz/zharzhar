@@ -32,7 +32,7 @@ class BrokerController extends Controller
                 'id' => $venue->id, 'name' => $venue->name, 'district' => $venue->district ?: 'Район не указан',
                 'address' => $venue->address, 'phone' => $venue->phone, 'email' => $venue->email,
                 'lat' => $venue->latitude, 'lng' => $venue->longitude, 'url' => $venue->two_gis_url,
-                'completed' => (bool) $venue->completed_at,
+                'dealStatus' => $venue->deal_status ?: ($venue->completed_at ? 'closed' : 'open'),
                 'partner' => $restaurant?->partner ? [
                     'name' => $restaurant->name, 'email' => $restaurant->partner->email,
                     'phone' => $restaurant->phone, 'status' => $restaurant->status,
@@ -42,7 +42,9 @@ class BrokerController extends Controller
 
         $availableCities = collect(array_keys(config('broker.cities')))->diff($cities)->values();
 
-        return view('broker.index', compact('cities', 'availableCities', 'city', 'venues'));
+        $parserReady = is_file((string) config('broker.parser_python'));
+
+        return view('broker.index', compact('cities', 'availableCities', 'city', 'venues', 'parserReady'));
     }
 
     public function settings(Request $request): RedirectResponse
@@ -81,13 +83,15 @@ class BrokerController extends Controller
 
     public function complete(Request $request, BrokerVenue $venue): JsonResponse
     {
-        $request->validate(['completed' => ['required', 'boolean']]);
+        $data = $request->validate(['status' => ['required', Rule::in(['open', 'closed', 'failed'])]]);
+        $closed = $data['status'] === 'closed';
         $venue->update([
-            'completed_at' => $request->boolean('completed') ? now() : null,
-            'completed_by' => $request->boolean('completed') ? $request->user()->id : null,
+            'deal_status' => $data['status'],
+            'completed_at' => $closed ? ($venue->completed_at ?: now()) : null,
+            'completed_by' => $data['status'] === 'open' ? null : $request->user()->id,
         ]);
 
-        return response()->json(['completed' => (bool) $venue->completed_at]);
+        return response()->json(['status' => $venue->deal_status]);
     }
 
     public function register(Request $request, BrokerVenue $venue, BrokerDirectory $directory): RedirectResponse
@@ -121,7 +125,7 @@ class BrokerController extends Controller
             foreach ([['morning', 'Утро', '09:00', '12:00'], ['day', 'День', '13:00', '17:00'], ['evening', 'Вечер', '18:00', '22:00']] as [$key, $label, $start, $end]) {
                 $restaurant->slots()->firstOrCreate(['slot_key' => $key], ['label' => $label, 'start_time' => $start, 'end_time' => $end, 'color' => '#2563eb']);
             }
-            $locked->update(['restaurant_id' => $restaurant->id, 'completed_at' => now(), 'completed_by' => $request->user()->id]);
+            $locked->update(['restaurant_id' => $restaurant->id, 'deal_status' => 'closed', 'completed_at' => now(), 'completed_by' => $request->user()->id]);
         });
 
         return redirect('/broker?'.http_build_query(['city' => $venue->city]))->with('success', 'Ресторан подключён. Вход партнёра: https://'.config('store.partner_domain').'/login. Передайте ресторану указанные email и пароль.');

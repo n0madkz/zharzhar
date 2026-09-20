@@ -10,19 +10,21 @@
 
 <div class="broker-heading"><div><p class="eyebrow">КАБИНЕТ СОТРУДНИКА</p><h1>Банкетные залы</h1></div><button class="button" id="locate" type="button">Рядом со мной</button></div>
 
-<section class="card broker-city-panel">
-    <div><strong>Мои города</strong><div class="broker-city-tabs">@foreach($cities as $option)<a class="button {{ $option === $city ? '' : 'secondary' }}" href="/broker?{{ http_build_query(['city' => $option]) }}">{{ $option }}</a>@endforeach</div></div>
+<details class="card broker-city-panel">
+    <summary><strong>Настройки города</strong><span>{{ $city }}</span></summary>
+    <form action="/broker/settings" method="post" class="broker-city-form">@csrf<label>Текущий город<select name="city" required>@foreach($cities as $option)<option value="{{ $option }}" @selected($option === $city)>{{ $option }}</option>@endforeach</select></label><button class="button">Показать город</button></form>
     <form action="/broker/collect" method="post">@csrf<input type="hidden" name="city" value="{{ $city }}"><button class="button secondary">Обновить {{ $city }} из 2GIS</button></form>
     @if($availableCities->isNotEmpty())
     <form action="/broker/cities" method="post" class="broker-add-city">@csrf<label>Добавить город<select name="city" required><option value="">Выберите город</option>@foreach($availableCities as $option)<option value="{{ $option }}">{{ $option }}</option>@endforeach</select></label><button class="button">Добавить и загрузить из 2GIS</button></form>
     @endif
+    <p class="{{ $parserReady ? 'success' : 'error' }}">{{ $parserReady ? 'Парсер 2GIS установлен.' : 'Парсер 2GIS не установлен. В Laravel Toolkit → Artisan один раз выполните: broker:parser-install' }}</p>
     <small>При добавлении или обновлении города сервер получает актуальный список через interlark/parser-2gis. Это может занять несколько минут.</small>
-</section>
+</details>
 
 <section class="card broker-tools">
     <label>Поиск по названию, адресу или телефону<input id="search" type="search" placeholder="Введите часть названия или номера"></label>
     <label>Район<select id="district"><option value="">Все районы</option></select></label>
-    <label>Состояние<select id="connection"><option value="">Все залы</option><option value="new">Не подключён</option><option value="partner">Уже партнёр</option><option value="completed">Сделка завершена</option></select></label>
+    <label>Состояние сделки<select id="connection"><option value="">Все сделки</option><option value="open">В работе</option><option value="closed">Закрытые сделки</option><option value="failed">Не состоявшиеся</option><option value="partner">Уже партнёр</option></select></label>
     <label>Сортировка<select id="sort-order"><option value="nearest">Сначала ближайшие</option><option value="farthest">Сначала дальние</option><option value="name">По названию</option></select></label>
 </section>
 <div class="broker-view-controls" role="group" aria-label="Вид результатов"><button class="button secondary" id="view-split" type="button">Список и карта</button><button class="button secondary" id="view-list" type="button">Только список</button><button class="button secondary" id="view-map" type="button">Только карта</button></div>

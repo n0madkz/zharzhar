@@ -27,26 +27,28 @@
 
     function setOrigin(lat, lng) {
         origin = {lat, lng}; page = 1;
+        try { localStorage.setItem('broker-origin', JSON.stringify({lat, lng, savedAt: Date.now()})); } catch {}
         $('location-note').textContent = 'Начальная точка выбрана. Сначала ближайшие залы; расстояния по прямой. Нажмите на карту, чтобы изменить точку.';
         if (map) { if(startMarker) startMarker.remove(); startMarker = L.circleMarker([lat,lng], {radius:9, color:'#111827', fillOpacity:1}).addTo(map).bindTooltip('Начальная точка'); }
         render();
     }
-    $('locate').onclick = () => {
-        if (!navigator.geolocation) { $('location-note').textContent = 'Геолокация недоступна. Выберите начальную точку на карте.'; return; }
+    function locate(interactive = true) {
+        if (!navigator.geolocation) { if (interactive) $('location-note').textContent = 'Геолокация недоступна. Выберите начальную точку на карте.'; return; }
         $('locate').disabled = true;
         navigator.geolocation.getCurrentPosition(position => {
             $('locate').disabled = false;
             setOrigin(position.coords.latitude, position.coords.longitude);
         }, () => {
             $('locate').disabled = false;
-            $('location-note').textContent = 'Не удалось определить местоположение. Разрешите геолокацию или выберите точку на карте.';
+            if (interactive) $('location-note').textContent = 'Не удалось определить местоположение. Разрешите геолокацию или выберите точку на карте.';
         }, {enableHighAccuracy:true, timeout:15000, maximumAge:60000});
-    };
+    }
+    $('locate').onclick = () => locate(true);
     function filtered() {
         const q = $('search').value.trim().toLocaleLowerCase(), phone = digits(q);
         let items = venues.filter(v => (!q || [v.name,v.address,v.phone].some(s => (s||'').toLocaleLowerCase().includes(q)) || (phone.length && digits(v.phone||'').includes(phone)))
             && (!$('district').value || v.district === $('district').value)
-            && (!$('connection').value || ($('connection').value === 'partner' ? v.partner : $('connection').value === 'completed' ? v.completed : !v.partner)));
+            && (!$('connection').value || ($('connection').value === 'partner' ? v.partner : v.dealStatus === $('connection').value)));
         items.sort((a,b) => {
             const da = origin && validPoint(a) ? distance(origin,a) : Infinity;
             const db = origin && validPoint(b) ? distance(origin,b) : Infinity;
@@ -95,17 +97,18 @@
                 }; actions.append(button);
             }
             card.append(actions);
-            const label = text('label','','broker-complete'), check = document.createElement('input'); check.type='checkbox'; check.checked=v.completed;
-            check.onchange = async () => {
-                check.disabled = true;
+            const label = text('label','','broker-complete'), status = document.createElement('select');
+            [['open','В работе'],['closed','Сделка закрыта'],['failed','Сделка не состоялась']].forEach(([value,name]) => { const option=text('option',name); option.value=value; option.selected=v.dealStatus===value; status.append(option); });
+            status.onchange = async () => {
+                status.disabled = true;
                 try {
-                    const response = await fetch(`/broker/venues/${v.id}/complete`, {method:'POST', headers:{'Content-Type':'application/json','Accept':'application/json','X-CSRF-TOKEN':csrf}, body:JSON.stringify({completed:check.checked})});
+                    const response = await fetch(`/broker/venues/${v.id}/complete`, {method:'POST', headers:{'Content-Type':'application/json','Accept':'application/json','X-CSRF-TOKEN':csrf}, body:JSON.stringify({status:status.value})});
                     if (!response.ok) throw new Error();
-                    v.completed = (await response.json()).completed; render();
-                } catch { check.checked = v.completed; $('location-note').textContent = 'Не удалось сохранить отметку. Проверьте соединение и повторите.'; }
-                finally { check.disabled = false; }
+                    v.dealStatus = (await response.json()).status; render();
+                } catch { status.value = v.dealStatus; $('location-note').textContent = 'Не удалось сохранить состояние сделки. Проверьте соединение и повторите.'; }
+                finally { status.disabled = false; }
             };
-            label.append(check, document.createTextNode('Сделка завершена')); card.append(label); $('venue-list').append(card);
+            label.append(document.createTextNode('Состояние сделки'), status); card.append(label); $('venue-list').append(card);
         });
         if (markers) {
             markers.clearLayers();
@@ -123,7 +126,7 @@
         $('route').hidden = true;
         if (!origin) { $('route-note').textContent = 'Выберите начальную точку для маршрута.'; return; }
         if (!$('district').value) { $('route-note').textContent = 'Выберите район для маршрута объезда.'; return; }
-        const remaining = items.filter(v => validPoint(v) && !v.completed), stops = [];
+        const remaining = items.filter(v => validPoint(v) && v.dealStatus === 'open'), stops = [];
         let current = origin;
         // Keep the link within mobile Google Maps' three-waypoint limit.
         while (remaining.length && stops.length < 4) {
@@ -146,4 +149,9 @@
     $('prev').onclick=()=>{page--;render();}; $('next').onclick=()=>{page++;render();};
     $('close-dialog').onclick=()=>$('registration').close();
     render();
+    try {
+        const saved = JSON.parse(localStorage.getItem('broker-origin'));
+        if (saved && Number.isFinite(saved.lat) && Number.isFinite(saved.lng)) setOrigin(saved.lat, saved.lng);
+    } catch {}
+    locate(false);
 })();
