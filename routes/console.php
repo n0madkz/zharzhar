@@ -3,6 +3,7 @@
 use App\Models\Invitation;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Schedule;
 use Symfony\Component\Process\Process;
 
@@ -13,34 +14,46 @@ Artisan::command('inspire', function () {
 Artisan::command('broker:parser-install {--python=}', function () {
     $requested = trim((string) $this->option('python'));
     $candidates = $requested !== ''
-        ? [$requested]
+        ? [[$requested]]
         : (PHP_OS_FAMILY === 'Windows'
-            ? ['python', 'py']
-            : ['/usr/bin/python3', '/usr/local/bin/python3', 'python3', 'python']);
+            ? [['python'], ['py', '-3']]
+            : array_map(fn ($path) => [$path], [
+                '/opt/alt/python312/bin/python3', '/opt/alt/python311/bin/python3',
+                '/opt/alt/python310/bin/python3', '/opt/alt/python39/bin/python3',
+                '/opt/alt/python38/bin/python3', '/usr/local/bin/python3.12',
+                '/usr/local/bin/python3.11', '/usr/local/bin/python3.10',
+                '/usr/local/bin/python3.9', '/usr/local/bin/python3.8',
+                '/usr/bin/python3.12', '/usr/bin/python3.11', '/usr/bin/python3.10',
+                '/usr/bin/python3.9', '/usr/bin/python3.8', 'python3', 'python',
+            ]));
     $systemPython = null;
 
     foreach ($candidates as $candidate) {
-        $check = new Process([$candidate, '--version'], base_path(), null, null, 15);
+        $check = new Process([...$candidate, '-c', 'import sys; print(".".join(map(str, sys.version_info[:3]))); raise SystemExit(0 if sys.version_info >= (3, 8) else 2)'], base_path(), null, null, 15);
         $check->run();
         if ($check->isSuccessful()) {
             $systemPython = $candidate;
             break;
         }
+        if ($check->getExitCode() === 2) {
+            $this->warn(implode(' ', $candidate).': Python '.trim($check->getOutput()).' пропущен, требуется 3.8 или новее.');
+        }
     }
 
     if (! $systemPython) {
-        $this->error('Python 3 не найден. Установите Python 3 в Plesk или передайте путь: broker:parser-install --python=/путь/python3');
+        $this->error('Python 3.8 или новее не найден. Включите современный Python в Plesk/CloudLinux или передайте путь: broker:parser-install --python=/путь/python3');
 
         return self::FAILURE;
     }
 
-    $this->info('Python: '.$systemPython);
+    $this->info('Python: '.implode(' ', $systemPython));
     $directory = storage_path('app/broker-parser');
     $marker = (string) config('broker.parser_marker');
-    if (is_file($marker)) {
-        unlink($marker);
+    if (File::isDirectory($directory)) {
+        File::deleteDirectory($directory);
     }
-    $venv = new Process([$systemPython, '-m', 'venv', $directory], base_path(), null, null, 300);
+    File::ensureDirectoryExists(dirname($directory));
+    $venv = new Process([...$systemPython, '-m', 'venv', $directory], base_path(), null, null, 300);
     $venv->setTty(false)->mustRun(fn ($type, $buffer) => $this->output->write($buffer));
     $python = PHP_OS_FAMILY === 'Windows' ? $directory.'/Scripts/python.exe' : $directory.'/bin/python';
     $upgrade = new Process([$python, '-m', 'pip', 'install', '--disable-pip-version-check', '--upgrade', 'pip', 'setuptools', 'wheel'], base_path(), null, null, 600);
