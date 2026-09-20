@@ -14,7 +14,11 @@
     [...new Set(venues.map(v => v.district))].sort().forEach(d => { const o = text('option', d); o.value = d; $('district').append(o); });
     if (window.L) {
         map = L.map('map').setView([48, 67], 5);
-        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom: 19, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'}).addTo(map);
+        if (L.maplibreGL) {
+            L.maplibreGL({style: 'https://tiles.openfreemap.org/styles/liberty'}).addTo(map);
+        } else {
+            $('map-error').hidden = false;
+        }
         markers = L.layerGroup().addTo(map);
         const points = venues.filter(validPoint).map(v => [v.lat, v.lng]);
         if (points.length) map.fitBounds(points, {padding:[30,30], maxZoom:14});

@@ -1,6 +1,7 @@
 @extends('layouts.zharzhar', ['title' => 'Банкетные залы — ZharZhar Broker'])
 @section('content')
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="anonymous">
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.css">
 <link rel="stylesheet" href="{{ asset('broker.css') }}">
 <link rel="stylesheet" href="{{ asset('broker-extra.css') }}">
 <header><div><div class="brand">zharzhar · broker</div><small>Знакомьте рестораны с сервисом и подключайте партнёров</small></div><form action="/logout" method="post">@csrf<button class="button secondary">Выйти</button></form></header>
@@ -33,5 +34,7 @@
 <dialog id="registration"><div class="broker-dialog-head"><h2>Подключить ресторан</h2><button type="button" id="close-dialog" aria-label="Закрыть">×</button></div><p id="registration-name"></p><form method="post" id="registration-form" class="form-stack">@csrf<label>Email для входа<input type="email" name="email" id="registration-email" required maxlength="255" autocomplete="off"></label><label>Телефон ресторана<input type="tel" name="phone" id="registration-phone" required maxlength="30"></label><label>Пароль партнёра<input type="password" name="password" minlength="8" maxlength="128" required autocomplete="new-password"></label><label>Повторите пароль<input type="password" name="password_confirmation" minlength="8" maxlength="128" required autocomplete="new-password"></label><small>После регистрации передайте ресторану email и пароль для входа на partner.zharzhar.kz.</small><button class="button">Зарегистрировать партнёра</button></form></dialog>
 <script>window.brokerData = {{ Illuminate\Support\Js::from(['venues' => $venues, 'city' => $city, 'csrf' => csrf_token()]) }};</script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.js"></script>
+<script src="https://unpkg.com/@maplibre/maplibre-gl-leaflet/leaflet-maplibre-gl.js"></script>
 <script src="{{ asset('broker.js') }}" defer></script>
 @endsection
