@@ -21,8 +21,8 @@ Route::domain(config('store.broker_domain'))->get('/', fn () => redirect('/broke
 Route::middleware(['auth', 'role:broker,admin'])->prefix('broker')->name('broker.')->group(function () {
     Route::get('/', [BrokerController::class, 'index'])->name('index');
     Route::post('/settings', [BrokerController::class, 'settings'])->name('settings');
-    Route::post('/cities', [BrokerController::class, 'addCity'])->middleware('throttle:2,60')->name('cities.store');
-    Route::post('/collect', [BrokerController::class, 'collect'])->middleware('throttle:2,60')->name('collect');
+    Route::post('/cities', [BrokerController::class, 'addCity'])->name('cities.store');
+    Route::post('/collect', [BrokerController::class, 'collect'])->name('collect');
     Route::post('/venues/{venue}/complete', [BrokerController::class, 'complete'])->name('complete');
     Route::post('/venues/{venue}/register', [BrokerController::class, 'register'])->middleware('throttle:10,1')->name('register');
 });

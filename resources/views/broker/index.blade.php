@@ -56,7 +56,7 @@
             @if($availableCities->isNotEmpty())
             <form action="/broker/cities" method="post" class="broker-add-city">@csrf<label>Добавить город<select name="city" required><option value="">Выберите город</option>@foreach($availableCities as $option)<option value="{{ $option }}">{{ $option }}</option>@endforeach</select></label><button class="button">Добавить и загрузить</button></form>
             @endif
-            <form action="/broker/collect" method="post">@csrf<input type="hidden" name="city" value="{{ $city }}"><button class="button secondary">Обновить {{ $city }} из 2GIS</button></form>
+            <form action="/broker/collect" method="post" data-parser-form>@csrf<input type="hidden" name="city" value="{{ $city }}"><button class="button secondary">Обновить {{ $city }} из 2GIS</button></form>
             <p class="{{ $parserReady ? 'success' : 'error' }}">{{ $parserReady ? 'Парсер 2GIS установлен.' : 'Парсер 2GIS не установлен. Выполните в Artisan: broker:parser-install' }}</p>
             <small>Получение актуального списка из 2GIS может занять несколько минут.</small>
         </section>

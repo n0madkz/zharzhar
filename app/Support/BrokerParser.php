@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\Process\Process;
 
@@ -17,6 +18,13 @@ class BrokerParser
         if (! $alias || ! $python || ! is_file($python) || ! is_file((string) config('broker.parser_marker'))) {
             throw ValidationException::withMessages([
                 'city' => 'Парсер 2GIS ещё не установлен на сервере. Администратору нужно один раз выполнить команду broker:parser-install.',
+            ]);
+        }
+
+        $lock = Cache::lock('broker-parser:'.sha1($city), 1800);
+        if (! $lock->get()) {
+            throw ValidationException::withMessages([
+                'city' => 'Загрузка этого города уже выполняется. Дождитесь завершения и обновите страницу.',
             ]);
         }
 
@@ -45,6 +53,7 @@ class BrokerParser
             if ($path && is_file($path)) {
                 unlink($path);
             }
+            $lock->release();
         }
     }
 }

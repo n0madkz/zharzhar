@@ -336,6 +336,11 @@
         }));
     });
     document.querySelectorAll('[data-tab]').forEach(button => button.onclick = () => switchScreen(button.dataset.tab));
+    document.querySelectorAll('[data-parser-form]').forEach(form => form.addEventListener('submit', () => {
+        const button = form.querySelector('button');
+        button.disabled = true;
+        button.textContent = 'Загрузка из 2GIS…';
+    }));
     $('locate').onclick = () => locate(true);
     $('group-district').onchange = () => {
         venuePage = 1;
