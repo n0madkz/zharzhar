@@ -1,2 +1,3 @@
 # Upstream LGPL-3.0 source, pinned to the reviewed revision.
 git+https://github.com/interlark/parser-2gis.git@e12cc050ea811ed76e65a1be938214b6583f9072#egg=parser-2gis
+playwright==1.40.0

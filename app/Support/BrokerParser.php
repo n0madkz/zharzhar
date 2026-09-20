@@ -14,10 +14,11 @@ class BrokerParser
     {
         $alias = config("broker.cities.{$city}");
         $python = config('broker.parser_python');
+        $chrome = trim((string) @file_get_contents((string) config('broker.chrome_path_file')));
 
-        if (! $alias || ! $python || ! is_file($python) || ! is_file((string) config('broker.parser_marker'))) {
+        if (! $alias || ! $python || ! is_file($python) || ! is_file((string) config('broker.parser_marker')) || ! is_file($chrome)) {
             throw ValidationException::withMessages([
-                'city' => 'Парсер 2GIS ещё не установлен на сервере. Администратору нужно один раз выполнить команду broker:parser-install.',
+                'city' => 'Парсер 2GIS или Chromium ещё не установлен на сервере. Выполните команду broker:parser-install.',
             ]);
         }
 
@@ -35,6 +36,7 @@ class BrokerParser
                 $python, base_path('tools/broker/collect.py'),
                 '-i', 'https://2gis.kz/'.$alias.'/search/'.rawurlencode('Банкетные залы'),
                 '-o', $path, '-f', 'json', '--chrome.headless', 'yes',
+                '--chrome.binary_path', $chrome,
                 '--chrome.start-maximized', 'yes', '--chrome.silent-browser', 'yes', '--chrome.disable-images', 'yes',
                 '--parser.max-records', '1000', '--parser.delay_between_clicks', '250',
                 '--writer.encoding', 'utf8', '--writer.verbose', 'no',

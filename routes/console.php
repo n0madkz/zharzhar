@@ -1,10 +1,12 @@
 <?php
 
 use App\Models\Invitation;
+use App\Support\BrokerParser;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Schedule;
+use Illuminate\Validation\ValidationException;
 use Symfony\Component\Process\Process;
 
 Artisan::command('inspire', function () {
@@ -60,9 +62,24 @@ Artisan::command('broker:parser-install {--python=}', function () {
     $upgrade->setTty(false)->mustRun(fn ($type, $buffer) => $this->output->write($buffer));
     $install = new Process([$python, '-m', 'pip', 'install', '--disable-pip-version-check', '-r', base_path('tools/broker/requirements.txt')], base_path(), null, null, 900);
     $install->setTty(false)->mustRun(fn ($type, $buffer) => $this->output->write($buffer));
+    $browserDirectory = (string) config('broker.browser_directory');
+    File::ensureDirectoryExists($browserDirectory);
+    $browserEnvironment = ['PLAYWRIGHT_BROWSERS_PATH' => $browserDirectory];
+    $browserInstall = new Process([$python, '-m', 'playwright', 'install', 'chromium'], base_path(), $browserEnvironment, null, 1200);
+    $browserInstall->setTty(false)->mustRun(fn ($type, $buffer) => $this->output->write($buffer));
+    $browserPath = new Process([$python, '-c', 'from playwright.sync_api import sync_playwright; p=sync_playwright().start(); print(p.chromium.executable_path); p.stop()'], base_path(), $browserEnvironment, null, 60);
+    $browserPath->mustRun();
+    $chrome = trim($browserPath->getOutput());
+    if (! is_file($chrome)) {
+        $this->error('Chromium загружен, но исполняемый файл не найден: '.$chrome);
+
+        return self::FAILURE;
+    }
+    file_put_contents((string) config('broker.chrome_path_file'), $chrome);
     file_put_contents($marker, now()->toIso8601String());
     $this->newLine();
     $this->info('parser-2gis installed: '.$python);
+    $this->info('Chromium installed: '.$chrome);
 
     return self::SUCCESS;
 })->purpose('Install the pinned interlark/parser-2gis package for the broker cabinet');
@@ -84,11 +101,48 @@ Artisan::command('broker:parser-check', function () {
         return self::FAILURE;
     }
 
+    $chrome = trim((string) @file_get_contents((string) config('broker.chrome_path_file')));
+    if (! is_file($chrome)) {
+        $this->error('Chromium для парсера не найден. Повторите: broker:parser-install');
+
+        return self::FAILURE;
+    }
+    $browserCheck = new Process([$chrome, '--headless', '--no-sandbox', '--disable-gpu', '--dump-dom', 'about:blank'], base_path(), null, null, 30);
+    $browserCheck->run();
+    if (! $browserCheck->isSuccessful()) {
+        $this->error('Chromium установлен, но не запускается на сервере. Обратитесь к хостингу для установки системных библиотек Chromium.');
+        $this->line(trim($browserCheck->getErrorOutput()));
+
+        return self::FAILURE;
+    }
+
     file_put_contents((string) config('broker.parser_marker'), now()->toIso8601String());
     $this->info('Парсер готов: '.$python);
+    $this->info('Chromium готов: '.$chrome);
 
     return self::SUCCESS;
 })->purpose('Check the broker parser-2gis installation');
+
+Artisan::command('broker:collect {city=Атырау}', function () {
+    $city = (string) $this->argument('city');
+    if (! array_key_exists($city, config('broker.cities'))) {
+        $this->error('Неизвестный город: '.$city);
+
+        return self::FAILURE;
+    }
+
+    $this->info('Загрузка банкетных залов из 2GIS: '.$city);
+    try {
+        $count = app(BrokerParser::class)->collect($city);
+    } catch (ValidationException $exception) {
+        $this->error(collect($exception->errors())->flatten()->first() ?: 'Не удалось загрузить данные из 2GIS.');
+
+        return self::FAILURE;
+    }
+    $this->info('Загружено залов: '.$count);
+
+    return self::SUCCESS;
+})->purpose('Load a city banquet hall directory from 2GIS');
 
 Schedule::call(fn () => Invitation::archiveExpired())
     ->dailyAt('02:15')

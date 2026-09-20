@@ -5,6 +5,8 @@ return [
         ? storage_path('app/broker-parser/Scripts/python.exe')
         : storage_path('app/broker-parser/bin/python')),
     'parser_marker' => storage_path('app/broker-parser/.installed'),
+    'chrome_path_file' => storage_path('app/broker-parser/chrome-path'),
+    'browser_directory' => storage_path('app/broker-browser'),
     'cities' => [
         'Алматы' => 'almaty', 'Астана' => 'astana', 'Шымкент' => 'shymkent',
         'Атырау' => 'atyrau', 'Актобе' => 'aktobe', 'Актау' => 'aktau',

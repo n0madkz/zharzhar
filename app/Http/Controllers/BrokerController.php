@@ -43,7 +43,8 @@ class BrokerController extends Controller
         $availableCities = collect(array_keys(config('broker.cities')))->diff($cities)->values();
 
         $parserReady = is_file((string) config('broker.parser_python'))
-            && is_file((string) config('broker.parser_marker'));
+            && is_file((string) config('broker.parser_marker'))
+            && is_file(trim((string) @file_get_contents((string) config('broker.chrome_path_file'))));
 
         return view('broker.index', compact('cities', 'availableCities', 'city', 'venues', 'parserReady'));
     }
