@@ -1,46 +1,41 @@
-.broker-city-panel {
-    margin-bottom: 20px;
+.broker-app {
+    padding-bottom: 96px;
 }
 
-.broker-city-panel summary {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    cursor: pointer;
-    list-style: none;
+.broker-screen {
+    animation: broker-screen-in .18s ease-out;
 }
 
-.broker-city-panel summary::-webkit-details-marker {
+.broker-screen[hidden] {
     display: none;
 }
 
-.broker-city-panel summary::after {
-    content: "+";
+@keyframes broker-screen-in {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: none; }
+}
+
+.broker-tools-compact {
+    grid-template-columns: 1.4fr 1fr 1fr;
+}
+
+.broker-map {
+    position: static;
+}
+
+#map {
+    height: min(68vh, 720px);
+}
+
+.broker-settings {
     display: grid;
-    width: 32px;
-    height: 32px;
-    place-items: center;
-    border-radius: 10px;
-    background: #eef4ff;
-    color: #2563eb;
-    font-size: 22px;
+    gap: 18px;
 }
 
-.broker-city-panel[open] summary::after {
-    content: "−";
-}
-
-.broker-city-panel summary span {
-    margin-left: auto;
-    color: var(--muted);
-    font-weight: 650;
-}
-
-.broker-city-panel form,
-.broker-city-panel > small,
-.broker-city-panel > p {
-    margin-top: 16px;
+.broker-settings h2,
+.broker-settings p,
+.broker-settings form {
+    margin: 0;
 }
 
 .broker-city-form,
@@ -55,6 +50,7 @@
 .broker-add-city label {
     display: grid;
     gap: 7px;
+    font-weight: 650;
 }
 
 .broker-city-form select,
@@ -69,20 +65,115 @@
     font: inherit;
 }
 
-.broker-city-panel > small {
-    display: block;
+.broker-logout {
+    margin-top: 16px;
 }
 
-.broker-view-controls {
+.broker-bottom-nav {
+    position: fixed;
+    z-index: 1000;
+    left: 50%;
+    bottom: max(14px, env(safe-area-inset-bottom));
+    display: grid;
+    grid-template-columns: repeat(4, minmax(86px, 1fr));
+    width: min(620px, calc(100% - 28px));
+    padding: 8px;
+    border: 1px solid rgba(148, 163, 184, .35);
+    border-radius: 22px;
+    background: rgba(255, 255, 255, .94);
+    box-shadow: 0 18px 45px rgba(15, 23, 42, .2);
+    backdrop-filter: blur(18px);
+    transform: translateX(-50%);
+}
+
+.broker-bottom-nav button {
+    display: grid;
+    justify-items: center;
+    gap: 4px;
+    min-height: 58px;
+    padding: 7px 6px;
+    border: 0;
+    border-radius: 15px;
+    background: transparent;
+    color: #64748b;
+    font: inherit;
+    font-size: 11px;
+    font-weight: 750;
+    cursor: pointer;
+}
+
+.broker-bottom-nav button.is-active {
+    background: #eaf1ff;
+    color: #1d4ed8;
+}
+
+.broker-bottom-nav svg {
+    width: 22px;
+    height: 22px;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.8;
+}
+
+.broker-venue {
+    padding: 0;
+    overflow: clip;
+}
+
+.broker-venue summary {
     display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin: 14px 0;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 18px 20px;
+    cursor: pointer;
+    list-style: none;
+}
+
+.broker-venue summary::-webkit-details-marker {
+    display: none;
+}
+
+.broker-venue summary > div {
+    min-width: 0;
+}
+
+.broker-venue summary h3 {
+    margin-bottom: 5px;
+}
+
+.broker-venue summary strong {
+    display: block;
+    margin-top: 8px;
+    font-size: 13px;
+}
+
+.broker-card-state {
+    flex: none;
+    padding: 7px 10px;
+    border-radius: 999px;
+    background: #eef4ff;
+    color: #1d4ed8;
+    font-size: 12px;
+    font-weight: 750;
+}
+
+.broker-venue[open] .broker-card-state {
+    background: #dbeafe;
+}
+
+.broker-venue-body {
+    padding: 0 20px 20px;
+    border-top: 1px solid var(--line);
 }
 
 .broker-complete {
-    align-items: stretch;
-    flex-direction: column;
+    display: grid;
+    gap: 7px;
+    margin-top: 16px;
+    font-size: 13px;
     font-weight: 650;
 }
 
@@ -90,20 +181,18 @@
     width: 100%;
 }
 
-.broker-workspace[data-view="list"] {
-    grid-template-columns: 1fr;
+#hall-fields {
+    display: grid;
+    gap: 12px;
+    padding: 14px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: #f8fafc;
 }
 
-.broker-workspace[data-view="list"] .broker-map {
-    display: none;
-}
-
-.broker-workspace[data-view="map"] {
-    grid-template-columns: 1fr;
-}
-
-.broker-workspace[data-view="map"] > section {
-    display: none;
+#hall-fields label {
+    display: grid;
+    gap: 7px;
 }
 
 .checkbox-grid {
@@ -129,25 +218,52 @@
 }
 
 @media (max-width: 700px) {
+    .broker-topbar {
+        align-items: center;
+    }
+
+    .broker-topbar small {
+        display: block;
+    }
+
+    .broker-topbar .button {
+        width: auto;
+        padding-inline: 12px;
+    }
+
     .broker-city-form,
-    .broker-add-city {
+    .broker-add-city,
+    .broker-tools-compact {
         grid-template-columns: 1fr;
     }
 
-    .broker-city-panel summary {
-        flex-wrap: wrap;
+    .broker-city-form .button,
+    .broker-add-city .button,
+    .broker-settings > form > .button {
+        width: 100%;
     }
 
-    .broker-city-panel summary span {
-        order: 3;
-        width: 100%;
-        margin-left: 0;
+    .broker-venue summary {
+        align-items: flex-start;
+        padding: 16px;
     }
 
-    .broker-city-panel form .button,
-    .broker-view-controls .button {
-        width: 100%;
-        flex: 1;
+    .broker-venue-body {
+        padding: 0 16px 16px;
+    }
+
+    .broker-bottom-nav {
+        bottom: max(8px, env(safe-area-inset-bottom));
+        grid-template-columns: repeat(4, 1fr);
+        width: calc(100% - 16px);
+        border-radius: 18px;
+    }
+
+    .broker-bottom-nav button {
+        min-width: 0;
+        min-height: 54px;
+        padding-inline: 2px;
+        font-size: 10px;
     }
 
     .checkbox-grid {

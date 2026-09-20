@@ -42,7 +42,8 @@ class BrokerController extends Controller
 
         $availableCities = collect(array_keys(config('broker.cities')))->diff($cities)->values();
 
-        $parserReady = is_file((string) config('broker.parser_python'));
+        $parserReady = is_file((string) config('broker.parser_python'))
+            && is_file((string) config('broker.parser_marker'));
 
         return view('broker.index', compact('cities', 'availableCities', 'city', 'venues', 'parserReady'));
     }
@@ -100,7 +101,13 @@ class BrokerController extends Controller
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
             'phone' => ['required', 'string', 'max:30', 'regex:/^[+\d\s()\-]{10,30}$/'],
             'password' => ['required', 'string', 'min:8', 'max:128', 'confirmed'],
+            'halls_count' => ['required', 'integer', 'min:1', 'max:20'],
+            'halls' => ['required', 'array', 'min:1', 'max:20'],
+            'halls.*.max_seats' => ['required', 'integer', 'min:1', 'max:10000'],
         ]);
+        if (count($data['halls']) !== (int) $data['halls_count']) {
+            throw ValidationException::withMessages(['halls_count' => 'Укажите вместимость каждого зала.']);
+        }
         $phone = BrokerDirectory::phone($data['phone']);
         if (strlen($phone) < 10 || strlen($phone) > 15) {
             throw ValidationException::withMessages(['phone' => 'Укажите полный номер телефона.']);
@@ -121,7 +128,18 @@ class BrokerController extends Controller
                 'name' => $locked->name, 'city' => $locked->city, 'address' => $locked->address,
                 'two_gis_url' => $locked->two_gis_url,
             ]);
-            $restaurant->fill(['partner_user_id' => $user->id, 'phone' => '+'.$phone])->save();
+            $restaurant->fill([
+                'partner_user_id' => $user->id,
+                'phone' => '+'.$phone,
+                'max_seats' => collect($data['halls'])->sum('max_seats'),
+            ])->save();
+            $restaurant->halls()->delete();
+            foreach (array_values($data['halls']) as $index => $hall) {
+                $restaurant->halls()->create([
+                    'name' => 'Зал '.($index + 1),
+                    'max_seats' => $hall['max_seats'],
+                ]);
+            }
             foreach ([['morning', 'Утро', '09:00', '12:00'], ['day', 'День', '13:00', '17:00'], ['evening', 'Вечер', '18:00', '22:00']] as [$key, $label, $start, $end]) {
                 $restaurant->slots()->firstOrCreate(['slot_key' => $key], ['label' => $label, 'start_time' => $start, 'end_time' => $end, 'color' => '#2563eb']);
             }

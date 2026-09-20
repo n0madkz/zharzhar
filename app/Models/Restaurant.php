@@ -25,6 +25,11 @@ class Restaurant extends Model
         return $this->hasMany(RestaurantSlot::class);
     }
 
+    public function halls(): HasMany
+    {
+        return $this->hasMany(RestaurantHall::class);
+    }
+
     public function bookings(): HasMany
     {
         return $this->hasMany(Booking::class);

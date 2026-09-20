@@ -4,6 +4,7 @@ return [
     'parser_python' => env('BROKER_PARSER_PYTHON', PHP_OS_FAMILY === 'Windows'
         ? storage_path('app/broker-parser/Scripts/python.exe')
         : storage_path('app/broker-parser/bin/python')),
+    'parser_marker' => storage_path('app/broker-parser/.installed'),
     'cities' => [
         'Алматы' => 'almaty', 'Астана' => 'astana', 'Шымкент' => 'shymkent',
         'Атырау' => 'atyrau', 'Актобе' => 'aktobe', 'Актау' => 'aktau',

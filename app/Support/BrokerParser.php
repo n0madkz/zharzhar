@@ -14,7 +14,7 @@ class BrokerParser
         $alias = config("broker.cities.{$city}");
         $python = config('broker.parser_python');
 
-        if (! $alias || ! $python || ! is_file($python)) {
+        if (! $alias || ! $python || ! is_file($python) || ! is_file((string) config('broker.parser_marker'))) {
             throw ValidationException::withMessages([
                 'city' => 'Парсер 2GIS ещё не установлен на сервере. Администратору нужно один раз выполнить команду broker:parser-install.',
             ]);

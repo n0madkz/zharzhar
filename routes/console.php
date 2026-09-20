@@ -36,11 +36,18 @@ Artisan::command('broker:parser-install {--python=}', function () {
 
     $this->info('Python: '.$systemPython);
     $directory = storage_path('app/broker-parser');
+    $marker = (string) config('broker.parser_marker');
+    if (is_file($marker)) {
+        unlink($marker);
+    }
     $venv = new Process([$systemPython, '-m', 'venv', $directory], base_path(), null, null, 300);
     $venv->setTty(false)->mustRun(fn ($type, $buffer) => $this->output->write($buffer));
     $python = PHP_OS_FAMILY === 'Windows' ? $directory.'/Scripts/python.exe' : $directory.'/bin/python';
+    $upgrade = new Process([$python, '-m', 'pip', 'install', '--disable-pip-version-check', '--upgrade', 'pip', 'setuptools', 'wheel'], base_path(), null, null, 600);
+    $upgrade->setTty(false)->mustRun(fn ($type, $buffer) => $this->output->write($buffer));
     $install = new Process([$python, '-m', 'pip', 'install', '--disable-pip-version-check', '-r', base_path('tools/broker/requirements.txt')], base_path(), null, null, 900);
     $install->setTty(false)->mustRun(fn ($type, $buffer) => $this->output->write($buffer));
+    file_put_contents($marker, now()->toIso8601String());
     $this->newLine();
     $this->info('parser-2gis installed: '.$python);
 
@@ -64,6 +71,7 @@ Artisan::command('broker:parser-check', function () {
         return self::FAILURE;
     }
 
+    file_put_contents((string) config('broker.parser_marker'), now()->toIso8601String());
     $this->info('Парсер готов: '.$python);
 
     return self::SUCCESS;

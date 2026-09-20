@@ -59,7 +59,11 @@ class BrokerTest extends TestCase
     {
         $broker = User::factory()->create(['role' => 'broker', 'broker_city' => 'Алматы', 'broker_cities' => ['Алматы']]);
         $venue = $this->venue();
-        $form = ['email' => 'hall@example.test', 'phone' => '8 (700) 123-45-67', 'password' => 'test-password', 'password_confirmation' => 'test-password'];
+        $form = [
+            'email' => 'hall@example.test', 'phone' => '8 (700) 123-45-67',
+            'halls_count' => 2, 'halls' => [['max_seats' => 120], ['max_seats' => 80]],
+            'password' => 'test-password', 'password_confirmation' => 'test-password',
+        ];
         $this->actingAs($broker)->post('https://broker.zharzhar.kz/broker/venues/'.$venue->id.'/register', $form)->assertSessionHasNoErrors()->assertRedirect();
         $partner = User::where('email', $form['email'])->firstOrFail();
         $this->assertSame('partner', $partner->role);
@@ -67,6 +71,8 @@ class BrokerTest extends TestCase
         $this->assertSame('+77001234567', $partner->phone);
         $restaurant = Restaurant::firstOrFail();
         $this->assertSame(3, $restaurant->slots()->count());
+        $this->assertSame(2, $restaurant->halls()->count());
+        $this->assertSame(200, $restaurant->max_seats);
         $this->assertSame($restaurant->id, $venue->fresh()->restaurant_id);
         $this->assertNotNull($venue->fresh()->completed_at);
         $form['email'] = 'second@example.test';
