@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use App\Models\BrokerVenue;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\Process\Process;
@@ -28,10 +29,13 @@ class BrokerParser
         }
 
         try {
+            $this->importBundledDirectory($city);
             $browserException = null;
             if ($this->browserIsInstalled()) {
                 try {
-                    return $this->collectWithBrowser($city, $alias);
+                    $this->collectWithBrowser($city, $alias);
+
+                    return $this->venueCount($city);
                 } catch (\Throwable $exception) {
                     $browserException = $exception;
                     report($exception);
@@ -41,10 +45,12 @@ class BrokerParser
             try {
                 $items = $this->webCollector->collect($alias);
 
-                return $this->directory->import(
+                $this->directory->import(
                     json_encode($items, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE),
                     $city,
                 );
+
+                return $this->venueCount($city);
             } catch (ValidationException $exception) {
                 throw $exception;
             } catch (\Throwable $webException) {
@@ -59,6 +65,23 @@ class BrokerParser
         } finally {
             $lock->release();
         }
+    }
+
+    private function importBundledDirectory(string $city): void
+    {
+        if ($city !== 'Атырау') {
+            return;
+        }
+
+        $path = database_path('data/broker-atyrau.json');
+        if (is_file($path)) {
+            $this->directory->import(file_get_contents($path), $city);
+        }
+    }
+
+    private function venueCount(string $city): int
+    {
+        return BrokerVenue::query()->where('city', $city)->count();
     }
 
     private function browserIsInstalled(): bool

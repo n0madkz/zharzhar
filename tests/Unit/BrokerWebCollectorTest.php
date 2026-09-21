@@ -34,6 +34,7 @@ class BrokerWebCollectorTest extends TestCase
         $this->assertCount(2, $items);
         $this->assertSame('Зал 1', $items[0]['name_ex']['primary']);
         $this->assertSame('Зал 2', $items[1]['name_ex']['primary']);
+        Http::assertSent(fn ($request) => str_contains($request->url(), '/rubricId/10803'));
         Http::assertSentCount(2);
     }
 }

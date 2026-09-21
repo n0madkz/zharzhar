@@ -13,11 +13,11 @@ class BrokerWebCollector
     {
         // The upstream parser's URL generator uses alphabetical sorting to
         // prevent duplicate result ordering while paging through 2GIS.
-        $baseUrl = 'https://2gis.kz/'.$cityAlias.'/search/'.rawurlencode('Банкетные залы').'/filters/sort=name';
+        $baseUrl = 'https://2gis.kz/'.$cityAlias.'/search/'.rawurlencode('Банкетные залы').'/rubricId/10803';
         $first = $this->state($this->request(), $baseUrl);
         $items = $this->items($first);
-        // Public SSR currently exposes five result pages. Requests above page
-        // five silently return page one, so stop before those duplicates.
+        // Public SSR exposes only the first five distinct pages. The bundled
+        // city directory fills the remaining pages for Atyrau.
         $pages = min(5, max(1, $this->pageCount($first)));
 
         for ($page = 2; $page <= $pages; $page++) {
