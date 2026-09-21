@@ -20,6 +20,8 @@
         'music_hint' => 'Әуенді таңдап, алдын ала тыңдауға болады.', 'audio_label' => 'Таңдалған музыканы тыңдау',
         'invite_text' => 'Шақыру мәтіні', 'optional_text' => 'Қалауыңызша. Бос қалдырсаңыз, дайын мәтін қолданылады.',
         'text_placeholder' => 'Құрметті ағайын-туыс, бауырлар мен достар! Сіздерді қуанышымыздың қадірлі қонағы болуға шақырамыз…',
+        'video_final_text' => 'Видео соңындағы жеке мәтін', 'video_final_hint' => 'Роликтің соңында есімдер мен күннің үстінде көрсетіледі.',
+        'video_final_placeholder' => 'Қуанышымызға ортақ болыңыз!', 'video_audio_hint' => 'Музыка мен дыбыс видеошаблонның өзінде бар.',
         'photos' => 'Өз фотоларыңыз', 'photos_hint' => '1–3 фото таңдаңыз. JPG, PNG немесе WebP, әр файл 5 МБ-тан аспауы керек.',
         'photos_preview' => 'Таңдалған фотолар',
         'contact' => '04. Сізбен қалай байланысамыз', 'your_name' => 'Сіздің есіміңіз', 'phone' => 'Телефон / WhatsApp',
@@ -44,6 +46,8 @@
         'music_hint' => 'Выберите трек и прослушайте его заранее.', 'audio_label' => 'Прослушать выбранную музыку',
         'invite_text' => 'Текст приглашения', 'optional_text' => 'По желанию. Если оставить пустым, используем готовый текст.',
         'text_placeholder' => 'Дорогие родные и друзья! Будем рады видеть вас…',
+        'video_final_text' => 'Персональный текст в финале видео', 'video_final_hint' => 'Появится в конце ролика вместе с именами и датой.',
+        'video_final_placeholder' => 'Разделите с нами этот счастливый день!', 'video_audio_hint' => 'Музыка и звук уже находятся внутри видеошаблона.',
         'photos' => 'Ваши фотографии', 'photos_hint' => 'Выберите 1–3 фото. JPG, PNG или WebP, каждый файл до 5 МБ.',
         'photos_preview' => 'Выбранные фотографии',
         'contact' => '04. Как с вами связаться', 'your_name' => 'Ваше имя', 'phone' => 'Телефон / WhatsApp',
@@ -57,6 +61,7 @@
     $templateTitleSecondLine = implode(' ', $templateTitleWords);
     $selectedRestaurant = $restaurants->firstWhere('id', (int) old('restaurant_id'));
     $supportsPhotos = (bool) data_get($template->config_json, 'supports_photos', false);
+    $isVideo = data_get($template->config_json, 'format') === 'video';
 @endphp
 
 @extends('layouts.store', ['title' => $t['title']])
@@ -83,8 +88,13 @@
 <label class="field wide">{{ $t['address'] }}<input id="venue_address" name="venue_address" value="{{ old('venue_address') }}" maxlength="255" required>@error('venue_address')<span class="error">{{ $message }}</span>@enderror</label>
 </div></fieldset>
 <fieldset class="form-section"><legend>{{ $t['mood'] }}</legend><div class="form-grid">
+@if(!$isVideo)
 <label class="field wide">{{ $t['music'] }}<select id="music_id" name="music_id"><option value="">{{ $t['without_music'] }}</option>@foreach($music as $track)<option value="{{ $track->id }}" data-url="{{ $track->playbackUrl() }}" @selected((string)old('music_id') === (string)$track->id)>{{ $track->name }} · {{ $track->categoryLabel() }}</option>@endforeach</select><small>{{ $t['music_hint'] }}</small>@error('music_id')<span class="error">{{ $message }}</span>@enderror</label>
 <audio class="wide" id="music-preview" controls preload="none" hidden aria-label="{{ $t['audio_label'] }}"></audio>
+@else
+<p class="hint wide">{{ $t['video_audio_hint'] }}</p>
+<label class="field wide">{{ $t['video_final_text'] }}<textarea name="video_final_text" maxlength="240" placeholder="{{ $t['video_final_placeholder'] }}" required>{{ old('video_final_text', data_get($template->config_json, 'content_kk.closing_text', $t['video_final_placeholder'])) }}</textarea><small>{{ $t['video_final_hint'] }}</small>@error('video_final_text')<span class="error">{{ $message }}</span>@enderror</label>
+@endif
 <label class="field wide">{{ $t['invite_text'] }} <small>{{ $t['optional_text'] }}</small><textarea name="invitation_text" maxlength="2000" placeholder="{{ $t['text_placeholder'] }}">{{ old('invitation_text') }}</textarea>@error('invitation_text')<span class="error">{{ $message }}</span>@enderror</label>
 @if($supportsPhotos)
 <label class="field wide photo-upload">{{ $t['photos'] }}<input type="file" name="photos[]" accept="image/jpeg,image/png,image/webp" multiple required data-photo-input data-max-message="{{ $kk ? 'Ең көбі 3 фото таңдаңыз.' : 'Выберите не более 3 фотографий.' }}"><small>{{ $t['photos_hint'] }}</small>@error('photos')<span class="error">{{ $message }}</span>@enderror @error('photos.*')<span class="error">{{ $message }}</span>@enderror</label>

@@ -41,6 +41,17 @@ class StorefrontController extends Controller
         ]);
     }
 
+    public function videoFile(string $filename)
+    {
+        $relativePath = 'design-videos/'.$filename;
+        abort_unless(Storage::disk('public')->exists($relativePath), 404);
+
+        return response()->file(Storage::disk('public')->path($relativePath), [
+            'Cache-Control' => 'public, max-age=86400',
+            'Accept-Ranges' => 'bytes',
+        ]);
+    }
+
     public function index(Request $request): View
     {
         $category = $request->string('event')->toString();
@@ -72,7 +83,7 @@ class StorefrontController extends Controller
             'hosts_name' => 'Қуаныш иелері',
         ], $template->config_json['content_kk'] ?? []);
 
-        return view('store.invitation', [
+        return view($this->invitationView($template), [
             'template' => $template,
             'preview' => true,
             'invitation' => null,
@@ -86,6 +97,7 @@ class StorefrontController extends Controller
                 'two_gis_url' => $content['two_gis_url'] ?? null,
                 'hosts' => $content['hosts_name'],
                 'invitation_text' => $content['invitation_text'],
+                'video_final_text' => $content['closing_text'] ?? 'Қуанышымызға ортақ болыңыз!',
                 'language' => 'kk',
                 'theme' => $template->config_json['theme'] ?? 'pearl',
                 'template_copy' => $content,
@@ -159,7 +171,7 @@ class StorefrontController extends Controller
                 if ($music && ! $music->supportsCategory($data['event_type'])) {
                     throw ValidationException::withMessages(['music_id' => app()->isLocale('kk') ? 'Бұл музыка таңдалған мерекеге қолжетімсіз.' : 'Эта музыка недоступна для выбранного события.']);
                 }
-                $details = collect($data)->only(['event_type', 'names', 'hosts', 'event_date', 'event_time', 'restaurant_id', 'venue_name', 'venue_address', 'language', 'invitation_text'])->all();
+                $details = collect($data)->only(['event_type', 'names', 'hosts', 'event_date', 'event_time', 'restaurant_id', 'venue_name', 'venue_address', 'language', 'invitation_text', 'video_final_text'])->all();
                 $details['theme'] = $template->config_json['theme'] ?? 'sage';
                 $details['template_name'] = $template->name;
                 $details['music_url'] = $music?->audio_url;
@@ -224,7 +236,14 @@ class StorefrontController extends Controller
         $invitation = Invitation::with('template')->where('slug', $slug)->where('status', 'published')->firstOrFail();
         $order = InvitationOrder::where('invitation_id', $invitation->id)->where('status', 'paid')->firstOrFail();
 
-        return view('store.invitation', ['invitation' => $invitation, 'template' => $invitation->template, 'details' => $order->details, 'preview' => false]);
+        return view($this->invitationView($invitation->template), ['invitation' => $invitation, 'template' => $invitation->template, 'details' => $order->details, 'preview' => false]);
+    }
+
+    private function invitationView(Template $template): string
+    {
+        return data_get($template->config_json, 'format') === 'video'
+            ? 'store.video-invitation'
+            : 'store.invitation';
     }
 
     public function rsvp(Request $request, string $slug): RedirectResponse

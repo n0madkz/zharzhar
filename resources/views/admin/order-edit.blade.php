@@ -78,6 +78,7 @@
                 <label class="field wide">Название ресторана или места<input id="venue_name" name="venue_name" value="{{ $value('venue_name') }}" maxlength="160" required></label>
                 <label class="field wide">Адрес<input id="venue_address" name="venue_address" value="{{ $value('venue_address') }}" maxlength="255" required></label>
                 <label class="field wide">Основной текст приглашения<textarea name="invitation_text" maxlength="2000">{{ $value('invitation_text') }}</textarea></label>
+                @if(data_get($order->template?->config_json, 'format') === 'video')<label class="field wide">Финальный текст видеоприглашения<textarea name="video_final_text" maxlength="240">{{ $value('video_final_text') }}</textarea><small>Появляется в последние секунды ролика.</small></label>@endif
             </div>
         </fieldset>
 

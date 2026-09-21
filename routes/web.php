@@ -41,6 +41,9 @@ Route::get('/media/music/{filename}', [StorefrontController::class, 'musicFile']
 Route::get('/media/invitation-photo/{filename}', [StorefrontController::class, 'photoFile'])
     ->where('filename', '[A-Za-z0-9._-]+')
     ->name('store.photo');
+Route::get('/media/design-video/{filename}', [StorefrontController::class, 'videoFile'])
+    ->where('filename', '[A-Za-z0-9._-]+')
+    ->name('store.video');
 Route::get('/orders/{token}', [StorefrontController::class, 'payment'])->name('store.payment');
 Route::post('/orders/{token}/payment', [StorefrontController::class, 'submitPayment'])->middleware('throttle:5,1')->name('store.payment.submit');
 Route::get('/i/{slug}', [StorefrontController::class, 'invitation'])->name('store.invitation');

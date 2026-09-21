@@ -72,6 +72,7 @@ class InvitationStoreTest extends TestCase
     {
         return array_replace([
             'name' => 'Ақ арман', 'slug' => 'ak-arman', 'price' => 9990, 'theme' => 'pearl',
+            'format' => 'web',
             'event_type' => 'wedding', 'is_active' => 1,
             'content_title' => 'Ақ арман', 'content_event_label' => 'ҮЙЛЕНУ ТОЙЫ',
             'content_intro_title' => 'АҚ ТІЛЕКПЕН БАСТАЛҒАН КҮН',
@@ -660,6 +661,61 @@ class InvitationStoreTest extends TestCase
         $this->assertStringStartsWith('ZHAR-', PromoCode::firstOrFail()->code);
         $this->post('/admin/store/restaurants', ['name' => 'Салтанат', 'city' => 'Алматы', 'address' => 'Абая 1', 'is_active' => 1])->assertRedirect();
         $this->get('/admin/store')->assertOk()->assertSee('Жаңарған ақ арман')->assertSee('Салтанат')->assertSee('Қыз ұзату')->assertSee('Главный заголовок превью');
+    }
+
+    public function test_video_invitation_template_accepts_personal_final_text(): void
+    {
+        $template = Template::factory()->create([
+            'name' => 'Бейне шақыру',
+            'event_type' => 'wedding',
+            'config_json' => [
+                'format' => 'video',
+                'theme' => 'pearl',
+                'video_url' => 'https://cdn.example.com/wedding.mp4',
+                'video_end_seconds' => 7,
+                'content_kk' => ['closing_text' => 'Қуанышымызға ортақ болыңыз!'],
+            ],
+        ]);
+
+        $this->get('/designs/'.$template->id.'/preview')
+            ->assertOk()
+            ->assertSee('data-video-invitation', false)
+            ->assertSee('wedding.mp4', false)
+            ->assertSee('data-end-seconds="7"', false);
+
+        $this->get('/checkout/'.$template->id)
+            ->assertOk()
+            ->assertSee('name="video_final_text"', false)
+            ->assertDontSee('id="music_id"', false);
+
+        $data = $this->checkoutData($template);
+        $data['video_final_text'] = 'Біздің қуанышымызға ортақ болыңыз!';
+        $this->placeOrder($data)->assertRedirect();
+
+        $this->assertSame('Біздің қуанышымызға ортақ болыңыз!', InvitationOrder::firstOrFail()->details['video_final_text']);
+    }
+
+    public function test_admin_can_upload_video_template_without_public_storage_symlink(): void
+    {
+        Storage::fake('public');
+        $this->actingAs(User::factory()->create(['role' => 'admin']));
+
+        $data = $this->adminTemplateData([
+            'name' => 'Видео приглашение',
+            'slug' => 'video-invitation',
+            'format' => 'video',
+            'video_end_seconds' => 8,
+            'video_file' => UploadedFile::fake()->create('invitation.mp4', 1024, 'video/mp4'),
+        ]);
+
+        $this->post('/admin/store/templates', $data)->assertRedirect();
+        $template = Template::where('slug', 'video-invitation')->firstOrFail();
+        $this->assertSame('video', $template->config_json['format']);
+        $this->assertSame(8, $template->config_json['video_end_seconds']);
+        $this->assertStringStartsWith('/media/design-video/', $template->config_json['video_url']);
+        Storage::disk('public')->assertExists('design-videos/'.basename($template->config_json['video_url']));
+
+        $this->get($template->config_json['video_url'])->assertOk();
     }
 
     public function test_admin_can_edit_every_order_field_sync_published_invitation_and_delete_it(): void

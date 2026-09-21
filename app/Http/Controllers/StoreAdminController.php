@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class StoreAdminController extends Controller
@@ -148,6 +149,7 @@ class StoreAdminController extends Controller
             'language' => ['required', Rule::in(['kk', 'ru'])],
             'music_id' => ['nullable', 'integer', Rule::exists('music', 'id')],
             'invitation_text' => ['nullable', 'string', 'max:2000'],
+            'video_final_text' => ['nullable', 'string', 'max:240'],
             'copy' => ['required', 'array'],
             'copy.*' => ['required', 'string', 'max:300'],
             'subtotal' => ['required', 'integer', 'min:0', 'max:10000000'],
@@ -179,6 +181,7 @@ class StoreAdminController extends Controller
                 'two_gis_url' => $restaurant?->two_gis_url,
                 'language' => $data['language'],
                 'invitation_text' => $data['invitation_text'] ?? '',
+                'video_final_text' => $data['video_final_text'] ?? ($order->details['video_final_text'] ?? null),
                 'theme' => $template->config_json['theme'] ?? 'pearl',
                 'template_name' => $template->name,
                 'music_id' => $music?->id,
@@ -269,6 +272,10 @@ class StoreAdminController extends Controller
             'event_type' => ['nullable', Rule::in(array_keys(config('store.event_types')))],
             'price' => ['required', 'integer', 'min:7990', 'max:10000000'],
             'theme' => ['required', Rule::in(array_keys(config('store.themes')))],
+            'format' => ['required', Rule::in(['web', 'video'])],
+            'video_url' => ['nullable', 'string', 'max:500', 'regex:/^(https:\/\/|\/)[^\s]+$/'],
+            'video_file' => ['nullable', 'file', 'mimes:mp4,webm', 'max:102400'],
+            'video_end_seconds' => ['nullable', 'integer', 'min:2', 'max:20'],
             'preview_image' => ['nullable', 'string', 'max:255', 'regex:/^(https:\/\/|\/)[^\s]+$/'],
             'preview_image_file' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp,avif', 'max:10240'],
             'content_title' => ['required', 'string', 'max:160'],
@@ -290,14 +297,34 @@ class StoreAdminController extends Controller
             'content_closing_text' => ['required', 'string', 'max:180'],
         ]);
 
+        if ($data['format'] === 'video' && ! $request->hasFile('video_file') && blank($data['video_url'] ?? null)) {
+            throw ValidationException::withMessages([
+                'video_file' => 'Для видеошаблона загрузите MP4/WebM или укажите ссылку на видео.',
+            ]);
+        }
+
         $content = collect($data)
             ->filter(fn ($value, string $key) => str_starts_with($key, 'content_'))
             ->mapWithKeys(fn ($value, string $key) => [str_replace('content_', '', $key) => $value])
             ->all();
         $config = $template?->config_json ?? [];
         $config['theme'] = $data['theme'];
+        $config['format'] = $data['format'];
+        $config['video_end_seconds'] = (int) ($data['video_end_seconds'] ?? 6);
         $config['sample_names'] = $content['title'];
         $config['content_kk'] = $content;
+
+        $videoUrl = $data['video_url'] ?? data_get($template?->config_json, 'video_url');
+        if ($request->hasFile('video_file')) {
+            $file = $request->file('video_file');
+            $path = $file->storePubliclyAs('design-videos', Str::uuid().'.'.$file->extension(), 'public');
+            $videoUrl = '/media/design-video/'.basename($path);
+            $oldVideoUrl = data_get($template?->config_json, 'video_url');
+            if (is_string($oldVideoUrl) && str_starts_with($oldVideoUrl, '/media/design-video/')) {
+                Storage::disk('public')->delete('design-videos/'.basename($oldVideoUrl));
+            }
+        }
+        $config['video_url'] = $videoUrl;
 
         $previewImage = $data['preview_image'] ?? $template?->preview_image;
         if ($request->hasFile('preview_image_file')) {

@@ -17,6 +17,7 @@ class StoreInvitationOrderRequest extends FormRequest
     {
         $template = Template::find($this->integer('template_id'));
         $supportsPhotos = (bool) data_get($template?->config_json, 'supports_photos', false);
+        $isVideo = data_get($template?->config_json, 'format') === 'video';
 
         return [
             'request_key' => ['required', 'uuid'],
@@ -34,6 +35,7 @@ class StoreInvitationOrderRequest extends FormRequest
             'language' => ['required', Rule::in(['ru', 'kk'])],
             'music_id' => ['nullable', 'integer', Rule::exists('music', 'id')->where('is_active', true)],
             'invitation_text' => ['nullable', 'string', 'max:2000'],
+            'video_final_text' => [$isVideo ? 'required' : 'nullable', 'string', 'max:240'],
             'photos' => [$supportsPhotos ? 'required' : 'nullable', 'array', 'min:1', 'max:3'],
             'photos.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
             'promo_code' => ['nullable', 'string', 'max:40', 'regex:/^[A-Za-z0-9-]+$/'],

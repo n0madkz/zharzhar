@@ -313,3 +313,4 @@ body.catalog-ui{
 .invite-card-photo-story .card-theme-mark{border-radius:18px;transform:rotate(45deg);border-color:#e3b887}
 .invite-card-photo-story .card-design-name{font-family:'Noto Serif Display',Georgia,serif;color:#fff}
 @media(max-width:560px){.photo-upload-preview{gap:7px}.photo-upload-preview img{border-radius:12px}}
+.video-template-badge{position:absolute;z-index:4;top:14px;right:14px;padding:7px 11px;border:1px solid rgba(255,255,255,.55);border-radius:999px;background:rgba(10,19,45,.76);backdrop-filter:blur(10px);color:#fff;font:800 10px/1 system-ui,sans-serif;letter-spacing:.16em;box-shadow:0 8px 22px rgba(15,23,42,.18)}
