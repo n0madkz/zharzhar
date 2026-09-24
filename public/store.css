@@ -312,5 +312,12 @@ body.catalog-ui{
 .invite-card-photo-story .card-shade{background:linear-gradient(180deg,rgba(15,45,50,.04) 18%,rgba(15,45,50,.82) 100%)}
 .invite-card-photo-story .card-theme-mark{border-radius:18px;transform:rotate(45deg);border-color:#e3b887}
 .invite-card-photo-story .card-design-name{font-family:'Noto Serif Display',Georgia,serif;color:#fff}
+
+/* Every catalog card names the visual detail that is included at its listed price. */
+.catalog-ui .design-info{min-height:0}
+.design-signature{display:flex;align-items:center;min-height:38px;margin:0 5px 13px;color:#59647b;font-size:12px;line-height:1.35}
+.design-signature::before{content:'';display:block;flex:none;width:6px;height:6px;margin-right:9px;border-radius:50%;background:#5965da}
+.design-template-mahabbat-hikayasy .design-signature::before{background:#bf815b}
+@media(max-width:700px){.design-signature{min-height:48px;font-size:11px}}
 @media(max-width:560px){.photo-upload-preview{gap:7px}.photo-upload-preview img{border-radius:12px}}
 .video-template-badge{position:absolute;z-index:4;top:14px;right:14px;padding:7px 11px;border:1px solid rgba(255,255,255,.55);border-radius:999px;background:rgba(10,19,45,.76);backdrop-filter:blur(10px);color:#fff;font:800 10px/1 system-ui,sans-serif;letter-spacing:.16em;box-shadow:0 8px 22px rgba(15,23,42,.18)}
