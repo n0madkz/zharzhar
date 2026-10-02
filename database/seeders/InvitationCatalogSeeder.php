@@ -7,7 +7,7 @@ use Illuminate\Database\Seeder;
 
 class InvitationCatalogSeeder extends Seeder
 {
-    public function run(): void
+    public function run(?string $onlySlug = null): void
     {
         $base = [
             'event_date' => '2026-11-08',
@@ -153,6 +153,10 @@ class InvitationCatalogSeeder extends Seeder
                 'message' => 'Бөпеге ақ тілегіңіз', 'closing_text' => 'Ақ бесігімізге ақ батаңызды арнаңыз!',
             ]],
         ] as [$name, $slug, $event, $theme, $price, $image, $content]) {
+            if ($onlySlug !== null && $slug !== $onlySlug) {
+                continue;
+            }
+
             $settings = $content['_settings'] ?? [];
             unset($content['_settings']);
             $content = array_replace($base, $content);

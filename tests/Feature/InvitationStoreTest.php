@@ -10,6 +10,7 @@ use App\Models\Restaurant;
 use App\Models\Template;
 use App\Models\User;
 use Carbon\Carbon;
+use Database\Seeders\BesikToiTemplateSeeder;
 use Database\Seeders\InvitationCatalogSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -23,6 +24,23 @@ use Tests\TestCase;
 class InvitationStoreTest extends TestCase
 {
     use RefreshDatabase;
+
+    public function test_besik_template_can_be_published_without_changing_other_templates(): void
+    {
+        $this->seed(InvitationCatalogSeeder::class);
+
+        Template::where('slug', 'sage-wedding')->update(['price' => 12345]);
+        Template::where('slug', 'besik-toi')->delete();
+
+        $this->seed(BesikToiTemplateSeeder::class);
+
+        $this->assertDatabaseHas('templates', [
+            'slug' => 'besik-toi',
+            'event_type' => 'besik_toi',
+            'is_active' => true,
+        ]);
+        $this->assertDatabaseHas('templates', ['slug' => 'sage-wedding', 'price' => 12345]);
+    }
 
     public function test_admin_can_sign_in_with_simple_login(): void
     {
