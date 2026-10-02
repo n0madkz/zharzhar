@@ -1,8 +1,8 @@
 @php
     $kk = app()->isLocale('kk');
     $eventLabels = $kk
-        ? ['wedding' => 'Үйлену той', 'qyz_uzatu' => 'Қыз ұзату', 'anniversary' => 'Мерейтой', 'birthday' => 'Туған күн']
-        : ['wedding' => 'Свадьба', 'qyz_uzatu' => 'Қыз ұзату', 'anniversary' => 'Юбилей', 'birthday' => 'День рождения'];
+        ? ['wedding' => 'Үйлену той', 'qyz_uzatu' => 'Қыз ұзату', 'anniversary' => 'Мерейтой', 'birthday' => 'Туған күн', 'besik_toi' => 'Бесік той']
+        : ['wedding' => 'Свадьба', 'qyz_uzatu' => 'Қыз ұзату', 'anniversary' => 'Юбилей', 'birthday' => 'День рождения', 'besik_toi' => 'Бесік той'];
     $t = $kk ? [
         'title' => 'Шақыруды рәсімдеу — ZharZhar', 'back' => 'Барлық дизайндар',
         'heading' => 'Мерекеңіздің барлық мәліметі', 'progress' => '01 Дизайн таңдалды / 02 Мереке мәліметі / 03 Төлем',
@@ -22,7 +22,7 @@
         'text_placeholder' => 'Құрметті ағайын-туыс, бауырлар мен достар! Сіздерді қуанышымыздың қадірлі қонағы болуға шақырамыз…',
         'video_final_text' => 'Видео соңындағы жеке мәтін', 'video_final_hint' => 'Роликтің соңында есімдер мен күннің үстінде көрсетіледі.',
         'video_final_placeholder' => 'Қуанышымызға ортақ болыңыз!', 'video_audio_hint' => 'Музыка мен дыбыс видеошаблонның өзінде бар.',
-        'photos' => 'Өз фотоларыңыз', 'photos_hint' => '1–3 фото таңдаңыз. JPG, PNG немесе WebP, әр файл 5 МБ-тан аспауы керек.',
+        'photos' => 'Өз фотоларыңыз', 'photos_hint' => 'Бірінші фото — мұқаба, екіншісі — кері санақ фоны, үшіншісі — финал. 1–3 фото, JPG, PNG немесе WebP; әр файл 5 МБ-тан аспауы керек.',
         'photos_preview' => 'Таңдалған фотолар',
         'contact' => '04. Сізбен қалай байланысамыз', 'your_name' => 'Сіздің есіміңіз', 'phone' => 'Телефон / WhatsApp',
         'submit' => 'Рәсімдеу және төлемге өту', 'submit_hint' => 'Келесі қадамда нақты сома мен Kaspi деректері көрсетіледі. Шақыру төлем тексерілгеннен кейін жарияланады.',
@@ -48,7 +48,7 @@
         'text_placeholder' => 'Дорогие родные и друзья! Будем рады видеть вас…',
         'video_final_text' => 'Персональный текст в финале видео', 'video_final_hint' => 'Появится в конце ролика вместе с именами и датой.',
         'video_final_placeholder' => 'Разделите с нами этот счастливый день!', 'video_audio_hint' => 'Музыка и звук уже находятся внутри видеошаблона.',
-        'photos' => 'Ваши фотографии', 'photos_hint' => 'Выберите 1–3 фото. JPG, PNG или WebP, каждый файл до 5 МБ.',
+        'photos' => 'Ваши фотографии', 'photos_hint' => 'Первое фото — обложка, второе — фон отсчёта, третье — финал. Выберите 1–3 фото JPG, PNG или WebP, каждый файл до 5 МБ.',
         'photos_preview' => 'Выбранные фотографии',
         'contact' => '04. Как с вами связаться', 'your_name' => 'Ваше имя', 'phone' => 'Телефон / WhatsApp',
         'submit' => 'Оформить и перейти к оплате', 'submit_hint' => 'На следующем шаге получите точную сумму и реквизиты Kaspi. Приглашение опубликуем после проверки оплаты.',
@@ -63,6 +63,13 @@
     $supportsPhotos = (bool) data_get($template->config_json, 'supports_photos', false);
     $isVideo = data_get($template->config_json, 'format') === 'video';
     $designSignature = config('invitation_styles.'.$template->slug.'.'.($kk ? 'kk' : 'ru'));
+    $isBesikToi = $template->slug === 'besik-toi';
+    if ($isBesikToi) {
+        $t['names'] = $kk ? 'Бөбектің есімі' : 'Имя малыша';
+        $t['names_placeholder'] = $kk ? 'Мысалы: Еңлік' : 'Например: Еңлік';
+        $t['hosts'] = $kk ? 'Бөбектің ата-анасы' : 'Родители малыша';
+        $t['hosts_placeholder'] = $kk ? 'Мысалы: Нұрлан мен Айдана' : 'Например: Нурлан и Айдана';
+    }
 @endphp
 
 @extends('layouts.store', ['title' => $t['title']])
@@ -74,9 +81,11 @@
 <div class="panel">
 <fieldset class="form-section"><legend>{{ $t['event'] }}</legend><div class="form-grid">
 <label class="field">{{ $t['event_type'] }}<select name="event_type" required>@foreach($eventLabels as $key => $label)@if(!$template->event_type || $template->event_type === $key)<option value="{{ $key }}" @selected(old('event_type', $template->event_type) === $key)>{{ $label }}</option>@endif @endforeach</select>@error('event_type')<span class="error">{{ $message }}</span>@enderror</label>
-<div class="field wide language-choice"><span class="field-label">{{ $t['invite_language'] }}</span><div class="language-options" role="radiogroup" aria-label="{{ $t['invite_language'] }}">
-<label class="language-option"><input type="radio" name="language" value="kk" required @checked(old('language', app()->getLocale()) === 'kk')><span><strong>Қазақша</strong><small>{{ $t['kk_language_hint'] }}</small></span></label>
+<div class="field wide language-choice"><span class="field-label">{{ $t['invite_language'] }}</span><div class="language-options{{ $isBesikToi ? ' single-language' : '' }}" role="radiogroup" aria-label="{{ $t['invite_language'] }}">
+<label class="language-option"><input type="radio" name="language" value="kk" required @checked($isBesikToi || old('language', app()->getLocale()) === 'kk')><span><strong>Қазақша</strong><small>{{ $t['kk_language_hint'] }}</small></span></label>
+@unless($isBesikToi)
 <label class="language-option"><input type="radio" name="language" value="ru" required @checked(old('language', app()->getLocale()) === 'ru')><span><strong>Русский</strong><small>{{ $t['ru_language_hint'] }}</small></span></label>
+@endunless
 </div><small>{{ $t['language_hint'] }}</small>@error('language')<span class="error">{{ $message }}</span>@enderror</div>
 <label class="field wide">{{ $t['names'] }}<input name="names" value="{{ old('names') }}" placeholder="{{ $t['names_placeholder'] }}" maxlength="160" required>@error('names')<span class="error">{{ $message }}</span>@enderror</label>
 <label class="field">{{ $t['date'] }}<input type="date" name="event_date" value="{{ old('event_date') }}" min="{{ now()->format('Y-m-d') }}" required>@error('event_date')<span class="error">{{ $message }}</span>@enderror</label>
@@ -98,7 +107,7 @@
 @endif
 <label class="field wide">{{ $t['invite_text'] }} <small>{{ $t['optional_text'] }}</small><textarea name="invitation_text" maxlength="2000" placeholder="{{ $t['text_placeholder'] }}">{{ old('invitation_text') }}</textarea>@error('invitation_text')<span class="error">{{ $message }}</span>@enderror</label>
 @if($supportsPhotos)
-<label class="field wide photo-upload">{{ $t['photos'] }}<input type="file" name="photos[]" accept="image/jpeg,image/png,image/webp" multiple required data-photo-input data-max-message="{{ $kk ? 'Ең көбі 3 фото таңдаңыз.' : 'Выберите не более 3 фотографий.' }}"><small>{{ $t['photos_hint'] }}</small>@error('photos')<span class="error">{{ $message }}</span>@enderror @error('photos.*')<span class="error">{{ $message }}</span>@enderror</label>
+<label class="field wide photo-upload">{{ $t['photos'] }}<input type="file" name="photos[]" accept="image/jpeg,image/png,image/webp" multiple required data-photo-input data-photo-labels="{{ $kk ? 'Мұқаба|Кері санақ|Финал' : 'Обложка|Отсчёт|Финал' }}" data-max-message="{{ $kk ? 'Ең көбі 3 фото таңдаңыз.' : 'Выберите не более 3 фотографий.' }}"><small>{{ $t['photos_hint'] }}</small>@error('photos')<span class="error">{{ $message }}</span>@enderror @error('photos.*')<span class="error">{{ $message }}</span>@enderror</label>
 <div class="photo-upload-preview wide" data-photo-preview aria-label="{{ $t['photos_preview'] }}"></div>
 @endif
 </div></fieldset>

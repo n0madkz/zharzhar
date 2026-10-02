@@ -72,6 +72,7 @@ class StorefrontController extends Controller
                 'qyz_uzatu' => 'ҚЫЗ ҰЗАТУ',
                 'anniversary' => 'МЕРЕЙТОЙ',
                 'birthday' => 'ТУҒАН КҮН',
+                'besik_toi' => 'БЕСІК ТОЙ',
                 default => 'ҮЙЛЕНУ ТОЙЫ',
             },
             'intro_title' => 'ҚҰРМЕТТІ АҒАЙЫН-ТУЫС, БАУЫРЛАР МЕН ДОСТАР!',
@@ -88,7 +89,7 @@ class StorefrontController extends Controller
             'preview' => true,
             'invitation' => null,
             'details' => [
-                'names' => $content['title'],
+                'names' => $content['sample_names'] ?? $content['title'],
                 'event_type' => $eventType,
                 'event_date' => $content['event_date'],
                 'event_time' => $content['event_time'],
@@ -241,6 +242,10 @@ class StorefrontController extends Controller
 
     private function invitationView(Template $template): string
     {
+        if ($template->slug === 'besik-toi') {
+            return 'store.besik-invitation';
+        }
+
         return data_get($template->config_json, 'format') === 'video'
             ? 'store.video-invitation'
             : 'store.invitation';

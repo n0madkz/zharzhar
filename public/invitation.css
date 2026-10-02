@@ -642,3 +642,70 @@ body.invitation-shell{margin:0;background:#e6e2dc;color:#28231f;font-family:Manr
 .invite-template-classic-anniversary .orbit-mark::before,.invite-template-royal-kesh .orbit-mark::before,.invite-template-ak-zhibek .orbit-mark::before,.invite-template-altyn-nomad .orbit-mark::before,.invite-template-aru-qyz-uzatu .orbit-mark::before{content:'';position:absolute;inset:0;background:var(--iv-accent);-webkit-mask:url('/invitation-assets/music-kazakh-ornament.svg') center/contain no-repeat;mask:url('/invitation-assets/music-kazakh-ornament.svg') center/contain no-repeat}
 .invite-template-classic-anniversary .orbit-mark i,.invite-template-royal-kesh .orbit-mark i,.invite-template-ak-zhibek .orbit-mark i,.invite-template-altyn-nomad .orbit-mark i,.invite-template-aru-qyz-uzatu .orbit-mark i{display:none}
 @media(max-width:430px){.invite-template-happy-birthday .invite-cover h1,.invite-template-dala-shattygy .invite-cover h1{font-size:40px}.invite-template-gold-wedding .date-orb{width:190px;height:190px}.invite-template-gold-wedding .date-orb::before,.invite-template-gold-wedding .date-orb::after{width:190px;height:190px}}
+
+/* Махаббат хикаясы: a personal, photo-led wedding album. */
+.invite-template-mahabbat-hikayasy{--iv-bg:#e9eeec;--iv-paper:#fbfaf6;--iv-ink:#173a39;--iv-accent:#b78b69;--iv-soft:#cbd9d4;background:#fbfaf6}
+.invite-template-mahabbat-hikayasy .invite-cover{min-height:820px;background:#183432}
+.invite-template-mahabbat-hikayasy .invite-cover-image{object-position:center 35%;filter:saturate(.88);animation:photo-story-cover 18s ease-in-out infinite alternate}
+.invite-template-mahabbat-hikayasy .invite-cover-shade{background:linear-gradient(180deg,rgba(10,29,29,.31) 0%,transparent 32%,rgba(9,32,32,.18) 52%,rgba(6,27,29,.9) 100%)}
+.invite-template-mahabbat-hikayasy .story-cover-frame{position:absolute;z-index:1;inset:22px;border:1px solid rgba(255,255,255,.62);pointer-events:none}
+.invite-template-mahabbat-hikayasy .story-cover-frame::before,.invite-template-mahabbat-hikayasy .story-cover-frame::after{content:'';position:absolute;width:68px;height:1px;background:#e7cba7;left:50%;transform:translateX(-50%)}
+.invite-template-mahabbat-hikayasy .story-cover-frame::before{top:17px}.invite-template-mahabbat-hikayasy .story-cover-frame::after{bottom:17px}
+.invite-template-mahabbat-hikayasy .invite-cover-copy{padding:52px 32px 92px;color:#fff9ec;text-shadow:0 2px 15px rgba(4,18,21,.6)}
+.invite-template-mahabbat-hikayasy .story-chapter-label{display:block;margin:0 0 20px;color:#e4c3a3;font:700 10px/1.5 Manrope,Arial,sans-serif;letter-spacing:3px;text-transform:uppercase}
+.invite-template-mahabbat-hikayasy .invite-cover .invite-overline{color:#fff9ec;letter-spacing:4px}
+.invite-template-mahabbat-hikayasy .invite-cover-date{margin:18px 0 26px;color:#f6e5ce}
+.invite-template-mahabbat-hikayasy .invite-cover h1{font:italic 500 clamp(44px,13vw,62px)/.99 'Noto Serif Display',Georgia,serif;letter-spacing:-1.9px;color:#fff9ec}
+.invite-template-mahabbat-hikayasy .invite-monogram{width:62px;height:62px;margin-top:38px;border-color:#e4c3a3;border-radius:50%;background:rgba(14,46,46,.22);color:#fff9ec}
+.invite-template-mahabbat-hikayasy .invite-intro{padding:115px 38px 120px;background:radial-gradient(ellipse at 50% 0,#dfeae6,transparent 60%),#fbfaf6}
+.invite-template-mahabbat-hikayasy .invite-intro .orbit-mark{width:72px;height:72px;margin-bottom:38px;border:1px solid #b78b69;border-radius:50%}
+.invite-template-mahabbat-hikayasy .invite-intro .orbit-mark i{inset:11px;border-color:#b78b69}.invite-template-mahabbat-hikayasy .invite-intro .orbit-mark i+i{display:none}
+.invite-template-mahabbat-hikayasy .invite-small-title{color:#a87858;letter-spacing:2.5px}
+.invite-template-mahabbat-hikayasy .invite-message{margin-top:34px;color:#173a39;font:italic 26px/1.55 'Noto Serif Display',Georgia,serif}
+.invite-template-mahabbat-hikayasy .invite-photo-story{padding:88px 22px 100px;background:#e9eeec}
+.invite-template-mahabbat-hikayasy .invite-photo-story .story-chapter-label{margin-bottom:9px;color:#907054}
+.invite-template-mahabbat-hikayasy .invite-photo-story>.invite-overline{margin:0 0 38px;color:#173a39;font:italic 34px/1.1 'Noto Serif Display',Georgia,serif;letter-spacing:0;text-transform:none}
+.invite-template-mahabbat-hikayasy .invite-photo-grid{display:flex;gap:0;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;outline-offset:5px;box-shadow:0 16px 36px rgba(23,58,57,.16)}
+.invite-template-mahabbat-hikayasy .invite-photo-grid::-webkit-scrollbar{display:none}
+.invite-template-mahabbat-hikayasy .invite-photo-grid figure,.invite-template-mahabbat-hikayasy .invite-photo-grid figure:first-child{flex:0 0 100%;grid-row:auto;height:450px;border-radius:2px;background:#173a39;scroll-snap-align:start;box-shadow:none}
+.invite-template-mahabbat-hikayasy .invite-photo-grid img{display:block;width:100%;height:100%;object-fit:contain;object-position:center;transition:none}
+.invite-template-mahabbat-hikayasy .invite-photo-story.is-visible img{transform:none}
+.invite-template-mahabbat-hikayasy .story-photo-index{position:absolute;top:15px;left:15px;bottom:auto;right:auto;display:grid;width:36px;height:36px;place-items:center;border:1px solid rgba(255,255,255,.75);border-radius:50%;background:rgba(10,37,38,.7);color:#fff;font:700 11px Manrope,Arial,sans-serif}
+.invite-template-mahabbat-hikayasy .story-gallery-controls{display:flex;align-items:center;justify-content:space-between;width:100%;margin-top:17px;color:#173a39}
+.invite-template-mahabbat-hikayasy .story-gallery-controls button{display:grid;width:47px;height:47px;place-items:center;border:1px solid #b8cbc4;border-radius:50%;background:#fbfaf6;color:#173a39;font-size:20px;cursor:pointer}
+.invite-template-mahabbat-hikayasy .story-gallery-controls button:disabled{opacity:.4;cursor:default}
+.invite-template-mahabbat-hikayasy .story-gallery-controls button:focus-visible,.invite-template-mahabbat-hikayasy .invite-photo-grid:focus-visible{outline:2px solid #b78b69;outline-offset:3px}
+.invite-template-mahabbat-hikayasy .story-gallery-count{display:flex;align-items:baseline;gap:10px;color:#8b7666;font:600 11px Manrope,Arial,sans-serif;letter-spacing:2px}
+.invite-template-mahabbat-hikayasy .story-gallery-count strong{color:#173a39;font:italic 32px/1 'Noto Serif Display',Georgia,serif;letter-spacing:0}
+.invite-template-mahabbat-hikayasy .date-section{padding:115px 34px;background:#fbfaf6;color:#173a39}
+.invite-template-mahabbat-hikayasy .date-section .invite-script{margin-bottom:40px;color:#173a39;font:italic 38px/1.1 'Noto Serif Display',Georgia,serif}
+.invite-template-mahabbat-hikayasy .date-orb{width:236px;height:248px;border:1px solid #bd9a7d;border-radius:118px 118px 4px 4px;background:#f1f3ec;box-shadow:0 0 0 9px #fbfaf6,0 0 0 10px #cfb6a0}
+.invite-template-mahabbat-hikayasy .date-orb::before,.invite-template-mahabbat-hikayasy .date-orb::after{content:none}
+.invite-template-mahabbat-hikayasy .date-orb strong{font:400 98px/.88 'Noto Serif Display',Georgia,serif}.invite-template-mahabbat-hikayasy .date-orb span{color:#786958}
+.invite-template-mahabbat-hikayasy .invite-time{color:#a27859}
+.invite-template-mahabbat-hikayasy .venue-section{padding:115px 34px;background:#e9eeec;color:#173a39}
+.invite-template-mahabbat-hikayasy .venue-rings{margin-bottom:28px}.invite-template-mahabbat-hikayasy .venue-section h2{font:italic 42px/1.08 'Noto Serif Display',Georgia,serif}
+.invite-template-mahabbat-hikayasy .venue-location{margin-top:38px;border:1px solid #c1d2cb;border-radius:4px;background:#fbfaf6;box-shadow:0 14px 34px rgba(23,58,57,.09)}
+.invite-template-mahabbat-hikayasy .countdown-section{min-height:500px;display:flex;flex-direction:column;justify-content:center;overflow:hidden;padding:100px 25px;background:#173a39;color:#fff9ee}
+.invite-template-mahabbat-hikayasy .story-section-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;filter:saturate(.7)}
+.invite-template-mahabbat-hikayasy .countdown-section::before,.invite-template-mahabbat-hikayasy .invite-finale::before{content:'';position:absolute;z-index:1;inset:0;background:linear-gradient(180deg,rgba(8,37,38,.58),rgba(9,37,38,.84))}
+.invite-template-mahabbat-hikayasy .countdown-section>.invite-script,.invite-template-mahabbat-hikayasy .countdown-grid{position:relative;z-index:2}
+.invite-template-mahabbat-hikayasy .countdown-section .invite-script{color:#fff9ee;font:italic 39px/1.1 'Noto Serif Display',Georgia,serif}
+.invite-template-mahabbat-hikayasy .countdown-grid{gap:7px}.invite-template-mahabbat-hikayasy .countdown-grid>div{border:1px solid rgba(255,255,255,.65);border-radius:4px;background:rgba(11,37,37,.28);backdrop-filter:blur(4px);color:#fff}
+.invite-template-mahabbat-hikayasy .countdown-grid strong{font-family:'Noto Serif Display',Georgia,serif;font-size:26px}
+.invite-template-mahabbat-hikayasy .hosts-section{padding:112px 34px;background:#fbfaf6}.invite-template-mahabbat-hikayasy .hosts-section h2{font-family:'Noto Serif Display',Georgia,serif;font-size:40px}
+.invite-template-mahabbat-hikayasy .rsvp-section{padding:112px 34px;background:#e9eeec}.invite-template-mahabbat-hikayasy .rsvp-section .invite-script{font-family:'Noto Serif Display',Georgia,serif;color:#173a39}
+.invite-template-mahabbat-hikayasy .rsvp-preview,.invite-template-mahabbat-hikayasy .invite-form{padding:23px;border:1px solid #c8d8d1;border-radius:4px;background:#fbfaf6;box-shadow:0 16px 35px rgba(23,58,57,.08)}
+.invite-template-mahabbat-hikayasy .rsvp-preview span,.invite-template-mahabbat-hikayasy .invite-form input,.invite-template-mahabbat-hikayasy .invite-form textarea{border-radius:3px;background:#fff}
+.invite-template-mahabbat-hikayasy .rsvp-preview [data-guest-count],.invite-template-mahabbat-hikayasy .invite-form [data-guest-count]{display:grid;gap:8px;color:#173a39;font:600 11px/1.5 Manrope,Arial,sans-serif;letter-spacing:.4px}
+.invite-template-mahabbat-hikayasy .rsvp-preview [data-guest-count] input,.invite-template-mahabbat-hikayasy .invite-form [data-guest-count] input{box-sizing:border-box;width:100%;min-height:51px;margin:0;padding:12px 17px;border:1px solid #cbd9d4;border-radius:3px;background:#fff;color:#173a39;font:14px Manrope,Arial,sans-serif}
+.invite-template-mahabbat-hikayasy .rsvp-preview .attendance-choice b,.invite-template-mahabbat-hikayasy .invite-form .attendance-choice b{border-radius:3px}
+.invite-template-mahabbat-hikayasy .rsvp-preview button,.invite-template-mahabbat-hikayasy .invite-form button{border-radius:3px;background:#173a39;color:#fff}
+.invite-template-mahabbat-hikayasy .invite-finale{position:relative;min-height:590px;overflow:hidden;padding:120px 30px 40px;background:#173a39;color:#fff9ee}
+.invite-template-mahabbat-hikayasy .invite-finale::before{background:linear-gradient(180deg,rgba(8,31,33,.57),rgba(8,31,33,.82))}
+.invite-template-mahabbat-hikayasy .invite-finale .finale-circle,.invite-template-mahabbat-hikayasy .invite-finale small{position:relative;z-index:2}
+.invite-template-mahabbat-hikayasy .invite-finale .finale-circle{width:275px;height:310px;border:1px solid #f0d6b8;border-radius:145px 145px 5px 5px;background:rgba(12,42,43,.26);backdrop-filter:blur(3px)}
+.invite-template-mahabbat-hikayasy .invite-finale .finale-circle p{color:#fff9ee;font:italic 31px/1.15 'Noto Serif Display',Georgia,serif}
+.invite-template-mahabbat-hikayasy .invite-finale small{color:#f5e4cc}
+@media(max-width:430px){.invite-template-mahabbat-hikayasy .invite-cover{min-height:calc(100svh - 58px)}.invite-template-mahabbat-hikayasy .invite-cover h1{font-size:clamp(39px,12vw,54px)}.invite-template-mahabbat-hikayasy .invite-photo-grid figure,.invite-template-mahabbat-hikayasy .invite-photo-grid figure:first-child{height:400px}.invite-template-mahabbat-hikayasy .rsvp-preview,.invite-template-mahabbat-hikayasy .invite-form{padding:17px}}
+@media(prefers-reduced-motion:reduce){.invite-template-mahabbat-hikayasy .invite-cover-image{animation:none}.invite-template-mahabbat-hikayasy .invite-photo-grid img{transition:none}}

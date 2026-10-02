@@ -521,7 +521,7 @@ class StoreAdminController extends Controller
 
         return [
             'event_label' => match ($eventType) {
-                'qyz_uzatu' => 'ҚЫЗ ҰЗАТУ', 'anniversary' => 'МЕРЕЙТОЙ', 'birthday' => 'ТУҒАН КҮН', default => 'ҮЙЛЕНУ ТОЙЫ'
+                'qyz_uzatu' => 'ҚЫЗ ҰЗАТУ', 'anniversary' => 'МЕРЕЙТОЙ', 'birthday' => 'ТУҒАН КҮН', 'besik_toi' => 'БЕСІК ТОЙ', default => 'ҮЙЛЕНУ ТОЙЫ'
             },
             'intro' => 'ҚҰРМЕТТІ АҒАЙЫН-ТУЫС, БАУЫРЛАР, ҚҰДА-ЖЕКЖАТ, ДОС-ЖАРАНДАР!', 'date_title' => 'Той салтанаты',
             'venue' => 'Мекенжайымыз', 'map' => 'Картадан көру', 'countdown' => 'Салтанатқа дейін',

@@ -1,6 +1,8 @@
 @php
     $kk = ($details['language'] ?? 'kk') === 'kk';
     $theme = $details['theme'] ?? 'pearl';
+    $isPhotoStory = $template->slug === 'mahabbat-hikayasy';
+    $isBesikToi = $template->slug === 'besik-toi';
     $eventType = $details['event_type'] ?? 'wedding';
     $eventDate = \Carbon\Carbon::parse($details['event_date']);
     $image = $template->preview_image
@@ -17,11 +19,14 @@
     if ($supportsPhotos && $photoGallery) {
         $image = $photoGallery[0];
     }
+    $storyCountdownImage = $isPhotoStory ? ($photoGallery[1] ?? $photoGallery[0] ?? $image) : null;
+    $storyFinalImage = $isPhotoStory ? ($photoGallery[2] ?? $photoGallery[0] ?? $image) : null;
     $eventLabels = [
         'wedding' => 'ҮЙЛЕНУ ТОЙЫ',
         'qyz_uzatu' => 'ҚЫЗ ҰЗАТУ',
         'anniversary' => 'МЕРЕЙТОЙ',
         'birthday' => 'ТУҒАН КҮН',
+        'besik_toi' => 'БЕСІК ТОЙ',
     ];
     $copy = $kk ? [
         'intro' => 'ҚҰРМЕТТІ АҒАЙЫН-ТУЫС, БАУЫРЛАР, ҚҰДА-ЖЕКЖАТ, ДОС-ЖАРАНДАР!',
@@ -41,6 +46,7 @@
         'back' => 'Шаблондарға қайту', 'choose' => 'Осы дизайнды таңдау',
         'music_play' => 'Музыканы қосу', 'music_pause' => 'Музыканы тоқтату',
         'closing' => 'Қуанышымызға ортақ болыңыз!',
+        'story_chapter' => 'Біздің хикаямыз', 'story_moment' => 'Есте қалар сәттер',
     ] : [
         'intro' => 'ДОРОГИЕ РОДНЫЕ И ДРУЗЬЯ!',
         'date_title' => 'Дата торжества',
@@ -55,9 +61,10 @@
         'back' => 'Назад к шаблонам', 'choose' => 'Выбрать этот дизайн',
         'music_play' => 'Включить музыку', 'music_pause' => 'Остановить музыку',
         'closing' => 'Разделите с нами этот счастливый день!',
+        'story_chapter' => 'Наша история', 'story_moment' => 'Моменты, которые останутся с нами',
     ];
-    $templateCopy = $preview ? ($details['template_copy'] ?? []) : [];
-    $customCopy = $preview ? $templateCopy : ($details['copy'] ?? []);
+    $templateCopy = $preview ? ($details['template_copy'] ?? []) : ($isBesikToi ? ($template->config_json['content_kk'] ?? []) : []);
+    $customCopy = $preview ? $templateCopy : array_replace($templateCopy, $details['copy'] ?? []);
     if ($customCopy) {
         $copy = array_replace($copy, array_filter([
             'event_label' => $customCopy['event_label'] ?? null,
@@ -86,6 +93,7 @@
     }
     $copy['map'] = $kk ? '2GIS-те ашу' : 'Открыть в 2GIS';
     $copy['event_label'] ??= $templateCopy['event_label'] ?? ($eventLabels[$eventType] ?? $eventLabels['wedding']);
+    $invitationText = ($details['invitation_text'] ?? null) ?: ($isBesikToi ? ($templateCopy['invitation_text'] ?? '') : '');
     $galleryTitle = $templateCopy['gallery_title'] ?? ($kk ? 'Біздің ерекше сәттеріміз' : 'Наши особенные моменты');
     $monthNames = $kk
         ? ['қаңтар', 'ақпан', 'наурыз', 'сәуір', 'мамыр', 'маусым', 'шілде', 'тамыз', 'қыркүйек', 'қазан', 'қараша', 'желтоқсан']
@@ -130,7 +138,9 @@
     <header class="invite-cover">
         @if($image)<img class="invite-cover-image" src="{{ $image }}" alt="" fetchpriority="high">@endif
         <span class="invite-cover-shade" aria-hidden="true"></span>
+        @if($isPhotoStory)<span class="story-cover-frame" aria-hidden="true"></span>@endif
         <div class="invite-cover-copy" data-reveal>
+            @if($isPhotoStory)<span class="story-chapter-label">{{ $copy['story_chapter'] }}</span>@endif
             <p class="invite-overline">{{ $copy['event_label'] }}</p>
             <p class="invite-cover-date">{{ $eventDate->translatedFormat('d · m · Y') }}</p>
             @if($eventType === 'anniversary')<span class="jubilee-number" aria-hidden="true">{{ $jubileeNumber }}</span>@endif
@@ -139,20 +149,30 @@
         </div>
     </header>
 
+    @if($isBesikToi)<a class="besik-wish-link" href="#besik-rsvp">Бөпеге ақ тілек қалдыру <span aria-hidden="true">↓</span></a>@endif
+
     <section class="invite-section invite-intro" data-reveal>
         <div class="orbit-mark" aria-hidden="true"><i></i><i></i></div>
         <p class="invite-small-title">{{ $copy['intro'] }}</p>
-        <p class="invite-message">{{ $details['invitation_text'] ?? '' }}</p>
+        <p class="invite-message">{{ $invitationText }}</p>
     </section>
 
     @if($supportsPhotos && $photoGallery)
         <section class="invite-section invite-photo-story" data-reveal>
+            @if($isPhotoStory)<p class="story-chapter-label">{{ $copy['story_moment'] }}</p>@endif
             <p class="invite-overline">{{ $galleryTitle }}</p>
-            <div class="invite-photo-grid">
+            <div class="invite-photo-grid" data-photo-count="{{ count($photoGallery) }}" @if($isPhotoStory) id="story-gallery" data-story-gallery tabindex="0" aria-label="{{ $galleryTitle }}" @endif>
                 @foreach($photoGallery as $photo)
-                    <figure><img src="{{ $photo }}" alt="{{ $kk ? 'Шақыру фотосы' : 'Фотография приглашения' }} {{ $loop->iteration }}" loading="lazy"></figure>
+                    <figure><img src="{{ $photo }}" alt="{{ $kk ? 'Шақыру фотосы' : 'Фотография приглашения' }} {{ $loop->iteration }}" loading="lazy">@if($isPhotoStory)<span class="story-photo-index" aria-hidden="true">0{{ $loop->iteration }}</span>@endif</figure>
                 @endforeach
             </div>
+            @if($isPhotoStory && count($photoGallery) > 1)
+                <div class="story-gallery-controls" aria-controls="story-gallery">
+                    <button type="button" data-story-prev aria-label="{{ $kk ? 'Алдыңғы фото' : 'Предыдущее фото' }}">←</button>
+                    <span class="story-gallery-count" aria-live="polite"><strong data-story-current>01</strong><span aria-hidden="true">/</span><span>{{ str_pad(count($photoGallery), 2, '0', STR_PAD_LEFT) }}</span></span>
+                    <button type="button" data-story-next aria-label="{{ $kk ? 'Келесі фото' : 'Следующее фото' }}">→</button>
+                </div>
+            @endif
         </section>
     @endif
 
@@ -178,6 +198,7 @@
     </section>
 
     <section class="invite-section countdown-section" data-countdown="{{ $eventDate->format('Y-m-d').'T'.($details['event_time'] ?? '18:00') }}" data-reveal>
+        @if($storyCountdownImage)<img class="story-section-photo" src="{{ $storyCountdownImage }}" alt="" loading="lazy">@endif
         <p class="invite-script">{{ $copy['countdown'] }}</p>
         <div class="countdown-grid">
             @foreach([['days', $copy['days']], ['hours', $copy['hours']], ['minutes', $copy['minutes']], ['seconds', $copy['seconds']]] as [$part, $label])
@@ -192,13 +213,14 @@
         <h2>{{ $details['hosts'] }}</h2>
     </section>
 
-    <section class="invite-section rsvp-section" data-reveal>
+    <section class="invite-section rsvp-section" @if($isBesikToi) id="besik-rsvp" @endif data-reveal>
         <p class="invite-script">{{ $copy['rsvp'] }}</p>
         <p>{{ $copy['hint'] }}</p>
         @if($preview)
             <div class="rsvp-preview">
                 <span>{{ $copy['name'] }}</span>
                 <fieldset class="attendance-choice" disabled><legend>{{ $copy['answer'] }}</legend><label><input type="radio"><b>{{ $copy['yes'] }}</b></label><label><input type="radio"><b>{{ $copy['no'] }}</b></label></fieldset>
+                @if($isPhotoStory)<label data-guest-count>{{ $copy['count'] }}<input type="number" min="1" max="20" value="1" disabled></label>@endif
                 <button type="button" disabled>{{ $copy['send'] }}</button>
             </div>
             <p class="rsvp-note">{{ $copy['preview_form'] }}</p>
@@ -216,6 +238,7 @@
     </section>
 
     <footer class="invite-finale" data-reveal>
+        @if($storyFinalImage)<img class="story-section-photo" src="{{ $storyFinalImage }}" alt="" loading="lazy">@endif
         <div class="finale-circle"><p>{{ $copy['closing'] }}</p></div>
         <small>ZharZhar · {{ $eventDate->format('Y') }}</small>
     </footer>

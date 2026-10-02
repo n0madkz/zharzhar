@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 430 820" role="img" aria-labelledby="title desc">
+  <title id="title">Бесік тойға арналған иллюстрация</title>
+  <desc id="desc">Ашық көк аспан астындағы қазақ бесігі, күн, бұлт және қошқармүйіз оюлары</desc>
+  <defs>
+    <linearGradient id="sky" x2="0" y2="1"><stop stop-color="#d7eae5"/><stop offset="1" stop-color="#f4dfb5"/></linearGradient>
+    <linearGradient id="wood" x2="0" y2="1"><stop stop-color="#bf8051"/><stop offset="1" stop-color="#955c3d"/></linearGradient>
+    <pattern id="stitch" width="42" height="18" patternUnits="userSpaceOnUse"><path d="M0 11q10-10 21 0t21 0" fill="none" stroke="#e8c684" stroke-width="2" opacity=".75"/></pattern>
+  </defs>
+  <rect width="430" height="820" fill="url(#sky)"/>
+  <path d="M0 520q78-53 152-8t140-4q67-43 138 5v307H0Z" fill="#b7d8d2"/>
+  <path d="M0 589q77-32 167 6t161-7q51-23 102 0v232H0Z" fill="#e9d19d"/>
+  <circle cx="337" cy="124" r="67" fill="#e9b85d" opacity=".9"/>
+  <g fill="#fff8e9" opacity=".88"><path d="M29 168c1-21 20-34 39-30 14-25 51-19 58 9 23-3 38 14 36 31H29Z"/><path d="M268 216c4-18 20-26 35-21 15-20 44-12 46 9 18-1 30 12 28 25H268Z"/></g>
+  <g fill="none" stroke="#0c7183" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity=".8">
+    <path d="M22 43h55c25 0 33 36 12 42-15 5-25-14-11-24 8-5 17 0 15 8M408 43h-55c-25 0-33 36-12 42 15 5 25-14 11-24-8-5-17 0-15 8"/>
+    <path d="M21 98c19 0 25 19 15 28-11 9-25-3-17-13m390-15c-19 0-25 19-15 28 11 9 25-3 17-13"/>
+  </g>
+  <g fill="#d3a255" opacity=".8"><circle cx="40" cy="221" r="5"/><circle cx="77" cy="239" r="3"/><circle cx="379" cy="268" r="6"/><circle cx="350" cy="289" r="3"/></g>
+  <g transform="translate(35 245)">
+    <path d="M45 202q-14-128 134-150 149 22 154 150" fill="none" stroke="#995f48" stroke-width="10" stroke-linecap="round"/>
+    <path d="M179 52v-35" stroke="#995f48" stroke-width="8" stroke-linecap="round"/>
+    <path d="M173 9q6-16 12 0" fill="none" stroke="#995f48" stroke-width="6" stroke-linecap="round"/>
+    <path d="M39 202q19-135 140-150-37 103-13 156" fill="#d8ad69" opacity=".95"/>
+    <path d="M319 202Q299 68 179 52q36 103 12 156" fill="#58a5a9" opacity=".95"/>
+    <path d="M45 203q-11-123 134-151 144 27 154 151" fill="none" stroke="#a97554" stroke-width="5"/>
+    <path d="M52 203q32-12 50-3t43-2q30-19 63-2 37 16 62 2 24-12 55 4v35H52Z" fill="#fff3d8"/>
+    <path d="M84 221q29-28 65 0 30 17 61 0 33-20 66 0" fill="none" stroke="#d8a477" stroke-width="4"/>
+    <path d="M23 229h312v42q0 32-31 34H54q-31-2-31-34Z" fill="url(#wood)" stroke="#814d38" stroke-width="6"/>
+    <path d="M41 244h276v40H41Z" fill="url(#stitch)"/>
+    <path d="M54 309v23m250-23v23" stroke="#92583e" stroke-width="11" stroke-linecap="round"/>
+    <path d="M14 327q45 48 164 45 120 3 167-45" fill="none" stroke="#955c3d" stroke-width="12" stroke-linecap="round"/>
+    <path d="M75 252c15-11 25 2 19 12-6 9-20 1-14-7m203-5c-15-11-25 2-19 12 6 9 20 1 14-7" fill="none" stroke="#f8dda3" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="179" cy="265" r="19" fill="#e5bd81" stroke="#fff2d0" stroke-width="3"/>
+    <path d="M169 266q10-14 20 0-10 10-20 0Z" fill="#fff2d0"/>
+  </g>
+  <g fill="none" stroke="#4f9899" stroke-width="3" stroke-linecap="round" opacity=".8"><path d="M35 625q-17-15-23 4m5-18q-8-12-16 0m385 3q18-17 28 2m-6-20q11-9 21 3"/><path d="M60 652q24-20 43 0m226 9q25-21 48 0"/></g>
+  <g fill="#d3a255"><path d="m93 128 3 8 8 3-8 3-3 8-3-8-8-3 8-3Z"/><path d="m355 333 3 8 8 3-8 3-3 8-3-8-8-3 8-3Z"/></g>
+</svg>

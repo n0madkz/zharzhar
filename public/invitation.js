@@ -12,6 +12,27 @@ document.addEventListener('DOMContentLoaded', () => {
     reveals.forEach(element => element.classList.add('is-visible'));
   }
 
+  const storyGallery = document.querySelector('[data-story-gallery]');
+  if (storyGallery) {
+    const photos = [...storyGallery.querySelectorAll('figure')];
+    const previous = document.querySelector('[data-story-prev]');
+    const next = document.querySelector('[data-story-next]');
+    const current = document.querySelector('[data-story-current]');
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const activeIndex = () => Math.min(photos.length - 1, Math.max(0, Math.round(storyGallery.scrollLeft / storyGallery.clientWidth)));
+    const updateGallery = () => {
+      const index = activeIndex();
+      if (current) current.textContent = String(index + 1).padStart(2, '0');
+      if (previous) previous.disabled = index === 0;
+      if (next) next.disabled = index === photos.length - 1;
+    };
+    const showPhoto = index => storyGallery.scrollTo({ left: photos[index].offsetLeft - photos[0].offsetLeft, behavior: reducedMotion ? 'auto' : 'smooth' });
+    previous?.addEventListener('click', () => showPhoto(Math.max(0, activeIndex() - 1)));
+    next?.addEventListener('click', () => showPhoto(Math.min(photos.length - 1, activeIndex() + 1)));
+    storyGallery.addEventListener('scroll', updateGallery, { passive: true });
+    updateGallery();
+  }
+
   const attendanceChoices = document.querySelectorAll('input[name="attendance_status"]');
   const guestCountField = document.querySelector('[data-guest-count]');
   const guestCountInput = guestCountField?.querySelector('input');

@@ -32,7 +32,7 @@ class StoreInvitationOrderRequest extends FormRequest
             'restaurant_id' => ['nullable', 'integer', Rule::exists('restaurants', 'id')->where('status', 'active')],
             'venue_name' => ['required', 'string', 'max:160'],
             'venue_address' => ['required', 'string', 'max:255'],
-            'language' => ['required', Rule::in(['ru', 'kk'])],
+            'language' => ['required', Rule::in($template?->slug === 'besik-toi' ? ['kk'] : ['ru', 'kk'])],
             'music_id' => ['nullable', 'integer', Rule::exists('music', 'id')->where('is_active', true)],
             'invitation_text' => ['nullable', 'string', 'max:2000'],
             'video_final_text' => [$isVideo ? 'required' : 'nullable', 'string', 'max:240'],

@@ -11,8 +11,8 @@ return [
     'partner_invitation_whatsapp_phone' => env('STORE_PARTNER_INVITATION_WHATSAPP_PHONE', '+7 706 716 01 99'),
     'admin_login' => env('STORE_ADMIN_LOGIN', 'Admin1601'),
     'admin_email' => env('STORE_ADMIN_EMAIL', 'admin@zharzhar.local'),
-    'event_types' => ['wedding' => 'Свадьба / Үйлену той', 'qyz_uzatu' => 'Қыз ұзату', 'anniversary' => 'Юбилей / Мерейтой', 'birthday' => 'День рождения / Туған күн'],
-    'music_categories' => ['wedding' => 'Свадьба', 'qyz_uzatu' => 'Қыз ұзату', 'anniversary' => 'Юбилей', 'birthday' => 'День рождения'],
+    'event_types' => ['wedding' => 'Свадьба / Үйлену той', 'qyz_uzatu' => 'Қыз ұзату', 'anniversary' => 'Юбилей / Мерейтой', 'birthday' => 'День рождения / Туған күн', 'besik_toi' => 'Бесік той'],
+    'music_categories' => ['wedding' => 'Свадьба', 'qyz_uzatu' => 'Қыз ұзату', 'anniversary' => 'Юбилей', 'birthday' => 'День рождения', 'besik_toi' => 'Бесік той'],
     'themes' => [
         'pearl' => 'Ақ інжу',
         'royal' => 'Алтын салтанат',
@@ -30,6 +30,7 @@ return [
         'sky-birthday' => 'Шаттықты туған күн — ашық аспан',
         'qyz-modern' => 'Ару қыз ұзату — інжу мен кесте',
         'photo-story' => 'Махаббат хикаясы — фотосуреттер',
+        'besik-story' => 'Бесік той — балапанға арналған ертегі',
         'sage' => 'Жұмсақ жасыл',
         'rose' => 'Қызғылт бақ',
         'midnight' => 'Кешкі алтын',

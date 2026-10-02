@@ -79,6 +79,7 @@ body.admin-ui{--bg:#f4f7fb;--paper:#fff;--ink:#172033;--muted:#667085;--accent:#
 .invite-card-golden-jubilee::before{border-style:double;border-width:4px}.invite-card-golden-jubilee img{filter:saturate(1.15) brightness(1.04)}
 .design-preview.invite-card-sky-birthday,.design-preview.invite-card-birthday{--card-ink:#145475;--card-accent:#f09b35;--card-surface:#e9f8ff;border-radius:34px 110px 34px 110px;background:radial-gradient(circle at 17% 18%,#ffd45c 0 5%,transparent 6%),radial-gradient(circle at 80% 31%,#75d2ed 0 7%,transparent 8%),linear-gradient(150deg,#e8faff,#acdff2)}
 .invite-card-sky-birthday .card-theme-mark b,.invite-card-birthday .card-theme-mark b{clip-path:polygon(50% 0,62% 38%,100% 50%,62% 62%,50% 100%,38% 62%,0 50%,38% 38%)}.invite-card-sky-birthday img,.invite-card-birthday img{filter:saturate(1.18) brightness(1.05)}
+.design-preview.invite-card-besik-story{--card-ink:#275a56;--card-accent:#bd805c;--card-surface:#f8f1dd;border-radius:24px;background:#d9f0eb}.invite-card-besik-story img{object-fit:cover;object-position:center 32%;filter:none}.invite-card-besik-story .card-shade{background:linear-gradient(180deg,transparent 20%,rgba(253,248,229,.72) 61%,#fff8e8 100%)}.invite-card-besik-story .card-theme-mark,.invite-card-besik-story .card-ring{display:none}.invite-card-besik-story .card-design-name{color:#275a56;text-shadow:none}
 .design-preview.invite-card-pearl{--card-ink:#42626d;--card-accent:#7cb6c5;--card-surface:#eefbfe;background:radial-gradient(circle at 20% 20%,#fff 0 3%,transparent 4%),linear-gradient(155deg,#fbffff,#ccebf3)}
 .invite-card-pearl .card-ring{box-shadow:0 0 0 8px rgba(255,255,255,.64),0 0 0 10px var(--card-accent)}.invite-card-pearl img{filter:saturate(1.02) brightness(1.08)}
 .design-preview.invite-card-royal{--card-ink:#5c241d;--card-accent:#d19a36;--card-surface:#fff0d2;border-radius:18px 18px 120px 120px;background:linear-gradient(90deg,rgba(164,43,37,.08) 0 12%,transparent 12% 88%,rgba(164,43,37,.08) 88%),linear-gradient(#fff8e8,#f0c16d)}
@@ -306,7 +307,9 @@ body.catalog-ui{
 .photo-upload input[type=file]{margin-top:8px;border:1px dashed #aebbd1;border-radius:14px;background:#f7f9ff}
 .photo-upload-preview{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
 .photo-upload-preview:empty{display:none}
-.photo-upload-preview img{width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:16px;border:1px solid #dfe3ee;box-shadow:0 10px 24px rgba(29,43,74,.1)}
+.photo-upload-preview figure{min-width:0;margin:0}
+.photo-upload-preview img{display:block;width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:16px;border:1px solid #dfe3ee;box-shadow:0 10px 24px rgba(29,43,74,.1)}
+.photo-upload-preview figcaption{padding:8px 2px;color:#59647b;font-size:11px;font-weight:700;text-align:center}
 .invite-card-photo-story{background:#e8f0ef;color:#fff}
 .invite-card-photo-story img{opacity:1;filter:saturate(.82) contrast(1.03)}
 .invite-card-photo-story .card-shade{background:linear-gradient(180deg,rgba(15,45,50,.04) 18%,rgba(15,45,50,.82) 100%)}

@@ -141,6 +141,17 @@ class InvitationCatalogSeeder extends Seeder
                     ],
                 ],
             ]],
+            ['Бесік той', 'besik-toi', 'besik_toi', 'besik-story', 9990, '/invitation-assets/besik-toi.svg', [
+                'title' => 'Бесік той', 'sample_names' => 'Еңлік', 'event_label' => 'БЕСІК ТОЙ',
+                'intro_title' => 'БАЛАПАНЫМЫЗДЫҢ АЛҒАШҚЫ ТОЙЫ',
+                'invitation_text' => 'Сүйікті бөбегімізді бесікке бөлейтін ақ тілекке толы күнімізге келіп, қуанышымызға ортақ болыңыздар!',
+                'event_date' => '2026-12-12', 'event_time' => '15:00',
+                'date_title' => 'Бесікке бөлейтін күн', 'countdown_title' => 'Бөпеміздің тойына дейін',
+                'venue_name' => 'Ақ бесік залы', 'hosts_title' => 'Бөбектің ата-анасы',
+                'hosts_name' => 'Бақытты ата-ана', 'rsvp_title' => 'Сізді асыға күтеміз!',
+                'rsvp_hint' => 'Бесік тойға келетін-келмейтініңізді белгілеңіз.',
+                'message' => 'Бөпеге ақ тілегіңіз', 'closing_text' => 'Ақ бесігімізге ақ батаңызды арнаңыз!',
+            ]],
         ] as [$name, $slug, $event, $theme, $price, $image, $content]) {
             $settings = $content['_settings'] ?? [];
             unset($content['_settings']);

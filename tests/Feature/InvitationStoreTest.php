@@ -275,6 +275,7 @@ class InvitationStoreTest extends TestCase
         $this->assertDatabaseHas('templates', ['slug' => 'ak-inju', 'event_type' => 'wedding']);
         $this->assertDatabaseHas('templates', ['slug' => 'mereyli-shenber', 'event_type' => 'anniversary']);
         $this->assertDatabaseHas('templates', ['slug' => 'aru-qyz-uzatu', 'event_type' => 'qyz_uzatu']);
+        $this->assertDatabaseHas('templates', ['slug' => 'besik-toi', 'event_type' => 'besik_toi', 'preview_image' => '/invitation-assets/besik-toi.svg']);
         $this->assertDatabaseHas('templates', ['slug' => 'royal-kesh', 'name' => 'Алтын салтанат']);
         $this->assertDatabaseHas('templates', ['slug' => 'altyn-nomad', 'name' => 'Дала мұрасы']);
         $this->assertDatabaseHas('templates', ['slug' => 'gold-wedding', 'is_active' => true, 'preview_image' => '/invitation-assets/modern-evening-wedding.webp']);
@@ -298,7 +299,7 @@ class InvitationStoreTest extends TestCase
             'sage-wedding', 'rose-wedding', 'gold-wedding',
             'classic-anniversary', 'gold-anniversary', 'happy-birthday',
             'ak-inju', 'royal-kesh', 'nazik-botanika', 'ak-zhibek',
-            'altyn-nomad', 'mereyli-shenber', 'aru-qyz-uzatu', 'dala-shattygy', 'mahabbat-hikayasy',
+            'altyn-nomad', 'mereyli-shenber', 'aru-qyz-uzatu', 'dala-shattygy', 'mahabbat-hikayasy', 'besik-toi',
         ])->get() as $design) {
             $this->get('/designs/'.$design->id.'/preview')
                 ->assertOk()
@@ -323,6 +324,14 @@ class InvitationStoreTest extends TestCase
         $this->get('/?event=qyz_uzatu')
             ->assertOk()
             ->assertSee('Ару қыз ұзату');
+
+        $besikToi = Template::where('slug', 'besik-toi')->firstOrFail();
+        $this->get('/?event=besik_toi')->assertOk()->assertSee('Бесік той');
+        $this->get('/designs/'.$besikToi->id.'/preview')
+            ->assertOk()
+            ->assertSee('Еңлік')
+            ->assertSee('besik-hero-jump', false)
+            ->assertSee('besik.css', false);
 
         $this->get('/designs/'.$qyzUzatu->id.'/preview')
             ->assertOk()

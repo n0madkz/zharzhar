@@ -1,11 +1,11 @@
 @php
     $kk = app()->isLocale('kk');
     $eventLabels = $kk
-        ? ['wedding' => 'Үйлену той', 'qyz_uzatu' => 'Қыз ұзату', 'anniversary' => 'Мерейтой', 'birthday' => 'Туған күн']
-        : ['wedding' => 'Свадьба', 'qyz_uzatu' => 'Қыз ұзату', 'anniversary' => 'Юбилей', 'birthday' => 'День рождения'];
+        ? ['wedding' => 'Үйлену той', 'qyz_uzatu' => 'Қыз ұзату', 'anniversary' => 'Мерейтой', 'birthday' => 'Туған күн', 'besik_toi' => 'Бесік той']
+        : ['wedding' => 'Свадьба', 'qyz_uzatu' => 'Қыз ұзату', 'anniversary' => 'Юбилей', 'birthday' => 'День рождения', 'besik_toi' => 'Бесік той'];
     $copy = $kk ? [
         'eyebrow' => 'ЕРЕКШЕ ОНЛАЙН ШАҚЫРУЛАР', 'hero' => 'Үлкен күн.', 'hero_em' => 'Әдемі бастама.',
-        'lead' => 'Үйлену тойы, қыз ұзату, мерейтой немесе туған күн — мерекеңізді есте қалатын шақырудан бастаңыз.',
+        'lead' => 'Үйлену тойы, қыз ұзату, мерейтой, туған күн немесе бесік той — мерекеңізді есте қалатын шақырудан бастаңыз.',
         'choose' => 'Шақыруды таңдау', 'from' => 'бастап', 'payment' => 'Kaspi Pay арқылы төлем',
         'features' => 'Сіздің есімдеріңіз · Сүйікті әуен · Қонақтардың жауабы',
         'art_label' => 'Үйлену тойына арналған шақыру үлгісі', 'moments' => 'ЖАҚЫН ЖАНДАР. ЕРЕКШЕ СӘТТЕР.',
@@ -19,7 +19,7 @@
         'faq_label' => 'БІЛУ КЕРЕК БАРЛЫҚ АҚПАРАТ', 'faq' => 'Шағын мәлімет.', 'faq_em' => 'Үлкен мереке.',
     ] : [
         'eyebrow' => 'ОНЛАЙН-ПРИГЛАШЕНИЯ С ХАРАКТЕРОМ', 'hero' => 'Большой день.', 'hero_em' => 'Красивое начало.',
-        'lead' => 'Свадьба, қыз ұзату, юбилей или день рождения — начните праздник с приглашения, которое хочется сохранить.',
+        'lead' => 'Свадьба, қыз ұзату, юбилей, день рождения или бесік той — начните праздник с приглашения, которое хочется сохранить.',
         'choose' => 'Выбрать приглашение', 'from' => 'от', 'payment' => 'Оплата по Kaspi Pay',
         'features' => 'Ваши имена · Любимая музыка · Ответы гостей',
         'art_label' => 'Пример свадебного приглашения', 'moments' => 'БЛИЗКИЕ ЛЮДИ. ОСОБЕННЫЕ МОМЕНТЫ.',
@@ -62,7 +62,7 @@
 <div><p class="eyebrow">{{ $copy['eyebrow'] }}</p><h1>{{ $copy['hero'] }}<br><em>{{ $copy['hero_em'] }}</em></h1><p class="lead">{{ $copy['lead'] }}</p><div class="actions"><a class="button primary" href="#designs">{{ $copy['choose'] }} <span>↗</span></a><span class="price-note">{{ $copy['from'] }} <strong>7 990 ₸</strong><small>{{ $copy['payment'] }}</small></span></div><p class="hero-footnote">{{ $copy['features'] }}</p></div>
 <div class="hero-art" aria-label="{{ $copy['art_label'] }}"><span class="orbit-label">{{ $copy['moments'] }}</span><div class="paper theme-sage"><span class="paper-kicker">ҮЙЛЕНУ ТОЙЫНА ШАҚЫРУ</span><span class="hero-ornament" aria-hidden="true"><i></i><i></i><b></b></span><span class="paper-script">Ақ інжу</span><span class="paper-date">08 · 11 · 2026</span><span class="paper-footer">БІЗДІҢ ҚУАНЫШЫМЫЗҒА ОРТАҚ БОЛЫҢЫЗ</span></div><span class="art-tag">{{ $copy['love'] }}</span></div>
 </section>
-<div class="occasion-band"><span>Үйлену той</span><b>✦</b><span>Қыз ұзату</span><b>✦</b><span>Мерейтой</span><b>✦</b><span>Туған күн</span><b>✦</b><span>{{ $copy['special'] }}</span></div>
+<div class="occasion-band"><span>Үйлену той</span><b>✦</b><span>Қыз ұзату</span><b>✦</b><span>Мерейтой</span><b>✦</b><span>Туған күн</span><b>✦</b><span>Бесік той</span><b>✦</b><span>{{ $copy['special'] }}</span></div>
 <section class="shell section" id="designs"><div class="section-title"><div><p class="eyebrow">{{ $copy['collection'] }}</p><h2>{{ $copy['find'] }} <em>{{ $copy['find_em'] }}</em></h2></div><p>{{ $copy['design_note'] }}</p></div>
 <nav class="filters" data-catalog-filters aria-label="{{ $kk ? 'Мереке түрі' : 'Тип события' }}"><a class="{{ !$category ? 'active' : '' }}" data-event-filter="" href="{{ route('store.catalog') }}#designs" @if(!$category) aria-current="true" @endif>{{ $copy['all'] }}</a>@foreach($eventLabels as $key => $label)<a class="{{ $category === $key ? 'active' : '' }}" data-event-filter="{{ $key }}" href="{{ route('store.catalog', ['event' => $key]) }}#designs" @if($category === $key) aria-current="true" @endif>{{ $label }}</a>@endforeach</nav>
 <div class="catalog-grid" data-catalog-grid role="region" aria-label="{{ $kk ? 'Дизайндар каталогы' : 'Каталог дизайнов' }}" aria-live="polite">

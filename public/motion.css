@@ -109,6 +109,11 @@
     backdrop-filter: blur(9px);
 }
 
+/* The photo-story cover keeps the photograph visible behind its light lettering. */
+.invite-template-mahabbat-hikayasy .invite-cover-copy::before {
+    content: none;
+}
+
 /* Each collection keeps the photo as its main visual and adds its own frame. */
 .invite-theme-pearl .invite-cover-copy::before {
     border-radius: 180px 180px 30px 30px;
@@ -243,6 +248,10 @@
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 10px;
+}
+
+.language-options.single-language {
+    grid-template-columns: 1fr;
 }
 
 .language-option {

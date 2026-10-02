@@ -157,14 +157,22 @@ document.addEventListener('DOMContentLoaded', () => {
       previewUrls = [];
       if (preview) preview.replaceChildren();
       const files = Array.from(input.files || []);
+      const photoLabels = (input.dataset.photoLabels || '').split('|');
       input.setCustomValidity(files.length > 3 ? input.dataset.maxMessage : '');
       files.slice(0, 3).forEach((file, index) => {
         const url = URL.createObjectURL(file);
         previewUrls.push(url);
+        const figure = document.createElement('figure');
         const image = document.createElement('img');
         image.src = url;
-        image.alt = `${index + 1}`;
-        preview?.append(image);
+        image.alt = photoLabels[index] || `${index + 1}`;
+        figure.append(image);
+        if (photoLabels[index]) {
+          const caption = document.createElement('figcaption');
+          caption.textContent = photoLabels[index];
+          figure.append(caption);
+        }
+        preview?.append(figure);
       });
     });
   });
