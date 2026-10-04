@@ -1080,3 +1080,31 @@
 .invite-butterfly--two{top:34%;right:8%;width:32px;height:27px;animation-delay:-3.4s;animation-duration:9.5s}
 @keyframes butterfly-drift{0%,100%{transform:translate3d(0,0,0) rotate(-8deg)}50%{transform:translate3d(14px,-22px,0) rotate(10deg)}}
 @media(prefers-reduced-motion:reduce){.invite-butterfly,.invite-mobile .invite-cover-copy.is-visible .invite-wedding-rings i{animation:none!important}}
+
+/* Modern invitation covers: photography flows into type, without stacked arches,
+   stamped initials, decorative outlines or an extra card inside the cover. */
+.invite-mobile .invite-cover::before,.invite-mobile .invite-cover::after{content:none!important}
+.invite-mobile .story-cover-frame{display:none!important}
+.invite-mobile .invite-cover-shade{background:linear-gradient(180deg,rgba(255,251,245,0) 20%,rgba(255,251,245,.28) 42%,rgba(255,251,245,.9) 68%,#fffbf5 88%)!important}
+.invite-mobile[class*="invite-template-"] .invite-cover-copy{box-sizing:border-box;width:100%!important;margin:0!important;padding:75px 30px 55px!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;backdrop-filter:none!important;color:var(--iv-ink)!important;text-shadow:none!important}
+.invite-mobile .invite-cover-copy :is(.invite-overline,.invite-cover-date,.invite-name,.invite-name span,.invite-monogram,.jubilee-number){color:var(--iv-ink)!important;text-shadow:none!important}
+.invite-mobile .invite-cover-copy .invite-overline{font-size:10px;letter-spacing:.22em;line-height:1.6}
+.invite-mobile .invite-cover-copy .invite-cover-date{font-size:12px;font-weight:700;letter-spacing:.18em}
+.invite-mobile .invite-cover-copy .invite-monogram{display:none!important}
+.invite-mobile .invite-cover-copy .invite-name{max-width:100%;margin:15px auto 0;font-size:clamp(42px,12vw,60px);line-height:1.03;text-wrap:balance}
+.invite-mobile .invite-cover-copy .invite-wedding-rings{color:var(--iv-accent)}
+.invite-mobile .invite-cover-copy .jubilee-number{font-size:33px}
+.invite-template-dala-shattygy .invite-cover-copy,.invite-template-happy-birthday .invite-cover-copy,.invite-template-aru-qyz-uzatu .invite-cover-copy{text-align:left}
+.invite-template-dala-shattygy .invite-cover-copy .invite-name,.invite-template-happy-birthday .invite-cover-copy .invite-name,.invite-template-aru-qyz-uzatu .invite-cover-copy .invite-name{margin-left:0}
+.invite-template-mahabbat-hikayasy .invite-cover-copy{text-align:left}
+.invite-template-mahabbat-hikayasy .invite-cover-copy .invite-name{margin-left:0}
+
+/* Date is a typographic moment, rather than another outlined shape. */
+.invite-mobile .date-orb{box-sizing:border-box;width:auto!important;min-width:0;height:auto!important;min-height:0;margin:0 auto;padding:22px 0!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;backdrop-filter:none!important;clip-path:none!important;transform:none!important;color:inherit!important}
+.invite-mobile .date-orb::before,.invite-mobile .date-orb::after{content:none!important;display:none!important}
+.invite-mobile .date-orb strong{font-size:clamp(68px,20vw,94px);line-height:1;color:inherit!important}
+.invite-mobile .date-orb span{color:inherit!important}
+.invite-mobile .invite-chapter:is(.invite-chapter--royal,.invite-chapter--medal,.invite-chapter--evening,.invite-chapter--ribbon,.invite-chapter--banner)::before{content:none!important}
+.invite-mobile .invite-chapter:is(.invite-chapter--pearl,.invite-chapter--silk,.invite-chapter--calendar){box-shadow:none!important}
+.invite-mobile .invite-chapter--ticket{border:0!important}
+.invite-mobile .invite-chapter--farewell{border:0!important}
