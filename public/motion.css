@@ -1133,7 +1133,9 @@
 .invite-mobile.invite-event-anniversary .invite-cover{background-image:url('/invitation-assets/anniversary.webp')}
 .invite-mobile.invite-event-birthday .invite-cover{background-image:url('/invitation-assets/birthday-ethno.webp')}
 .invite-mobile.invite-event-qyz_uzatu .invite-cover{background-image:url('/invitation-assets/qyz-uzatu.webp')}
-.invite-mobile[class*='invite-template-'] .invite-cover-shade{background:linear-gradient(180deg,#fffbf5 0%,rgba(255,251,245,.97) 28%,rgba(255,251,245,.6) 46%,rgba(255,251,245,.05) 70%)!important}
+.invite-mobile[class*='invite-template-'] .invite-cover .invite-cover-shade{background:linear-gradient(180deg,rgba(255,251,245,.98) 0%,rgba(255,251,245,.94) 30%,rgba(255,251,245,.18) 58%,rgba(255,251,245,.92) 100%)!important}
+.invite-mobile[class*='invite-template-'] .invite-cover-copy :is(.invite-overline,.invite-cover-date,.invite-name,.invite-name span,.jubilee-number,.story-chapter-label){color:var(--iv-ink,#263b38)!important;text-shadow:none!important}
+.invite-mobile[class*='invite-template-'] .invite-cover-copy .story-chapter-label{color:#79513b!important}
 .invite-mobile[class*='invite-template-'] .invite-cover-copy{padding:93px 29px 34px!important}
 .invite-mobile .invite-cover-copy .invite-name{margin:0 auto 0!important;font-size:clamp(40px,11vw,56px);line-height:1.08}
 .invite-mobile .invite-cover-copy .invite-name span{display:block;overflow-wrap:anywhere}

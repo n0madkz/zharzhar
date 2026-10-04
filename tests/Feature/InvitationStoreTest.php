@@ -230,12 +230,32 @@ class InvitationStoreTest extends TestCase
             }
 
             if ($template->event_type === 'wedding') {
-                $response->assertSee('Айдын')->assertSee('— Айдана');
+                $response->assertSee('Айдын')->assertSee('- Айдана');
             } elseif ($template->event_type === 'qyz_uzatu') {
-                $response->assertSee('Айдана')->assertSee('қыз ұзату');
+                $response->assertSee('<span class="preview-template">Айдана</span>', false);
             }
 
             $response->assertSee('date-orb', false)->assertSee('countdown-grid', false)->assertSee('rsvp-preview', false);
+        }
+    }
+
+    public function test_preview_uses_people_names_even_when_saved_sample_name_is_the_design_title(): void
+    {
+        $this->seed(InvitationCatalogSeeder::class);
+
+        foreach ([
+            'mahabbat-hikayasy' => ['Айдын - Айдана', '<span>Айдын</span><span>- Айдана</span>'],
+            'aru-qyz-uzatu' => ['Айдана', '<span>Айдана</span>'],
+        ] as $slug => [$names, $heading]) {
+            $template = Template::where('slug', $slug)->firstOrFail();
+            $config = $template->config_json;
+            $config['content_kk']['sample_names'] = $template->name;
+            $template->update(['config_json' => $config]);
+
+            $this->get('/designs/'.$template->id.'/preview')
+                ->assertOk()
+                ->assertSee('<span class="preview-template">'.$names.'</span>', false)
+                ->assertSee('<h1 class="invite-name invite-name-preview">'.$heading.'</h1>', false);
         }
     }
 
@@ -465,14 +485,14 @@ class InvitationStoreTest extends TestCase
             ->assertSee('Шаблондарға қайту')
             ->assertSee('data-invite-music', false)
             ->assertSee('invite-theme-qyz-modern', false)
-            ->assertSee('<span>Айдана</span><span>қыз ұзату</span>', false)
+            ->assertSee('<h1 class="invite-name invite-name-preview"><span>Айдана</span></h1>', false)
             ->assertSee('two-gis-logo', false)
             ->assertSee('2GIS-те ашу')
             ->assertDontSee('round-map', false);
 
         $this->get('/designs/'.$royal->id.'/preview')
             ->assertOk()
-            ->assertSee('Алтын салтанат')
+            ->assertSee('<span class="preview-template">Айдын - Айдана</span>', false)
             ->assertSee('ДОМБЫРА ҮНІМЕН ӨРІЛГЕН ҚУАНЫШ')
             ->assertSee('royal-ethno.webp')
             ->assertDontSee('Дастан')

@@ -172,11 +172,11 @@ class InvitationCatalogSeeder extends Seeder
             unset($content['_settings']);
             $content = array_replace($base, $content);
             $sampleNames = $content['sample_names'] ?? match ($event) {
-                'qyz_uzatu' => 'Айдана қыз ұзату',
+                'qyz_uzatu' => 'Айдана',
                 'anniversary' => 'Айдын',
                 'birthday' => 'Айдана',
                 'besik_toi' => 'Еңлік',
-                default => 'Айдын — Айдана',
+                default => 'Айдын - Айдана',
             };
             Template::updateOrCreate(['slug' => $slug], [
                 'name' => $name,
