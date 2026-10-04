@@ -26,6 +26,7 @@
 @if($invitationMode ?? false)<link rel="stylesheet" href="{{ asset('invitation.css') }}?v={{ filemtime(public_path('invitation.css')) }}">@endif
 <link rel="stylesheet" href="{{ asset('fonts.css') }}?v={{ filemtime(public_path('fonts.css')) }}">
 <link rel="stylesheet" href="{{ asset('motion.css') }}?v={{ filemtime(public_path('motion.css')) }}">
+@if(request()->routeIs('store.catalog'))<link rel="stylesheet" href="{{ asset('store-minimal.css') }}?v={{ filemtime(public_path('store-minimal.css')) }}">@endif
 @if($besikMode ?? false)<link rel="stylesheet" href="{{ asset('besik.css') }}?v={{ filemtime(public_path('besik.css')) }}">@endif
 @if($jubileeMode ?? false)<link rel="stylesheet" href="{{ asset('jubilee.css') }}?v={{ filemtime(public_path('jubilee.css')) }}">@endif
 <script src="{{ asset('store.js') }}?v={{ filemtime(public_path('store.js')) }}" defer></script>
