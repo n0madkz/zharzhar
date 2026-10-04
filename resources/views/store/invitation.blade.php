@@ -109,7 +109,9 @@
     $jubileeAge = $details['jubilee_age'] ?? ($preview ? ($customCopy['jubilee_age'] ?? $customCopy['jubilee_number'] ?? null) : null);
     $monogram = collect($nameParts)->take(2)->map(fn ($name) => mb_strtoupper(mb_substr(trim($name), 0, 1)))->implode(' · ');
     $displayNameLines = $nameParts;
-    if ($preview) {
+    if ($preview && $eventType === 'wedding') {
+        $displayNameLines = [preg_replace('/\s*[-–—]\s*/u', ' — ', trim($details['names']))];
+    } elseif ($preview) {
         $previewNameWords = preg_split('/\s+/u', trim($details['names']), -1, PREG_SPLIT_NO_EMPTY);
         $displayNameLines = count($previewNameWords) > 1
             ? [array_shift($previewNameWords), implode(' ', $previewNameWords)]
@@ -147,12 +149,12 @@
         <span class="invite-kazakh-mark" aria-hidden="true"></span>
         @if($isPhotoStory)<span class="story-cover-frame" aria-hidden="true"></span>@endif
         <div class="invite-cover-copy" data-reveal>
-            <h1 class="invite-name{{ $preview ? ' invite-name-preview' : '' }}">@foreach($displayNameLines as $nameLine)<span>{{ $nameLine }}</span>@endforeach</h1>
-            @if($eventType === 'anniversary' && $jubileeAge)<span class="jubilee-number">{{ $jubileeAge }} <small>жас</small></span>@else<span class="invite-monogram" aria-hidden="true">{{ $monogram }}</span>@endif
-            @if($template->event_type === 'wedding')<span class="invite-wedding-rings" aria-hidden="true"><i></i><i></i></span>@endif
             @if($isPhotoStory)<span class="story-chapter-label">{{ $copy['story_chapter'] }}</span>@endif
             <p class="invite-overline">{{ $copy['event_label'] }}</p>
             <p class="invite-cover-date">{{ $eventDate->translatedFormat('d · m · Y') }}</p>
+            @if($template->event_type === 'wedding')<span class="invite-wedding-rings" aria-hidden="true"><i></i><i></i></span>@endif
+            <h1 class="invite-name{{ $preview ? ' invite-name-preview' : '' }}">@foreach($displayNameLines as $nameLine)<span>{{ $nameLine }}</span>@endforeach</h1>
+            @if($eventType === 'anniversary' && $jubileeAge)<span class="jubilee-number">{{ $jubileeAge }} <small>жас</small></span>@else<span class="invite-monogram" aria-hidden="true">{{ $monogram }}</span>@endif
         </div>
     </header>
 
