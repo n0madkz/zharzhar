@@ -837,3 +837,16 @@ body.invitation-shell{margin:0;background:#e6e2dc;color:#28231f;font-family:Manr
 
 .invite-chapter--bouquet .countdown-section .invite-script{color:var(--iv-ink)}
 .invite-chapter--bouquet .countdown-grid>div,.invite-chapter--vow .countdown-grid>div,.invite-chapter--toast .countdown-grid>div{border-color:color-mix(in srgb,var(--iv-ink) 42%,transparent);color:var(--iv-ink)}
+
+/* Contrast contract for every catalog chapter. The original theme section backgrounds
+   must not reappear under a chapter with the opposite text colour. */
+.invite-chapter--reply{background-color:var(--iv-paper)}
+.invite-chapter .invite-section{background:transparent!important;color:var(--iv-ink)!important}
+.invite-chapter:is(.invite-chapter--evening,.invite-chapter--royal,.invite-chapter--medal,.invite-chapter--ribbon,.invite-chapter--banner,.invite-chapter--cinema) .invite-section{background:transparent!important;color:var(--iv-paper)!important}
+.invite-chapter--destination .countdown-section{background:var(--iv-ink)!important;color:var(--iv-paper)!important}
+.invite-chapter .invite-section .invite-script,.invite-chapter .invite-section .invite-time,.invite-chapter .invite-section .date-orb,.invite-chapter .invite-section .date-orb :is(span,strong),.invite-chapter .invite-section .countdown-grid>div{color:inherit}
+.invite-chapter--bouquet .countdown-section .invite-script{color:var(--iv-ink)!important}
+.invite-chapter--cinema .countdown-section .invite-script,.invite-chapter--destination .countdown-section .invite-script{color:var(--iv-paper)!important}
+/* The heritage preview uses a pale arch in its cover artwork. */
+.invite-template-classic-anniversary .invite-cover-copy,.invite-template-classic-anniversary .invite-cover-copy :is(.invite-overline,.invite-cover-date,h1,.invite-monogram,.jubilee-number){color:#4b2b22;text-shadow:none}
+.invite-template-classic-anniversary .invite-monogram{border-color:#9c5f45;background:rgba(255,248,235,.8)}
