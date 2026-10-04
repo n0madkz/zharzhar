@@ -336,9 +336,9 @@ body.catalog-ui{
 .invite-card-jubilee-tumar .mini-date{position:absolute;z-index:3;top:63%;color:#9d6465}
 .invite-card-jubilee-tumar .preview-pill{z-index:3;color:#fffaf2}
 
-/* Storefront app navigation is shown only on the mobile catalog. */
+/* Storefront app navigation stays available on every catalog screen size. */
 .mobile-store-nav,.mobile-category-sheet{display:none}
-@media(max-width:700px){
+
   .catalog-ui{padding-bottom:calc(86px + env(safe-area-inset-bottom, 0px))}
   .catalog-ui .store-footer{padding-bottom:24px}
   .catalog-ui #designs,.catalog-ui #faq{scroll-margin-top:88px}
@@ -359,4 +359,4 @@ body.catalog-ui{
   .mobile-category-options a[aria-current="true"]{border-color:#7579e6;background:#eff0ff;color:#4548c8}
   .mobile-category-options b{display:grid;flex:none;min-width:30px;height:30px;place-items:center;border-radius:10px;background:#f0f2fa;color:#68708a;font:700 12px/1 'Noto Sans',Arial,sans-serif}
   .mobile-category-options a[aria-current="true"] b{background:#dfe1ff;color:#4548c8}
-}
+@media(min-width:701px){.mobile-store-nav{bottom:20px}.catalog-ui{padding-bottom:108px}}
