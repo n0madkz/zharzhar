@@ -225,6 +225,16 @@ class InvitationStoreTest extends TestCase
                 $response->assertDontSee('invite-wedding-rings', false);
             }
 
+            if (! in_array($slug, ['besik-toi', 'omir-ornegi'], true)) {
+                $response->assertSeeInOrder(['<div class="invite-cover-copy"', '<h1 class="invite-name', '<p class="invite-overline"']);
+            }
+
+            if ($template->event_type === 'wedding') {
+                $response->assertSee('Айдын')->assertSee('— Айдана');
+            } elseif ($template->event_type === 'qyz_uzatu') {
+                $response->assertSee('Айдана')->assertSee('қыз ұзату');
+            }
+
             $response->assertSee('date-orb', false)->assertSee('countdown-grid', false)->assertSee('rsvp-preview', false);
         }
     }
@@ -238,7 +248,7 @@ class InvitationStoreTest extends TestCase
             ->assertOk()
             ->assertSee('jubilee-page', false)
             ->assertSeeInOrder(['<h1>Айгүл</h1>', '<strong>60</strong>', 'жас'])
-            ->assertSee('Ақ тілек кітабы')
+            ->assertSee('Ақ тілек<br><em>кітабы</em>', false)
             ->assertSee('Иә, келемін')
             ->assertSee('Жоқ');
 
@@ -455,7 +465,7 @@ class InvitationStoreTest extends TestCase
             ->assertSee('Шаблондарға қайту')
             ->assertSee('data-invite-music', false)
             ->assertSee('invite-theme-qyz-modern', false)
-            ->assertSee('<span>Ару</span><span>қыз ұзату</span>', false)
+            ->assertSee('<span>Айдана</span><span>қыз ұзату</span>', false)
             ->assertSee('two-gis-logo', false)
             ->assertSee('2GIS-те ашу')
             ->assertDontSee('round-map', false);

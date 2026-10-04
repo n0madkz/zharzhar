@@ -89,7 +89,13 @@ class StorefrontController extends Controller
             'preview' => true,
             'invitation' => null,
             'details' => [
-                'names' => $content['sample_names'] ?? $content['title'],
+                'names' => $content['sample_names'] ?? match ($eventType) {
+                    'qyz_uzatu' => 'Айдана қыз ұзату',
+                    'anniversary' => 'Айдын',
+                    'birthday' => 'Айдана',
+                    'besik_toi' => 'Еңлік',
+                    default => 'Айдын — Айдана',
+                },
                 'jubilee_age' => $content['jubilee_age'] ?? $content['jubilee_number'] ?? null,
                 'event_type' => $eventType,
                 'event_date' => $content['event_date'],

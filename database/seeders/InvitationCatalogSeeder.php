@@ -171,13 +171,20 @@ class InvitationCatalogSeeder extends Seeder
             $settings = $content['_settings'] ?? [];
             unset($content['_settings']);
             $content = array_replace($base, $content);
+            $sampleNames = $content['sample_names'] ?? match ($event) {
+                'qyz_uzatu' => 'Айдана қыз ұзату',
+                'anniversary' => 'Айдын',
+                'birthday' => 'Айдана',
+                'besik_toi' => 'Еңлік',
+                default => 'Айдын — Айдана',
+            };
             Template::updateOrCreate(['slug' => $slug], [
                 'name' => $name,
                 'category' => $event,
                 'event_type' => $event,
                 'price' => $price,
                 'preview_image' => $image,
-                'config_json' => array_replace(['theme' => $theme, 'sample_names' => $name, 'content_kk' => $content], $settings),
+                'config_json' => array_replace(['theme' => $theme, 'sample_names' => $sampleNames, 'content_kk' => $content], $settings),
                 'is_active' => true,
             ]);
         }

@@ -1124,3 +1124,24 @@
 .catalog-grid .design-info{min-height:115px}
 .catalog-grid .design-card>.button{margin-top:auto}
 @media(max-width:700px){.catalog-grid .design-preview[class*='invite-card-']{padding:22px 18px 19px}.catalog-grid .design-preview[class*='invite-card-'] .card-design-name{min-height:72px;font-size:clamp(26px,8vw,31px)!important}.catalog-grid .design-info{min-height:108px}}
+
+/* Names lead each invitation. The upper light veil guarantees contrast even
+   when a theme has an older dark cover rule or its primary photo fails. */
+.invite-mobile .invite-cover{align-items:flex-start;background-color:#f5ede4;background-position:center;background-size:cover;background-repeat:no-repeat}
+.invite-mobile.invite-event-wedding .invite-cover{background-image:url('/invitation-assets/wedding-hands.webp')}
+.invite-mobile.invite-template-gold-wedding .invite-cover{background-image:url('/invitation-assets/royal-wedding.webp')}
+.invite-mobile.invite-event-anniversary .invite-cover{background-image:url('/invitation-assets/anniversary.webp')}
+.invite-mobile.invite-event-birthday .invite-cover{background-image:url('/invitation-assets/birthday-ethno.webp')}
+.invite-mobile.invite-event-qyz_uzatu .invite-cover{background-image:url('/invitation-assets/qyz-uzatu.webp')}
+.invite-mobile[class*='invite-template-'] .invite-cover-shade{background:linear-gradient(180deg,#fffbf5 0%,rgba(255,251,245,.97) 28%,rgba(255,251,245,.6) 46%,rgba(255,251,245,.05) 70%)!important}
+.invite-mobile[class*='invite-template-'] .invite-cover-copy{padding:93px 29px 34px!important}
+.invite-mobile .invite-cover-copy .invite-name{margin:0 auto 0!important;font-size:clamp(40px,11vw,56px);line-height:1.08}
+.invite-mobile .invite-cover-copy .invite-name span{display:block;overflow-wrap:anywhere}
+.invite-mobile .invite-cover-copy .jubilee-number{margin:9px 0 0}
+.invite-mobile .invite-cover-copy .invite-wedding-rings{margin:22px auto 14px}
+.invite-mobile .invite-cover-copy .invite-overline{margin:15px 0 0}
+.invite-mobile .invite-cover-copy .invite-cover-date{margin:10px 0 0}
+.invite-mobile .invite-kazakh-mark{top:auto!important;right:22px!important;bottom:22px!important;left:auto!important}
+.invite-mobile .invite-butterfly--one{top:58%;left:8%}
+.invite-mobile .invite-butterfly--two{top:73%;right:8%}
+@media(max-width:430px){.invite-mobile[class*='invite-template-'] .invite-cover-copy{padding:76px 25px 30px!important}}
