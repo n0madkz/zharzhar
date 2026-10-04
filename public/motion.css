@@ -1168,3 +1168,7 @@
 @media(max-width:430px){.invite-mobile[class*='invite-template-'] .invite-cover-copy{padding:24px 24px 130px!important}}
 .invite-mobile .invite-kazakh-mark{top:22px!important;right:22px!important;bottom:auto!important;left:auto!important}
 .invite-mobile.invite-event-wedding .invite-name-preview{font-size:clamp(31px,8vw,42px)!important;line-height:1.15}
+
+/* Event names remain readable over every cover photo. */
+.invite-mobile[class*='invite-template-'] .invite-cover-copy p.invite-overline{display:inline-flex;max-width:100%;min-height:42px;align-items:center;justify-content:center;margin:0 auto 12px!important;padding:9px 18px;border:1px solid color-mix(in srgb,var(--iv-accent) 55%,white);border-radius:999px;background:rgba(255,251,245,.97);box-shadow:0 5px 20px rgba(30,32,30,.13);color:var(--iv-ink,#263b38)!important;font:750 14px/1.35 'Noto Sans',Manrope,Arial,sans-serif!important;letter-spacing:.1em!important;text-align:center;text-shadow:none!important;text-transform:uppercase;text-wrap:balance}
+.invite-mobile.invite-template-mahabbat-hikayasy .invite-cover-copy p.invite-overline{background:#fffaf1;color:#173a39!important}

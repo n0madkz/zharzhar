@@ -32,6 +32,7 @@
         <div class="jubilee-topline"><span>ZHARZHAR / МЕРЕЙТОЙ ШАҚЫРУЫ</span><span>01 — ӨМІР ӨРНЕГІ</span></div>
         <button class="music-orb music-theme-jubilee-tumar jubilee-music" type="button" data-invite-music @if(empty($details['music_url'])) data-preview-tone @endif aria-label="Музыканы қосу" aria-pressed="false" data-play-label="Музыканы қосу" data-pause-label="Музыканы тоқтату"><span class="music-kazakh-ornament" aria-hidden="true"></span><span class="music-control-icon" aria-hidden="true"><span class="music-play-icon"></span><span class="music-pause-icon"><i></i><i></i></span></span></button>
         <div class="jubilee-cover-main">
+            <span class="jubilee-event-label">МЕРЕЙТОЙ</span>
             <span class="jubilee-cover-overline">ҒҰМЫРДЫҢ ҚЫМБАТ БЕЛЕСІ</span>
             <h1>{{ $details['names'] }}</h1>
             @if($jubileeAge)<p class="jubilee-age"><strong>{{ $jubileeAge }}</strong><span> жас</span></p>@endif
