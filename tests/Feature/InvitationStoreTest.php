@@ -217,6 +217,12 @@ class InvitationStoreTest extends TestCase
                 $response->assertSee('invite-chapter--'.$chapter['kind'], false);
             }
 
+            if ($template->event_type === 'wedding') {
+                $response->assertSee('invite-event-wedding', false)->assertSee('invite-wedding-rings', false);
+            } else {
+                $response->assertDontSee('invite-wedding-rings', false);
+            }
+
             $response->assertSee('date-orb', false)->assertSee('countdown-grid', false)->assertSee('rsvp-preview', false);
         }
     }

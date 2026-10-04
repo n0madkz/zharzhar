@@ -136,13 +136,14 @@
     </nav>
 @endif
 
-<article class="invite-mobile invite-theme-{{ $theme }} invite-template-{{ $template->slug }}" data-invite-theme="{{ $theme }}" data-template-slug="{{ $template->slug }}">
+<article class="invite-mobile invite-theme-{{ $theme }} invite-template-{{ $template->slug }}{{ $template->event_type === 'wedding' ? ' invite-event-wedding' : '' }}" data-invite-theme="{{ $theme }}" data-template-slug="{{ $template->slug }}">
     <header class="invite-cover">
         @if($image)<img class="invite-cover-image" src="{{ $image }}" alt="" fetchpriority="high">@endif
         <span class="invite-cover-shade" aria-hidden="true"></span>
         <span class="invite-kazakh-mark" aria-hidden="true"></span>
         @if($isPhotoStory)<span class="story-cover-frame" aria-hidden="true"></span>@endif
         <div class="invite-cover-copy" data-reveal>
+            @if($template->event_type === 'wedding')<span class="invite-wedding-rings" aria-hidden="true"><i></i><i></i></span>@endif
             @if($isPhotoStory)<span class="story-chapter-label">{{ $copy['story_chapter'] }}</span>@endif
             <p class="invite-overline">{{ $copy['event_label'] }}</p>
             <p class="invite-cover-date">{{ $eventDate->translatedFormat('d · m · Y') }}</p>

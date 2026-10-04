@@ -850,3 +850,54 @@ body.invitation-shell{margin:0;background:#e6e2dc;color:#28231f;font-family:Manr
 /* The heritage preview uses a pale arch in its cover artwork. */
 .invite-template-classic-anniversary .invite-cover-copy,.invite-template-classic-anniversary .invite-cover-copy :is(.invite-overline,.invite-cover-date,h1,.invite-monogram,.jubilee-number){color:#4b2b22;text-shadow:none}
 .invite-template-classic-anniversary .invite-monogram{border-color:#9c5f45;background:rgba(255,248,235,.8)}
+
+/* Wedding invitations use interlocking rings; other events use a restrained national motif. */
+.invite-event-wedding .invite-kazakh-mark{display:none}
+.invite-wedding-rings{position:relative;display:block;width:76px;height:48px;margin:0 auto 25px;color:var(--iv-accent)}
+.invite-wedding-rings i,.invite-event-wedding .orbit-mark i,.invite-event-wedding .joined-rings i{position:absolute;top:5px;display:block;width:43px;height:43px;border:3px solid currentColor;border-radius:50%;background:transparent;box-shadow:inset 0 1px 0 color-mix(in srgb,currentColor 30%,white),0 2px 5px rgba(0,0,0,.08);transform:none}
+.invite-wedding-rings i:first-child,.invite-event-wedding .orbit-mark i:first-child,.invite-event-wedding .joined-rings i:first-child{left:2px}
+.invite-wedding-rings i:last-child,.invite-event-wedding .orbit-mark i:last-child,.invite-event-wedding .joined-rings i:last-child{right:2px;left:auto}
+.invite-wedding-rings::after{content:"";position:absolute;top:2px;left:10px;width:8px;height:8px;border-top:1px solid currentColor;transform:rotate(-35deg)}
+.invite-event-wedding .orbit-mark,.invite-event-wedding .joined-rings,.invite-event-wedding .venue-rings{width:78px;height:53px;margin-right:auto;margin-left:auto;color:var(--iv-accent);background:none!important}
+.invite-event-wedding .orbit-mark{margin-bottom:34px;border:0;border-radius:0}
+.invite-event-wedding .orbit-mark::before,.invite-event-wedding .orbit-mark::after{content:none!important}
+.invite-event-wedding .orbit-mark i{inset:auto!important}
+.invite-event-wedding .joined-rings{margin-bottom:25px}
+.invite-event-wedding .joined-rings i{inset:auto!important}
+.invite-event-wedding .venue-rings{margin-bottom:25px}
+.invite-event-wedding .venue-rings::before,.invite-event-wedding .venue-rings::after{content:"";position:absolute;top:5px;width:43px;height:43px;border:3px solid currentColor;border-radius:50%;background:none;transform:none}
+.invite-event-wedding .venue-rings::before{left:2px}.invite-event-wedding .venue-rings::after{right:2px;left:auto}
+.invite-mobile:not(.invite-event-wedding) .orbit-mark{width:56px;height:56px;margin-bottom:27px;border:0;border-radius:0;background:none!important}
+.invite-mobile:not(.invite-event-wedding) .orbit-mark::before,.invite-mobile:not(.invite-event-wedding) .joined-rings::before{content:"";position:absolute;inset:0;background:var(--iv-accent);mask:url("/invitation-assets/music-kazakh-ornament.svg") center/contain no-repeat;-webkit-mask:url("/invitation-assets/music-kazakh-ornament.svg") center/contain no-repeat}
+.invite-mobile:not(.invite-event-wedding) .orbit-mark i,.invite-mobile:not(.invite-event-wedding) .joined-rings i{display:none}
+.invite-mobile:not(.invite-event-wedding) .joined-rings{position:relative;width:45px;height:45px;margin-bottom:22px;background:none}
+.invite-mobile:not(.invite-event-wedding) .venue-rings{width:94px;height:20px;margin-bottom:24px;background:linear-gradient(var(--iv-accent),var(--iv-accent)) left center/34px 1px no-repeat,linear-gradient(var(--iv-accent),var(--iv-accent)) right center/34px 1px no-repeat}
+.invite-mobile:not(.invite-event-wedding) .venue-rings::before{content:"";position:absolute;top:7px;left:44px;width:7px;height:7px;border:1px solid var(--iv-accent);border-radius:0;transform:rotate(45deg)}
+.invite-mobile:not(.invite-event-wedding) .venue-rings::after{content:none}
+/* Remove ornamental holes and fake stamps; use linework and the actual event motif. */
+.invite-chapter--ticket::before,.invite-chapter--ticket::after,.invite-chapter--postcard::after{content:none}
+.invite-chapter--ticket{border-style:solid;border-width:1px;border-top-width:3px;border-bottom-width:3px}
+.invite-chapter--sky,.invite-chapter--festival{background-image:linear-gradient(180deg,var(--iv-bg),var(--iv-paper))}
+.invite-template-rose-wedding .invite-cover-copy{border-radius:130px 130px 18px 18px}
+.invite-template-rose-wedding .date-orb,.invite-template-rose-wedding .finale-circle{border-radius:22px}
+.invite-template-ak-zhibek .invite-cover-copy,.invite-template-ak-zhibek .finale-circle{border-radius:18px}
+.invite-chapter--silk{border-radius:18px}
+/* The royal wedding cover is a wine-coloured invitation over a bright photo. */
+.invite-template-royal-kesh .invite-cover-copy{width:calc(100% - 44px);margin:0 22px 30px;padding:42px 24px 44px;border:1px solid #d9b982;border-radius:12px;background:rgba(58,24,37,.94)!important;color:#fff7e7!important;text-shadow:none;box-shadow:0 20px 42px rgba(35,12,22,.28)}
+.invite-template-royal-kesh .invite-cover-copy :is(.invite-overline,.invite-cover-date,h1,.invite-monogram){color:#fff7e7!important;text-shadow:none}
+.invite-template-royal-kesh .invite-cover h1{font-size:clamp(40px,11vw,55px);line-height:1.06;letter-spacing:-.02em}
+.invite-template-royal-kesh .invite-wedding-rings{color:#e2c286}
+.invite-template-royal-kesh .invite-monogram{width:58px;height:58px;margin-top:24px;border-color:#d9b982}
+@media(max-width:430px){.invite-wedding-rings{margin-bottom:20px}.invite-template-royal-kesh .invite-cover-copy{padding:36px 20px 39px}}
+
+/* Readable covers: light cards have dark ink; image-led covers have a dark veil. */
+.invite-template-classic-anniversary .invite-cover-copy{width:calc(100% - 42px);margin:0 21px 30px;padding:44px 22px 42px;border:1px solid #bc7357;border-radius:12px;background:rgba(255,248,235,.96)!important;color:#4b2b22!important;text-shadow:none;box-shadow:0 14px 36px rgba(63,35,27,.16)}
+.invite-template-classic-anniversary .invite-cover-copy :is(.invite-overline,.invite-cover-date,h1,.invite-monogram,.jubilee-number){color:#4b2b22!important;text-shadow:none}
+.invite-template-classic-anniversary .invite-cover-shade{background:linear-gradient(180deg,rgba(44,24,17,.04),rgba(56,27,21,.15) 45%,rgba(56,27,21,.55) 100%)!important}
+.invite-template-royal-kesh .invite-cover-shade{background:linear-gradient(180deg,rgba(32,11,22,.08) 0%,rgba(32,11,22,.22) 48%,rgba(32,11,22,.78) 100%)!important}
+.invite-template-gold-wedding .invite-cover-shade{background:linear-gradient(180deg,rgba(9,16,28,.08) 0%,rgba(9,16,28,.34) 45%,rgba(9,16,28,.94) 100%)!important}
+.invite-template-altyn-nomad .invite-cover-shade{background:linear-gradient(180deg,rgba(34,23,15,.08) 0%,rgba(45,29,18,.36) 46%,rgba(45,29,18,.93) 100%)!important}
+.invite-template-mereyli-shenber .invite-cover-shade{background:linear-gradient(180deg,rgba(17,47,41,.05) 0%,rgba(17,47,41,.34) 45%,rgba(17,47,41,.94) 100%)!important}
+.invite-template-mahabbat-hikayasy .invite-cover-shade{background:linear-gradient(180deg,rgba(10,29,29,.15) 0%,rgba(10,29,29,.3) 45%,rgba(6,27,29,.93) 100%)!important}
+.invite-template-gold-wedding .invite-cover-copy,.invite-template-altyn-nomad .invite-cover-copy,.invite-template-mereyli-shenber .invite-cover-copy,.invite-template-mahabbat-hikayasy .invite-cover-copy{color:#fff9ee!important}
+.invite-template-gold-wedding .invite-cover-copy :is(.invite-overline,.invite-cover-date,h1,.invite-monogram),.invite-template-altyn-nomad .invite-cover-copy :is(.invite-overline,.invite-cover-date,h1,.invite-monogram),.invite-template-mereyli-shenber .invite-cover-copy :is(.invite-overline,.invite-cover-date,h1,.invite-monogram),.invite-template-mahabbat-hikayasy .invite-cover-copy :is(.invite-overline,.invite-cover-date,h1,.invite-monogram){color:#fff9ee!important}
