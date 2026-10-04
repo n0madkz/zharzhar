@@ -219,6 +219,8 @@ class InvitationStoreTest extends TestCase
 
             if ($template->event_type === 'wedding') {
                 $response->assertSee('invite-event-wedding', false)->assertSee('invite-wedding-rings', false);
+                $this->assertSame(3, substr_count($response->getContent(), 'invite-wedding-rings--section'));
+                $this->assertSame($template->price >= 10990 ? 2 : 0, substr_count($response->getContent(), 'class="invite-butterfly invite-butterfly--'));
             } else {
                 $response->assertDontSee('invite-wedding-rings', false);
             }

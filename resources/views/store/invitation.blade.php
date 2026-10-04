@@ -140,6 +140,10 @@
     <header class="invite-cover">
         @if($image)<img class="invite-cover-image" src="{{ $image }}" alt="" fetchpriority="high">@endif
         <span class="invite-cover-shade" aria-hidden="true"></span>
+        @if($template->event_type === 'wedding' && $template->price >= 10990)
+            <span class="invite-butterfly invite-butterfly--one" aria-hidden="true"></span>
+            <span class="invite-butterfly invite-butterfly--two" aria-hidden="true"></span>
+        @endif
         <span class="invite-kazakh-mark" aria-hidden="true"></span>
         @if($isPhotoStory)<span class="story-cover-frame" aria-hidden="true"></span>@endif
         <div class="invite-cover-copy" data-reveal>

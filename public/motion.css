@@ -1036,3 +1036,47 @@
     .invite-theme-golden-jubilee .invite-cover-copy::before { inset:56px 15px 22px; }
     .invite-theme-qyz-modern .invite-name { font-size:54px; }
 }
+
+/* Cover copy is the actual text panel. The old pseudo-panel painted a pale shape
+   over dark text panels and made several catalog covers unreadable. */
+.invite-mobile .invite-cover-copy::before{content:none!important;display:none!important}
+
+/* Wedding marks are two separate rings in every scene. */
+.invite-mobile .invite-wedding-rings--section{width:84px;height:54px;margin:0 auto 34px;color:var(--iv-accent)}
+.invite-mobile .invite-wedding-rings i{box-sizing:border-box;width:46px;height:46px;top:4px;border-width:3px;animation:none}
+.invite-mobile .invite-wedding-rings i:first-child{left:2px;right:auto}
+.invite-mobile .invite-wedding-rings i:last-child{left:auto;right:2px}
+.invite-mobile .invite-wedding-rings--section::after{display:none}
+.invite-mobile .invite-cover-copy.is-visible .invite-wedding-rings i:first-child{animation:wedding-ring-left 1.05s cubic-bezier(.2,.8,.2,1) both}
+.invite-mobile .invite-cover-copy.is-visible .invite-wedding-rings i:last-child{animation:wedding-ring-right 1.05s .12s cubic-bezier(.2,.8,.2,1) both}
+@keyframes wedding-ring-left{from{opacity:0;transform:translateX(-18px) rotate(-15deg)}to{opacity:1;transform:translateX(0) rotate(0)}}
+@keyframes wedding-ring-right{from{opacity:0;transform:translateX(18px) rotate(15deg)}to{opacity:1;transform:translateX(0) rotate(0)}}
+
+/* Altyn saltanat: an airy champagne invitation with deep berry ink. */
+.invite-mobile.invite-template-royal-kesh{--iv-bg:#f7efe6;--iv-paper:#fffaf3;--iv-ink:#512b38;--iv-accent:#a77443;--iv-soft:#d7b98f;background:#f7efe6}
+.invite-template-royal-kesh .invite-cover{background:#e1c4a2}
+.invite-template-royal-kesh .invite-cover-image{filter:saturate(.86) brightness(1.04)}
+.invite-mobile.invite-template-royal-kesh .invite-cover-shade{background:linear-gradient(180deg,rgba(255,250,243,.04) 25%,rgba(65,31,42,.16) 100%)!important}
+.invite-mobile.invite-template-royal-kesh .invite-cover-copy{width:calc(100% - 38px);margin:0 19px 26px;padding:42px 23px 38px;border:1px solid #b88c55;border-radius:155px 155px 14px 14px;background:rgba(255,249,239,.97)!important;color:#512b38!important;text-shadow:none;box-shadow:0 22px 55px rgba(65,31,42,.18);backdrop-filter:blur(8px)}
+.invite-mobile.invite-template-royal-kesh .invite-cover-copy :is(.invite-overline,.invite-cover-date,h1,.invite-monogram){color:#512b38!important;text-shadow:none}
+.invite-template-royal-kesh .invite-cover-copy .invite-overline{letter-spacing:.25em}
+.invite-template-royal-kesh .invite-cover-copy .invite-cover-date{font-weight:700}
+.invite-template-royal-kesh .invite-cover h1{font-family:'Noto Serif Display',Georgia,serif;font-weight:500;letter-spacing:-.035em}
+.invite-template-royal-kesh .invite-cover-copy .invite-monogram{border-color:#aa7a4b;background:#fffaf2}
+.invite-template-royal-kesh .invite-cover-copy .invite-wedding-rings{color:#aa7a4b}
+.invite-template-royal-kesh .invite-chapter:is(.invite-chapter--royal,.invite-chapter--medal,.invite-chapter--evening){background:linear-gradient(155deg,#fffaf3 5%,#f4e4d5 100%);color:#512b38}
+.invite-template-royal-kesh .invite-chapter:is(.invite-chapter--royal,.invite-chapter--medal,.invite-chapter--evening) .invite-section{background:transparent!important;color:#512b38!important}
+.invite-template-royal-kesh .invite-chapter:is(.invite-chapter--royal,.invite-chapter--medal,.invite-chapter--evening) .invite-chapter-index{color:#8b573d}
+.invite-template-royal-kesh .invite-chapter:is(.invite-chapter--royal,.invite-chapter--medal,.invite-chapter--evening)::before{border-color:rgba(167,116,67,.34)}
+.invite-template-royal-kesh .invite-message{max-width:340px;font-size:clamp(24px,7vw,29px);line-height:1.43}
+.invite-template-royal-kesh .invite-chapter .invite-small-title,.invite-template-royal-kesh .invite-chapter .invite-overline{color:#80523f}
+.invite-template-royal-kesh .invite-chapter--medal .date-orb{background:#fffaf3;color:#512b38;border-color:#a77443;box-shadow:0 14px 32px rgba(81,43,56,.09)}
+.invite-template-royal-kesh .invite-chapter--evening .countdown-grid>div{border-color:rgba(81,43,56,.34);color:#512b38;background:rgba(255,250,243,.78)}
+.invite-template-royal-kesh .invite-chapter--royal .venue-location{background:#fffaf3;color:#512b38;border-color:#d5b68d}
+
+/* Butterflies belong only to the higher-priced wedding templates. */
+.invite-butterfly{position:absolute;z-index:1;width:45px;height:38px;background:url('/invitation-assets/butterfly.svg') center/contain no-repeat;pointer-events:none;filter:drop-shadow(0 3px 4px rgba(55,36,28,.16));animation:butterfly-drift 8s ease-in-out infinite}
+.invite-butterfly--one{top:15%;left:7%}
+.invite-butterfly--two{top:34%;right:8%;width:32px;height:27px;animation-delay:-3.4s;animation-duration:9.5s}
+@keyframes butterfly-drift{0%,100%{transform:translate3d(0,0,0) rotate(-8deg)}50%{transform:translate3d(14px,-22px,0) rotate(10deg)}}
+@media(prefers-reduced-motion:reduce){.invite-butterfly,.invite-mobile .invite-cover-copy.is-visible .invite-wedding-rings i{animation:none!important}}
