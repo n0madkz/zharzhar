@@ -164,6 +164,62 @@ class InvitationStoreTest extends TestCase
         $this->get('/checkout/'.$wedding->id)->assertOk()->assertSee('Той иелері');
     }
 
+    public function test_catalog_templates_keep_distinct_section_sequences_and_kazakh_ornaments(): void
+    {
+        $this->seed(InvitationCatalogSeeder::class);
+        $layouts = config('invitation_layouts');
+        $this->assertCount(15, $layouts);
+        $this->assertCount(count($layouts), array_unique(array_map(fn ($sections) => implode(',', $sections), $layouts)));
+        foreach ($layouts as $slug => $sections) {
+            $this->assertSame('intro', $sections[0], $slug);
+            $this->assertSame('rsvp', end($sections), $slug);
+            $this->assertDatabaseHas('templates', ['slug' => $slug, 'is_active' => true]);
+        }
+
+        $sage = Template::where('slug', 'sage-wedding')->firstOrFail();
+        $rose = Template::where('slug', 'rose-wedding')->firstOrFail();
+        $this->get('/designs/'.$sage->id.'/preview')
+            ->assertOk()
+            ->assertSee('invite-kazakh-mark', false)
+            ->assertSeeInOrder(['invite-intro', 'date-section', 'venue-section', 'countdown-section', 'hosts-section', 'rsvp-section']);
+        $this->get('/designs/'.$rose->id.'/preview')
+            ->assertOk()
+            ->assertSeeInOrder(['invite-intro', 'hosts-section', 'date-section', 'countdown-section', 'venue-section', 'rsvp-section']);
+    }
+
+    public function test_jubilee_template_has_its_own_kazakh_invitation_and_wish_book(): void
+    {
+        $this->seed(InvitationCatalogSeeder::class);
+        $template = Template::where('slug', 'omir-ornegi')->firstOrFail();
+
+        $this->get('/designs/'.$template->id.'/preview')
+            ->assertOk()
+            ->assertSee('jubilee-page', false)
+            ->assertSeeInOrder(['<h1>Айгүл</h1>', '<strong>60</strong>', 'жас'])
+            ->assertSee('Ақ тілек кітабы')
+            ->assertSee('Иә, келемін')
+            ->assertSee('Жоқ');
+
+        $gold = Template::where('slug', 'gold-anniversary')->firstOrFail();
+        $this->get('/designs/'.$gold->id.'/preview')
+            ->assertOk()
+            ->assertSeeInOrder(['<span>Асқар</span>', '<span class="jubilee-number">50 <small>жас</small>']);
+
+        $this->get('/checkout/'.$template->id)
+            ->assertOk()
+            ->assertSee('Мерейтой иесінің есімі')
+            ->assertSee('single-language', false)
+            ->assertSee('name="jubilee_age"', false);
+
+        $data = $this->checkoutData($template);
+        $data['event_type'] = 'anniversary';
+        $data['names'] = 'Айгүл';
+        $this->placeOrder($data)->assertSessionHasErrors('jubilee_age');
+        $data['jubilee_age'] = 70;
+        $this->placeOrder($data)->assertRedirect();
+        $this->assertSame(70, (int) InvitationOrder::firstOrFail()->details['jubilee_age']);
+    }
+
     public function test_uploaded_music_is_served_without_a_public_storage_symlink(): void
     {
         Storage::fake('public');
@@ -294,6 +350,7 @@ class InvitationStoreTest extends TestCase
         $this->assertDatabaseHas('templates', ['slug' => 'mereyli-shenber', 'event_type' => 'anniversary']);
         $this->assertDatabaseHas('templates', ['slug' => 'aru-qyz-uzatu', 'event_type' => 'qyz_uzatu']);
         $this->assertDatabaseHas('templates', ['slug' => 'besik-toi', 'event_type' => 'besik_toi', 'preview_image' => '/invitation-assets/besik-toi.svg']);
+        $this->assertDatabaseHas('templates', ['slug' => 'omir-ornegi', 'event_type' => 'anniversary', 'preview_image' => '/invitation-assets/omir-ornegi.svg']);
         $this->assertDatabaseHas('templates', ['slug' => 'royal-kesh', 'name' => 'Алтын салтанат']);
         $this->assertDatabaseHas('templates', ['slug' => 'altyn-nomad', 'name' => 'Дала мұрасы']);
         $this->assertDatabaseHas('templates', ['slug' => 'gold-wedding', 'is_active' => true, 'preview_image' => '/invitation-assets/modern-evening-wedding.webp']);

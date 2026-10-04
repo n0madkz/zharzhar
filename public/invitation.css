@@ -709,3 +709,16 @@ body.invitation-shell{margin:0;background:#e6e2dc;color:#28231f;font-family:Manr
 .invite-template-mahabbat-hikayasy .invite-finale small{color:#f5e4cc}
 @media(max-width:430px){.invite-template-mahabbat-hikayasy .invite-cover{min-height:calc(100svh - 58px)}.invite-template-mahabbat-hikayasy .invite-cover h1{font-size:clamp(39px,12vw,54px)}.invite-template-mahabbat-hikayasy .invite-photo-grid figure,.invite-template-mahabbat-hikayasy .invite-photo-grid figure:first-child{height:400px}.invite-template-mahabbat-hikayasy .rsvp-preview,.invite-template-mahabbat-hikayasy .invite-form{padding:17px}}
 @media(prefers-reduced-motion:reduce){.invite-template-mahabbat-hikayasy .invite-cover-image{animation:none}.invite-template-mahabbat-hikayasy .invite-photo-grid img{transition:none}}
+
+/* The authentic Kazakh ornament is present on every catalog invitation cover. */
+.invite-mobile .invite-kazakh-mark{position:absolute;z-index:4;top:25px;right:25px;width:54px;height:54px;pointer-events:none;background:var(--iv-accent);opacity:.92;mask:url('/invitation-assets/music-kazakh-ornament.svg') center/contain no-repeat;-webkit-mask:url('/invitation-assets/music-kazakh-ornament.svg') center/contain no-repeat}
+.invite-template-rose-wedding .invite-kazakh-mark,.invite-template-ak-inju .invite-kazakh-mark,.invite-template-nazik-botanika .invite-kazakh-mark{right:auto;left:27px}
+.invite-template-gold-wedding .invite-kazakh-mark,.invite-template-royal-kesh .invite-kazakh-mark,.invite-template-classic-anniversary .invite-kazakh-mark{background:#f4d5a5}
+.invite-template-altyn-nomad .invite-kazakh-mark,.invite-template-aru-qyz-uzatu .invite-kazakh-mark{top:40px;right:32px;width:68px;height:68px}
+.invite-template-happy-birthday .invite-kazakh-mark,.invite-template-dala-shattygy .invite-kazakh-mark{top:33px;right:32px;transform:rotate(-14deg)}
+.invite-template-mereyli-shenber .invite-kazakh-mark,.invite-template-gold-anniversary .invite-kazakh-mark{top:31px;right:50%;transform:translateX(50%)}
+@media(max-width:480px){.invite-mobile .invite-kazakh-mark{width:44px;height:44px;top:21px;right:20px}.invite-template-rose-wedding .invite-kazakh-mark,.invite-template-ak-inju .invite-kazakh-mark,.invite-template-nazik-botanika .invite-kazakh-mark{right:auto;left:20px}}
+
+/* Jubilee names lead; the editable age follows as a readable Kazakh label. */
+.invite-mobile .invite-cover .jubilee-number{display:flex;align-items:baseline;justify-content:center;gap:7px;margin:20px 0 0;color:inherit;font:500 33px/1.2 'Noto Serif Display',Georgia,serif;opacity:1}
+.invite-mobile .invite-cover .jubilee-number small{font-size:.67em;font-weight:400}

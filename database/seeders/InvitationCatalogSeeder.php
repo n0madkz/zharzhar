@@ -47,7 +47,7 @@ class InvitationCatalogSeeder extends Seeder
                 'venue_name' => 'Алтын Шаңырақ', 'hosts_name' => 'Той иелері',
             ]],
             ['Дәстүрлі мерейтой', 'classic-anniversary', 'anniversary', 'heritage-modern', 8990, '/invitation-assets/modern-traditional-anniversary.webp', [
-                'title' => 'Дәстүрлі мерейтой', 'event_label' => 'МЕРЕЙТОЙ',
+                'title' => 'Дәстүрлі мерейтой', 'sample_names' => 'Айман', 'jubilee_age' => '60', 'event_label' => 'МЕРЕЙТОЙ',
                 'intro_title' => 'ДӘСТҮР МЕН БЕРЕКЕ ТОҒЫСҚАН МЕРЕЙ',
                 'invitation_text' => 'Ғибратты ғұмырдың мерейлі белесін ұлттық дәстүр мен ақ дастархан басында бірге атап өтуге шақырамыз.',
                 'date_title' => 'Мерейтой салтанаты',
@@ -55,12 +55,23 @@ class InvitationCatalogSeeder extends Seeder
                 'hosts_name' => 'Балалары мен немерелері', 'rsvp_hint' => 'Мерейтойға қатысуыңызды растауыңызды сұраймыз.',
             ]],
             ['Алтын мерейтой', 'gold-anniversary', 'anniversary', 'golden-jubilee', 11990, '/invitation-assets/modern-gold-anniversary.webp', [
-                'title' => 'Алтын мерейтой', 'event_label' => 'АЛТЫН МЕРЕЙТОЙ', 'jubilee_number' => '50',
+                'title' => 'Алтын мерейтой', 'sample_names' => 'Асқар', 'event_label' => 'АЛТЫН МЕРЕЙТОЙ', 'jubilee_number' => '50',
                 'intro_title' => 'АЛТЫН БЕЛЕС — АЙШЫҚТЫ ӨМІР',
-                'invitation_text' => 'Елу жылдық өнегелі жолдың қуанышын жақындарымызбен бірге бөлісіп, ақ тілегіңізді қабыл алуға шақырамыз.',
+                'invitation_text' => 'Өнегелі ғұмырдың мерейлі белесін жақындарымызбен бірге бөлісіп, ақ тілегіңізді қабыл алуға шақырамыз.',
                 'date_title' => 'Алтын мерейтой кеші',
                 'venue_name' => 'Алтын Ғасыр залы', 'hosts_title' => 'Шақырушы отбасы',
                 'hosts_name' => 'Балалары мен немерелері', 'rsvp_hint' => 'Мерейтойға қатысуыңызды растауыңызды сұраймыз.',
+            ]],
+            ['Өмір өрнегі', 'omir-ornegi', 'anniversary', 'jubilee-tumar', 10990, '/invitation-assets/omir-ornegi.svg', [
+                'title' => 'Өмір өрнегі', 'sample_names' => 'Айгүл', 'jubilee_age' => '60', 'event_label' => 'МЕРЕЙТОЙ',
+                'intro_title' => 'ҒҰМЫРДЫҢ ӘР БЕЛЕСІ — ҚЫМБАТ ЕСТЕЛІК',
+                'invitation_text' => 'Қадірлі ағайын, туған-туыс және достар! Аяулы жанымыздың мерейлі тойына келіп, қуанышымызды бірге бөлісуге шақырамыз.',
+                'event_date' => '2026-12-20', 'event_time' => '18:00',
+                'date_title' => 'Мерейлі күн', 'countdown_title' => 'Кездескенше',
+                'venue_name' => 'Мирас салтанат сарайы', 'hosts_title' => 'Ізгі ниетпен',
+                'hosts_name' => 'Балалары мен немерелері', 'rsvp_title' => 'Ақ тілек кітабы',
+                'rsvp_hint' => 'Келетініңізді белгілеңіз және жылы лебізіңізді қалдырыңыз.',
+                'closing_text' => 'Ақ тілегіңіз — тойымыздың ең қымбат сыйы.',
             ]],
             ['Шаттықты туған күн', 'happy-birthday', 'birthday', 'sky-birthday', 7990, '/invitation-assets/modern-birthday.webp', [
                 'title' => 'Шаттықты туған күн', 'event_label' => 'ТУҒАН КҮН',
@@ -101,7 +112,7 @@ class InvitationCatalogSeeder extends Seeder
                 'venue_name' => 'Ұлы Дала салтанат сарайы',
             ]],
             ['Мерейлі шеңбер', 'mereyli-shenber', 'anniversary', 'jubilee', 9990, '/invitation-assets/jubilee-ethno.webp', [
-                'title' => 'Мерейлі шеңбер', 'event_label' => 'МЕРЕЙТОЙ',
+                'title' => 'Мерейлі шеңбер', 'sample_names' => 'Болат', 'jubilee_age' => '60', 'event_label' => 'МЕРЕЙТОЙ',
                 'intro_title' => 'МЕРЕЙЛІ ЖАС — МӘНДІ ҒҰМЫР',
                 'invitation_text' => 'Өмір жолының мерейлі белесін бірге атап өтіп, ақ тілегіңізді білдіруге шақырамыз.',
                 'date_title' => 'Мерейтой кеші',

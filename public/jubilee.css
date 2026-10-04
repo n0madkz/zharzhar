@@ -1,0 +1,89 @@
+/* Өмір өрнегі: an editorial Kazakh jubilee letter, separate from the other invitation layouts. */
+body.invitation-shell:has(.jubilee-page){background:#e9e5df;color:#3b292d}
+.jubilee-page,.jubilee-page *{box-sizing:border-box}
+.jubilee-page{width:min(100%,520px);margin:0 auto;overflow:hidden;background:#fffaf2;box-shadow:0 24px 75px #3b202632;font-family:'Noto Sans',Arial,sans-serif}
+.jubilee-page h1,.jubilee-page h2,.jubilee-page p{margin-top:0}
+.jubilee-page a{color:inherit}
+.jubilee-cover{position:relative;display:flex;min-height:760px;flex-direction:column;justify-content:space-between;overflow:hidden;padding:25px 29px 34px;background:#833b4a;color:#fff8ed}
+.jubilee-cover::before,.jubilee-cover::after{content:'';position:absolute;pointer-events:none}
+.jubilee-cover::before{inset:12px;border:1px solid #d1a485ad;clip-path:polygon(0 0,100% 0,100% 100%,0 100%)}
+.jubilee-cover::after{right:-125px;bottom:-208px;width:420px;height:420px;border:1px solid #d8af91;border-radius:50%;opacity:.45}
+.jubilee-topline{position:relative;z-index:2;display:flex;justify-content:space-between;gap:20px;color:#eed6bd;font-size:9px;font-weight:700;letter-spacing:.18em}
+.jubilee-cover-main{position:relative;z-index:2;margin:auto 0;padding:38px 8px;text-align:center}
+.jubilee-cover-main::before{content:'';display:block;width:82px;height:82px;margin:0 auto 34px;background:#e9bb98;mask:url('/invitation-assets/music-kazakh-ornament.svg') center/contain no-repeat;-webkit-mask:url('/invitation-assets/music-kazakh-ornament.svg') center/contain no-repeat}
+.jubilee-cover-overline{display:block;margin-bottom:23px;color:#f1d8c1;font-size:11px;font-weight:700;letter-spacing:.24em}
+.jubilee-cover h1{margin:0 auto 13px;max-width:420px;color:#fffaf2;font:500 clamp(49px,11vw,75px)/1.1 'Noto Serif Display',Georgia,serif;letter-spacing:-.035em;overflow-wrap:anywhere}
+.jubilee-cover-main p{color:#f1d8c1;font:italic 400 26px/1.3 'Noto Serif Display',Georgia,serif}
+.jubilee-cover-main .jubilee-age{display:flex;align-items:baseline;justify-content:center;gap:7px;margin:18px 0 8px;color:#fffaf2;font:500 37px/1.2 'Noto Serif Display',Georgia,serif;font-style:normal}
+.jubilee-age strong{font-size:1.18em;font-weight:500}.jubilee-age span{font-size:.7em}
+.jubilee-cover-tail{position:relative;z-index:2;display:flex;align-items:end;justify-content:space-between;gap:15px;border-top:1px solid #d6a88e91;padding-top:20px}
+.jubilee-cover-tail p{margin:0;color:#f1d8c1;font:400 15px/1.5 'Noto Serif Display',Georgia,serif}
+.jubilee-cover-tail a{border-bottom:1px solid #edccb2;padding-bottom:4px;color:#fffaf2;text-decoration:none;font-size:12px;font-weight:700;white-space:nowrap}
+.jubilee-cover-ornament{display:none}
+.jubilee-section-label{color:#a46861;font-size:10px;font-weight:700;letter-spacing:.2em}
+.jubilee-letter{position:relative;padding:90px 46px 100px;background:#fffaf2;text-align:center}
+.jubilee-letter::before,.jubilee-letter::after{content:'';position:absolute;top:36px;bottom:36px;width:1px;background:#e9d7c7}
+.jubilee-letter::before{left:23px}.jubilee-letter::after{right:23px}
+.jubilee-letter h2,.jubilee-place h2,.jubilee-rsvp h2{margin:35px 0 31px;color:#713844;font:500 47px/1.12 'Noto Serif Display',Georgia,serif;letter-spacing:-.04em}
+.jubilee-letter h2 em,.jubilee-place h2 em,.jubilee-rsvp h2 em{color:#b0795b;font-weight:400}
+.jubilee-letter-text{max-width:380px;margin:0 auto;color:#51464a;font:400 18px/1.85 'Noto Serif Display',Georgia,serif}
+.jubilee-signature{display:flex;flex-direction:column;gap:6px;margin-top:53px;color:#8c5b60;font-size:13px}
+.jubilee-signature strong{color:#713844;font:500 23px/1.35 'Noto Serif Display',Georgia,serif}
+.jubilee-date{padding:70px 31px 76px;background:#ecd9ca;color:#5a303b;text-align:center}
+.jubilee-date-heading span{font-size:10px;font-weight:700;letter-spacing:.2em}
+.jubilee-date h2{margin:18px 0 34px;font:500 41px/1.2 'Noto Serif Display',Georgia,serif}
+.jubilee-date-ticket{display:grid;grid-template-columns:1fr 1.35fr 1fr;background:#fffaf2;border:1px solid #bd998b;box-shadow:8px 8px 0 #b78d8294}
+.jubilee-date-ticket>div{display:flex;min-height:138px;flex-direction:column;justify-content:center;padding:10px 4px}
+.jubilee-date-ticket>div+div{border-left:1px dashed #d5b9a6}
+.jubilee-date-ticket span{color:#a46861;font-size:10px;font-weight:700;letter-spacing:.14em}
+.jubilee-date-ticket strong{margin-top:12px;color:#773c49;font:500 34px/1 'Noto Serif Display',Georgia,serif;white-space:nowrap}
+.jubilee-date-ticket>div:nth-child(2) strong{font-size:25px}
+.jubilee-year{margin:24px 0 45px;color:#76474e;font:italic 400 20px/1.3 'Noto Serif Display',Georgia,serif}
+.jubilee-countdown{border-top:1px solid #bd998b;padding-top:24px}
+.jubilee-countdown>p{margin-bottom:20px;color:#744d50;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase}
+.jubilee-countdown>div{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+.jubilee-countdown>div span{display:flex;flex-direction:column;gap:4px;color:#744d50}
+.jubilee-countdown strong{font:400 30px/1.15 'Noto Serif Display',Georgia,serif}
+.jubilee-countdown small{font-size:10px}
+.jubilee-place{position:relative;padding:84px 36px 96px;background:#fffaf2;text-align:center}
+.jubilee-place::before{content:'';display:block;width:62px;height:62px;margin:0 auto 23px;background:#b9826a;mask:url('/invitation-assets/music-kazakh-ornament.svg') center/contain no-repeat;-webkit-mask:url('/invitation-assets/music-kazakh-ornament.svg') center/contain no-repeat}
+.jubilee-place h2{margin:24px 0 32px}
+.jubilee-place-card{padding:31px 22px 27px;border:1px solid #d5b9a6;background:#f7eee4;box-shadow:7px 7px 0 #e9d7c7}
+.jubilee-place-icon{display:block;width:19px;height:28px;margin:0 auto 13px;border:2px solid #9f6260;border-radius:50% 50% 50% 0;transform:rotate(-45deg)}
+.jubilee-place-icon::after{content:'';display:block;width:5px;height:5px;margin:8px auto;border:1px solid #9f6260;border-radius:50%}
+.jubilee-place-card strong{display:block;color:#713844;font:500 26px/1.25 'Noto Serif Display',Georgia,serif}
+.jubilee-place-card p{margin:10px 0 23px;color:#66565a;font-size:14px;line-height:1.6}
+.jubilee-place-card a{display:inline-block;border-bottom:1px solid #995b61;padding-bottom:5px;color:#833b4a;text-decoration:none;font-size:13px;font-weight:700}
+.jubilee-rsvp{position:relative;padding:75px 32px 85px;background:#e8ede7;text-align:center}
+.jubilee-rsvp h2{margin:20px 0;color:#713844}
+.jubilee-rsvp-intro{max-width:360px;margin:0 auto 29px;color:#4b5550;font-size:14px;line-height:1.7}
+.jubilee-form{display:grid;gap:16px;border:1px solid #c5cfc3;background:#fffaf2;padding:25px 22px;text-align:left;box-shadow:7px 7px 0 #d0dad0}
+.jubilee-form label{display:grid;gap:8px;color:#5a4045;font-size:12px;font-weight:700}
+.jubilee-form input:not([type=radio]),.jubilee-form textarea,.jubilee-preview-input{display:block;width:100%;min-height:46px;padding:12px;border:1px solid #d7c9c2;border-radius:4px;background:#fff;color:#3b292d;font:400 14px/1.45 'Noto Sans',Arial,sans-serif}
+.jubilee-form textarea{min-height:95px;resize:vertical}
+.jubilee-preview-input{color:#928987;font-weight:400}
+.jubilee-preview-message{min-height:95px}
+.jubilee-form .attendance-choice{display:grid;grid-template-columns:1fr 1fr;gap:9px;border:0;margin:0;padding:0}
+.jubilee-form .attendance-choice legend{grid-column:1/-1;margin-bottom:9px;color:#5a4045;font-size:12px;font-weight:700}
+.jubilee-form .attendance-choice label{display:block;position:relative;text-align:center}
+.jubilee-form .attendance-choice input{position:absolute;opacity:0}
+.jubilee-form .attendance-choice b{display:block;border:1px solid #cbaea3;border-radius:4px;padding:13px 5px;background:#fffaf2;color:#713844;font-size:13px}
+.jubilee-form .attendance-choice input:checked+b{background:#833b4a;border-color:#833b4a;color:#fffaf2}
+.jubilee-form .attendance-choice input:focus-visible+b{outline:3px solid #d4a488;outline-offset:2px}
+.jubilee-form button{min-height:50px;border:0;border-radius:4px;background:#833b4a;color:#fffaf2;font:700 13px/1 'Noto Sans',Arial,sans-serif;cursor:pointer}
+.jubilee-form button:disabled{cursor:default}
+.jubilee-form-note{margin:18px 0 0;color:#607068;font-size:11px;line-height:1.5}
+.jubilee-end{padding:59px 30px 39px;background:#833b4a;color:#fffaf2;text-align:center}
+.jubilee-end-ornament{display:block;width:67px;height:67px;margin:0 auto 24px;background:#d8ad90;mask:url('/invitation-assets/music-kazakh-ornament.svg') center/contain no-repeat;-webkit-mask:url('/invitation-assets/music-kazakh-ornament.svg') center/contain no-repeat}
+.jubilee-end p{font:italic 400 25px/1.35 'Noto Serif Display',Georgia,serif}
+.jubilee-end small{color:#e2c0a9;font-size:11px;letter-spacing:.12em}
+.jubilee-music{--music-ink:#fffaf2;--music-accent:#b56f73;position:fixed;top:220px;right:max(16px,calc(50% - 385px));bottom:auto;left:auto;width:91px;height:91px;border:0;border-radius:0;background:transparent;box-shadow:none}
+.jubilee-music::before,.jubilee-music::after{display:none}
+.jubilee-music:hover{box-shadow:none}
+.jubilee-music .music-kazakh-ornament{position:absolute;inset:0;width:91px;height:91px;background:#ab6570;mask:url('/invitation-assets/music-kazakh-ornament.svg') center/contain no-repeat;-webkit-mask:url('/invitation-assets/music-kazakh-ornament.svg') center/contain no-repeat}
+.jubilee-music .music-control-icon{width:32px;height:32px;margin:0;border-radius:50%;background:#833b4a;box-shadow:none}
+.jubilee-music .music-play-icon{border-left-color:#fffaf2}
+.jubilee-music .music-pause-icon i{background:#fffaf2}
+@media(max-width:700px){.jubilee-cover{min-height:700px;padding:24px 22px 31px}.jubilee-cover h1{font-size:clamp(43px,12vw,61px)}.jubilee-topline{font-size:8px}.jubilee-letter{padding:75px 34px 82px}.jubilee-letter h2,.jubilee-place h2,.jubilee-rsvp h2{font-size:41px}.jubilee-letter-text{font-size:16px}.jubilee-date{padding:67px 22px}.jubilee-date-ticket strong{font-size:29px}.jubilee-date-ticket>div:nth-child(2) strong{font-size:21px}.jubilee-rsvp{padding:68px 22px 76px}.jubilee-music{position:absolute;top:64px;right:22px;bottom:auto;width:72px;height:72px}.jubilee-music .music-kazakh-ornament{width:72px;height:72px}.jubilee-music .music-control-icon{width:27px;height:27px}}
+@media(max-width:360px){.jubilee-topline span:last-child{display:none}.jubilee-date-ticket strong{font-size:25px}.jubilee-date-ticket>div:nth-child(2) strong{font-size:18px}.jubilee-form{padding:21px 16px}}
+@media(prefers-reduced-motion:reduce){.jubilee-music,.jubilee-page *{scroll-behavior:auto;animation:none}}

@@ -100,4 +100,20 @@
 </section>
 <section class="how-section" id="how"><div class="shell section"><p class="eyebrow">{{ $copy['how_label'] }}</p><h2>{{ $copy['how'] }} <em>{{ $copy['how_em'] }}</em></h2><div class="steps-grid">@foreach($steps as $step)<article><span class="step-number">0{{ $loop->iteration }}</span><h3>{{ $step[0] }}</h3><p>{{ $step[1] }}</p></article>@endforeach</div></div></section>
 <section class="shell section faq" id="faq"><div><p class="eyebrow">{{ $copy['faq_label'] }}</p><h2>{{ $copy['faq'] }}<br><em>{{ $copy['faq_em'] }}</em></h2></div><div>@foreach($faqs as $faq)<details><summary>{{ $faq[0] }}</summary><p>{{ $faq[1] }}</p></details>@endforeach</div></section>
+<nav class="mobile-store-nav" data-mobile-store-nav aria-label="{{ $kk ? 'Мобильді навигация' : 'Мобильная навигация' }}">
+    <a href="#main" data-mobile-tab="home" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></svg><span>{{ $kk ? 'Басты бет' : 'Главная' }}</span></a>
+    <a href="#designs" data-mobile-tab="designs"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/></svg><span>{{ $kk ? 'Дизайндар' : 'Дизайны' }}</span></a>
+    <button type="button" data-mobile-tab="categories" data-category-open aria-haspopup="dialog" aria-controls="mobile-categories"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="7" cy="6" r="1.5"/><circle cx="16" cy="12" r="1.5"/><circle cx="10" cy="18" r="1.5"/></svg><span>{{ $kk ? 'Санаттар' : 'Категории' }}</span></button>
+    <a href="#faq" data-mobile-tab="faq"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 0 1 5 0c0 2-2.5 2-2.5 4M12 17h.01"/></svg><span>{{ $kk ? 'Сұрақтар' : 'Вопросы' }}</span></a>
+</nav>
+<dialog class="mobile-category-sheet" id="mobile-categories" data-category-sheet aria-labelledby="mobile-category-title">
+    <div class="mobile-category-handle" aria-hidden="true"></div>
+    <div class="mobile-category-heading"><div><p class="eyebrow">{{ $kk ? 'ШАҚЫРУ ТҮРЛЕРІ' : 'ТИПЫ ПРИГЛАШЕНИЙ' }}</p><h2 id="mobile-category-title">{{ $kk ? 'Мерекені таңдаңыз' : 'Выберите событие' }}</h2></div><button type="button" class="mobile-category-close" data-category-close aria-label="{{ $kk ? 'Жабу' : 'Закрыть' }}">×</button></div>
+    <div class="mobile-category-options">
+        <a href="{{ route('store.catalog') }}#designs" data-mobile-event-filter="" @if(!$category) aria-current="true" @endif><span>{{ $copy['all'] }}</span><b>{{ $templates->count() }}</b></a>
+        @foreach($eventLabels as $key => $label)
+        <a href="{{ route('store.catalog', ['event' => $key]) }}#designs" data-mobile-event-filter="{{ $key }}" @if($category === $key) aria-current="true" @endif><span>{{ $label }}</span><b>{{ $templates->filter(fn ($template) => !$template->event_type || $template->event_type === $key)->count() }}</b></a>
+        @endforeach
+    </div>
+</dialog>
 @endsection

@@ -26,13 +26,14 @@ class StoreInvitationOrderRequest extends FormRequest
             'customer_phone' => ['required', 'regex:/^\\+?[0-9 ()-]{10,25}$/'],
             'event_type' => ['required', Rule::in(array_keys(config('store.event_types')))],
             'names' => ['required', 'string', 'max:160'],
+            'jubilee_age' => [Rule::requiredIf($template?->event_type === 'anniversary'), 'nullable', 'integer', 'between:1,120'],
             'hosts' => ['required', 'string', 'max:240'],
             'event_date' => ['required', 'date_format:Y-m-d', 'after_or_equal:today'],
             'event_time' => ['required', 'date_format:H:i'],
             'restaurant_id' => ['nullable', 'integer', Rule::exists('restaurants', 'id')->where('status', 'active')],
             'venue_name' => ['required', 'string', 'max:160'],
             'venue_address' => ['required', 'string', 'max:255'],
-            'language' => ['required', Rule::in($template?->slug === 'besik-toi' ? ['kk'] : ['ru', 'kk'])],
+            'language' => ['required', Rule::in(in_array($template?->slug, ['besik-toi', 'omir-ornegi'], true) ? ['kk'] : ['ru', 'kk'])],
             'music_id' => ['nullable', 'integer', Rule::exists('music', 'id')->where('is_active', true)],
             'invitation_text' => ['nullable', 'string', 'max:2000'],
             'video_final_text' => [$isVideo ? 'required' : 'nullable', 'string', 'max:240'],
@@ -53,6 +54,8 @@ class StoreInvitationOrderRequest extends FormRequest
                 'photos.*.mimes' => 'Фото JPG, PNG немесе WebP форматында болуы керек.',
                 'photos.*.max' => 'Әр фото 5 МБ-тан аспауы керек.',
                 'event_date.after_or_equal' => 'Бүгінгі немесе болашақ күнді таңдаңыз.',
+                'jubilee_age.required' => 'Мерейтой иесінің жасын көрсетіңіз.',
+                'jubilee_age.between' => 'Жасты 1 мен 120 аралығында енгізіңіз.',
                 'customer_phone.regex' => 'Телефон нөмірін көрсетіңіз, мысалы +7 700 123 45 67.',
                 'max' => 'Мән тым ұзын.', 'date_format' => 'Күн немесе уақыт пішімін тексеріңіз.',
             ];
@@ -65,6 +68,8 @@ class StoreInvitationOrderRequest extends FormRequest
             'photos.*.mimes' => 'Фото должно быть в формате JPG, PNG или WebP.',
             'photos.*.max' => 'Размер каждого фото не должен превышать 5 МБ.',
             'event_date.after_or_equal' => 'Выберите сегодняшнюю или будущую дату.',
+            'jubilee_age.required' => 'Укажите возраст юбиляра.',
+            'jubilee_age.between' => 'Укажите возраст от 1 до 120 лет.',
             'customer_phone.regex' => 'Укажите телефон, например +7 700 123 45 67.',
             'max' => 'Слишком длинное значение.', 'date_format' => 'Проверьте формат даты или времени.'];
     }

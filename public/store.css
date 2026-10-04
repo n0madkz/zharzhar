@@ -324,3 +324,39 @@ body.catalog-ui{
 @media(max-width:700px){.design-signature{min-height:48px;font-size:11px}}
 @media(max-width:560px){.photo-upload-preview{gap:7px}.photo-upload-preview img{border-radius:12px}}
 .video-template-badge{position:absolute;z-index:4;top:14px;right:14px;padding:7px 11px;border:1px solid rgba(255,255,255,.55);border-radius:999px;background:rgba(10,19,45,.76);backdrop-filter:blur(10px);color:#fff;font:800 10px/1 system-ui,sans-serif;letter-spacing:.16em;box-shadow:0 8px 22px rgba(15,23,42,.18)}
+
+/* A textile-letter card for the standalone jubilee invitation. */
+.invite-card-jubilee-tumar{background:#833b4a;color:#713844;border-radius:8px}
+.invite-card-jubilee-tumar img{opacity:1;object-fit:cover}
+.invite-card-jubilee-tumar .card-shade{background:none}
+.invite-card-jubilee-tumar .card-ring,.invite-card-jubilee-tumar .card-theme-mark{display:none}
+.invite-card-jubilee-tumar::before{content:'';position:absolute;z-index:2;top:17%;left:50%;width:52px;height:52px;transform:translateX(-50%);border:0;border-radius:0;opacity:1;background:#ad7370;mask:url('/invitation-assets/music-kazakh-ornament.svg') center/contain no-repeat;-webkit-mask:url('/invitation-assets/music-kazakh-ornament.svg') center/contain no-repeat}
+.invite-card-jubilee-tumar .mini-kicker{position:absolute;z-index:3;top:34%;color:#9d6465;letter-spacing:.23em}
+.invite-card-jubilee-tumar .card-design-name{position:absolute;z-index:3;top:50%;transform:translateY(-50%);color:#713844;font-family:'Noto Serif Display',Georgia,serif;font-style:italic;font-weight:500}
+.invite-card-jubilee-tumar .mini-date{position:absolute;z-index:3;top:63%;color:#9d6465}
+.invite-card-jubilee-tumar .preview-pill{z-index:3;color:#fffaf2}
+
+/* Storefront app navigation is shown only on the mobile catalog. */
+.mobile-store-nav,.mobile-category-sheet{display:none}
+@media(max-width:700px){
+  .catalog-ui{padding-bottom:calc(86px + env(safe-area-inset-bottom, 0px))}
+  .catalog-ui .store-footer{padding-bottom:24px}
+  .catalog-ui #designs,.catalog-ui #faq{scroll-margin-top:88px}
+  .mobile-store-nav{position:fixed;z-index:80;right:12px;bottom:calc(10px + env(safe-area-inset-bottom, 0px));left:12px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;max-width:480px;min-height:68px;margin:auto;padding:6px;border:1px solid #dce0f1;border-radius:22px;background:rgba(255,255,255,.97);box-shadow:0 16px 42px rgba(28,35,82,.18);backdrop-filter:blur(14px)}
+  .mobile-store-nav a,.mobile-store-nav button{display:flex;min-width:0;min-height:54px;flex-direction:column;align-items:center;justify-content:center;gap:4px;border:0;border-radius:16px;background:none;color:#606a87;font:700 10px/1.15 'Noto Sans',Arial,sans-serif;text-decoration:none;cursor:pointer}
+  .mobile-store-nav svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+  .mobile-store-nav a[aria-current="page"],.mobile-store-nav button[aria-current="page"]{background:#eceeff;color:#4548cf}
+  .mobile-store-nav a:focus-visible,.mobile-store-nav button:focus-visible,.mobile-category-sheet a:focus-visible,.mobile-category-sheet button:focus-visible{outline:3px solid #7275eb;outline-offset:2px}
+  .mobile-category-sheet[open]{position:fixed;inset:auto 0 0;z-index:100;display:block;box-sizing:border-box;width:100%;max-width:520px;max-height:min(80vh,690px);margin:0 auto;padding:10px 18px calc(24px + env(safe-area-inset-bottom, 0px));overflow:auto;border:1px solid #dce0f1;border-bottom:0;border-radius:28px 28px 0 0;background:#fafaff;color:#222646;box-shadow:0 -20px 60px rgba(16,24,60,.2)}
+  .mobile-category-sheet::backdrop{background:rgba(16,24,47,.47)}
+  .mobile-category-handle{width:42px;height:5px;margin:0 auto 20px;border-radius:999px;background:#c9cce2}
+  .mobile-category-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:20px}
+  .mobile-category-heading .eyebrow{margin:0 0 5px;color:#5457d3;font-size:10px}
+  .mobile-category-heading h2{margin:0;font:700 27px/1.2 'Noto Sans',Arial,sans-serif;letter-spacing:-.03em}
+  .mobile-category-close{display:grid;flex:none;width:44px;height:44px;place-items:center;border:1px solid #dce0f1;border-radius:50%;background:#fff;color:#323b5c;font:28px/1 Arial,sans-serif;cursor:pointer}
+  .mobile-category-options{display:grid;gap:9px}
+  .mobile-category-options a{display:flex;min-height:54px;align-items:center;justify-content:space-between;gap:12px;padding:10px 16px;border:1px solid #e0e4f3;border-radius:16px;background:#fff;color:#252b50;font:700 15px/1.35 'Noto Sans',Arial,sans-serif;text-decoration:none}
+  .mobile-category-options a[aria-current="true"]{border-color:#7579e6;background:#eff0ff;color:#4548c8}
+  .mobile-category-options b{display:grid;flex:none;min-width:30px;height:30px;place-items:center;border-radius:10px;background:#f0f2fa;color:#68708a;font:700 12px/1 'Noto Sans',Arial,sans-serif}
+  .mobile-category-options a[aria-current="true"] b{background:#dfe1ff;color:#4548c8}
+}

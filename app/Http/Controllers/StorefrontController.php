@@ -90,6 +90,7 @@ class StorefrontController extends Controller
             'invitation' => null,
             'details' => [
                 'names' => $content['sample_names'] ?? $content['title'],
+                'jubilee_age' => $content['jubilee_age'] ?? $content['jubilee_number'] ?? null,
                 'event_type' => $eventType,
                 'event_date' => $content['event_date'],
                 'event_time' => $content['event_time'],
@@ -172,7 +173,7 @@ class StorefrontController extends Controller
                 if ($music && ! $music->supportsCategory($data['event_type'])) {
                     throw ValidationException::withMessages(['music_id' => app()->isLocale('kk') ? 'Бұл музыка таңдалған мерекеге қолжетімсіз.' : 'Эта музыка недоступна для выбранного события.']);
                 }
-                $details = collect($data)->only(['event_type', 'names', 'hosts', 'event_date', 'event_time', 'restaurant_id', 'venue_name', 'venue_address', 'language', 'invitation_text', 'video_final_text'])->all();
+                $details = collect($data)->only(['event_type', 'names', 'jubilee_age', 'hosts', 'event_date', 'event_time', 'restaurant_id', 'venue_name', 'venue_address', 'language', 'invitation_text', 'video_final_text'])->all();
                 $details['theme'] = $template->config_json['theme'] ?? 'sage';
                 $details['template_name'] = $template->name;
                 $details['music_url'] = $music?->audio_url;
@@ -244,6 +245,10 @@ class StorefrontController extends Controller
     {
         if ($template->slug === 'besik-toi') {
             return 'store.besik-invitation';
+        }
+
+        if ($template->slug === 'omir-ornegi') {
+            return 'store.jubilee-invitation';
         }
 
         return data_get($template->config_json, 'format') === 'video'

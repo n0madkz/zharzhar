@@ -9,7 +9,7 @@
         'errors' => 'Форма өрістерін тексеріңіз.', 'event' => '01. Мереке туралы', 'event_type' => 'Қандай мереке өткізесіз?',
         'invite_language' => 'Дайын сайт-шақырудың тілі', 'language_hint' => 'Қонақтар шақыруды осы тілде көреді.',
         'kk_language_hint' => 'Барлық бөлімдер қазақ тілінде', 'ru_language_hint' => 'Все разделы на русском языке',
-        'names' => 'Жас жұбайлардың немесе мерейтой иесінің есімі',
+        'names' => 'Жас жұбайлардың немесе мерейтой иесінің есімі', 'jubilee_age' => 'Мерейтой иесінің жасы',
         'names_placeholder' => 'Алихан және Аружан / Айгүл', 'date' => 'Мереке күні', 'time' => 'Басталу уақыты',
         'hosts' => 'Той иелері', 'hosts_placeholder' => 'Ерлан – Айгүл, Марат – Сәуле',
         'venue' => '02. Кездесу орны', 'restaurant' => 'Каталогтағы мейрамхана', 'own_restaurant' => 'Мейрамхана атауын енгізіңіз',
@@ -35,7 +35,7 @@
         'errors' => 'Проверьте поля формы.', 'event' => '01. О событии', 'event_type' => 'Какой у вас праздник?',
         'invite_language' => 'Язык готового сайта-приглашения', 'language_hint' => 'Гости увидят приглашение на выбранном языке.',
         'kk_language_hint' => 'Барлық бөлімдер қазақ тілінде', 'ru_language_hint' => 'Все разделы на русском языке',
-        'names' => 'Имена молодожёнов или имя именинника',
+        'names' => 'Имена молодожёнов или имя именинника', 'jubilee_age' => 'Возраст юбиляра',
         'names_placeholder' => 'Алихан и Аружан / Айгүл', 'date' => 'Дата праздника', 'time' => 'Начало',
         'hosts' => 'Той иелері — хозяева торжества', 'hosts_placeholder' => 'Ерлан – Айгүл, Марат – Сәуле',
         'venue' => '02. Место встречи', 'restaurant' => 'Ресторан из каталога', 'own_restaurant' => 'Введите название ресторана',
@@ -64,11 +64,18 @@
     $isVideo = data_get($template->config_json, 'format') === 'video';
     $designSignature = config('invitation_styles.'.$template->slug.'.'.($kk ? 'kk' : 'ru'));
     $isBesikToi = $template->slug === 'besik-toi';
+    $isKazakhOnly = in_array($template->slug, ['besik-toi', 'omir-ornegi'], true);
     if ($isBesikToi) {
         $t['names'] = $kk ? 'Бөбектің есімі' : 'Имя малыша';
         $t['names_placeholder'] = $kk ? 'Мысалы: Еңлік' : 'Например: Еңлік';
         $t['hosts'] = $kk ? 'Бөбектің ата-анасы' : 'Родители малыша';
         $t['hosts_placeholder'] = $kk ? 'Мысалы: Нұрлан мен Айдана' : 'Например: Нурлан и Айдана';
+    }
+    if ($template->slug === 'omir-ornegi') {
+        $t['names'] = $kk ? 'Мерейтой иесінің есімі' : 'Имя юбиляра';
+        $t['names_placeholder'] = $kk ? 'Мысалы: Айгүл' : 'Например: Айгүл';
+        $t['hosts'] = $kk ? 'Шақырушы отбасы' : 'Приглашающая семья';
+        $t['hosts_placeholder'] = $kk ? 'Мысалы: Балалары мен немерелері' : 'Например: Балалары мен немерелері';
     }
 @endphp
 
@@ -81,13 +88,14 @@
 <div class="panel">
 <fieldset class="form-section"><legend>{{ $t['event'] }}</legend><div class="form-grid">
 <label class="field">{{ $t['event_type'] }}<select name="event_type" required>@foreach($eventLabels as $key => $label)@if(!$template->event_type || $template->event_type === $key)<option value="{{ $key }}" @selected(old('event_type', $template->event_type) === $key)>{{ $label }}</option>@endif @endforeach</select>@error('event_type')<span class="error">{{ $message }}</span>@enderror</label>
-<div class="field wide language-choice"><span class="field-label">{{ $t['invite_language'] }}</span><div class="language-options{{ $isBesikToi ? ' single-language' : '' }}" role="radiogroup" aria-label="{{ $t['invite_language'] }}">
-<label class="language-option"><input type="radio" name="language" value="kk" required @checked($isBesikToi || old('language', app()->getLocale()) === 'kk')><span><strong>Қазақша</strong><small>{{ $t['kk_language_hint'] }}</small></span></label>
-@unless($isBesikToi)
+<div class="field wide language-choice"><span class="field-label">{{ $t['invite_language'] }}</span><div class="language-options{{ $isKazakhOnly ? ' single-language' : '' }}" role="radiogroup" aria-label="{{ $t['invite_language'] }}">
+<label class="language-option"><input type="radio" name="language" value="kk" required @checked($isKazakhOnly || old('language', app()->getLocale()) === 'kk')><span><strong>Қазақша</strong><small>{{ $t['kk_language_hint'] }}</small></span></label>
+@unless($isKazakhOnly)
 <label class="language-option"><input type="radio" name="language" value="ru" required @checked(old('language', app()->getLocale()) === 'ru')><span><strong>Русский</strong><small>{{ $t['ru_language_hint'] }}</small></span></label>
 @endunless
 </div><small>{{ $t['language_hint'] }}</small>@error('language')<span class="error">{{ $message }}</span>@enderror</div>
 <label class="field wide">{{ $t['names'] }}<input name="names" value="{{ old('names') }}" placeholder="{{ $t['names_placeholder'] }}" maxlength="160" required>@error('names')<span class="error">{{ $message }}</span>@enderror</label>
+@if($template->event_type === 'anniversary')<label class="field">{{ $t['jubilee_age'] }}<input type="number" name="jubilee_age" value="{{ old('jubilee_age') }}" placeholder="{{ $kk ? 'Мысалы: 60' : 'Например: 60' }}" min="1" max="120" inputmode="numeric" required>@error('jubilee_age')<span class="error">{{ $message }}</span>@enderror</label>@endif
 <label class="field">{{ $t['date'] }}<input type="date" name="event_date" value="{{ old('event_date') }}" min="{{ now()->format('Y-m-d') }}" required>@error('event_date')<span class="error">{{ $message }}</span>@enderror</label>
 <label class="field">{{ $t['time'] }}<input type="time" name="event_time" value="{{ old('event_time', '18:00') }}" required>@error('event_time')<span class="error">{{ $message }}</span>@enderror</label>
 <label class="field wide">{{ $t['hosts'] }}<input name="hosts" value="{{ old('hosts') }}" placeholder="{{ $t['hosts_placeholder'] }}" maxlength="240" required>@error('hosts')<span class="error">{{ $message }}</span>@enderror</label>

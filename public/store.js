@@ -21,6 +21,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const nextPage = pagination?.querySelector('[data-page-action="next"]');
     const pageSize = 8;
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const mobileNav = document.querySelector('[data-mobile-store-nav]');
+    const categorySheet = document.querySelector('[data-category-sheet]');
+    const categoryOpen = mobileNav?.querySelector('[data-category-open]');
+    const categoryChoices = Array.from(categorySheet?.querySelectorAll('[data-mobile-event-filter]') || []);
+    const mobileTabs = Array.from(mobileNav?.querySelectorAll('[data-mobile-tab]') || []);
+    const setMobileTab = name => {
+      mobileTabs.forEach(tab => {
+        if (tab.dataset.mobileTab === name) tab.setAttribute('aria-current', 'page');
+        else tab.removeAttribute('aria-current');
+      });
+    };
+
 
     const applyCatalogFilter = (eventType, requestedPage = 1, updateHistory = false) => {
       const validFilter = filterLinks.some(link => link.dataset.eventFilter === eventType) ? eventType : '';
@@ -29,6 +41,11 @@ document.addEventListener('DOMContentLoaded', () => {
       const currentPage = Math.min(Math.max(Number(requestedPage) || 1, 1), totalPages);
       const firstVisibleIndex = (currentPage - 1) * pageSize;
       const visibleCards = matchingCards.slice(firstVisibleIndex, firstVisibleIndex + pageSize);
+
+      categoryChoices.forEach(choice => {
+        if (choice.dataset.mobileEventFilter === validFilter) choice.setAttribute('aria-current', 'true');
+        else choice.removeAttribute('aria-current');
+      });
 
       filterLinks.forEach(link => {
         const active = link.dataset.eventFilter === validFilter;
@@ -88,6 +105,29 @@ document.addEventListener('DOMContentLoaded', () => {
       applyCatalogFilter(link.dataset.eventFilter || '', 1, true);
     });
 
+    categoryOpen?.addEventListener('click', () => {
+      if (!categorySheet?.open) categorySheet?.showModal();
+      setMobileTab('categories');
+    });
+    categorySheet?.querySelector('[data-category-close]')?.addEventListener('click', () => categorySheet.close());
+    categorySheet?.addEventListener('click', event => {
+      if (event.target === categorySheet) categorySheet.close();
+      const choice = event.target.closest?.('[data-mobile-event-filter]');
+      if (!choice || !categorySheet.contains(choice)) return;
+      event.preventDefault();
+      applyCatalogFilter(choice.dataset.mobileEventFilter || '', 1, true);
+      categorySheet.close();
+      setMobileTab('categories');
+      document.querySelector('#designs')?.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+    });
+    categorySheet?.addEventListener('close', () => categoryOpen?.focus({ preventScroll: true }));
+    mobileNav?.addEventListener('click', event => {
+      const tab = event.target.closest('[data-mobile-tab]');
+      if (tab && tab.tagName === 'A') setMobileTab(tab.dataset.mobileTab);
+    });
+    if (window.location.hash === '#faq') setMobileTab('faq');
+    else if (window.location.hash === '#designs') setMobileTab('designs');
+
     pagination?.addEventListener('click', event => {
       const button = event.target.closest('button');
       if (!button || button.disabled) return;
@@ -99,6 +139,12 @@ document.addEventListener('DOMContentLoaded', () => {
         : currentPage + (button.dataset.pageAction === 'previous' ? -1 : 1);
       applyCatalogFilter(activeFilter, requestedPage, true);
       document.querySelector('#designs')?.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+    });
+
+    window.addEventListener('hashchange', () => {
+      if (window.location.hash === '#faq') setMobileTab('faq');
+      else if (window.location.hash === '#designs') setMobileTab('designs');
+      else setMobileTab('home');
     });
 
     window.addEventListener('popstate', () => {
