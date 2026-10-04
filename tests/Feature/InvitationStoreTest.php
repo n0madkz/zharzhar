@@ -205,6 +205,22 @@ class InvitationStoreTest extends TestCase
         $this->assertSame('Той иелері', Template::where('slug', 'aru-qyz-uzatu')->firstOrFail()->config_json['content_kk']['hosts_title']);
     }
 
+    public function test_every_catalog_invitation_preview_renders_its_designed_chapters(): void
+    {
+        $this->seed(InvitationCatalogSeeder::class);
+
+        foreach (config('invitation_layouts') as $slug => $chapters) {
+            $template = Template::where('slug', $slug)->firstOrFail();
+            $response = $this->get('/designs/'.$template->id.'/preview')->assertOk();
+
+            foreach ($chapters as $chapter) {
+                $response->assertSee('invite-chapter--'.$chapter['kind'], false);
+            }
+
+            $response->assertSee('date-orb', false)->assertSee('countdown-grid', false)->assertSee('rsvp-preview', false);
+        }
+    }
+
     public function test_jubilee_template_has_its_own_kazakh_invitation_and_wish_book(): void
     {
         $this->seed(InvitationCatalogSeeder::class);

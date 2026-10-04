@@ -726,7 +726,7 @@ body.invitation-shell{margin:0;background:#e6e2dc;color:#28231f;font-family:Manr
 /* Every catalog design is assembled as a sequence of designed scenes, not a reordered stack. */
 .invite-chapter{position:relative;isolation:isolate;overflow:hidden;background:var(--iv-paper)}
 .invite-chapter-index{position:absolute;z-index:3;top:17px;left:23px;color:var(--iv-accent);font:700 9px/1 Manrope,Arial,sans-serif;letter-spacing:.2em}
-.invite-chapter .invite-section{box-sizing:border-box;background:transparent}
+.invite-chapter .invite-section{box-sizing:border-box;background:transparent;color:var(--iv-ink)}
 .invite-chapter .invite-section+.invite-section{padding-top:28px}
 .invite-chapter .invite-section:first-of-type{padding-top:90px}
 .invite-chapter .invite-section:last-of-type{padding-bottom:94px}
@@ -739,14 +739,14 @@ body.invitation-shell{margin:0;background:#e6e2dc;color:#28231f;font-family:Manr
 .invite-chapter--bouquet::before,.invite-chapter--botanical::before{content:'';position:absolute;top:15px;right:14px;width:90px;height:90px;background:var(--iv-accent);opacity:.55;mask:url('/invitation-assets/music-kazakh-ornament.svg') center/contain no-repeat;-webkit-mask:url('/invitation-assets/music-kazakh-ornament.svg') center/contain no-repeat}
 .invite-chapter--bouquet .orbit-mark,.invite-chapter--botanical .orbit-mark{width:75px;height:75px;margin-bottom:25px}
 .invite-chapter--bouquet .invite-message,.invite-chapter--botanical .invite-message{text-align:left;border-left:2px solid var(--iv-accent);padding-left:17px}
-.invite-chapter--calendar{margin:0 18px;background:var(--iv-bg);border-top:3px solid var(--iv-accent);border-bottom:3px solid var(--iv-accent)}
+.invite-chapter--calendar{margin:0 18px;background:color-mix(in srgb,var(--iv-paper) 75%,var(--iv-soft));border-top:3px solid var(--iv-accent);border-bottom:3px solid var(--iv-accent)}
 .invite-chapter--calendar .date-section{padding-bottom:20px}
 .invite-chapter--calendar .date-orb{width:205px;height:205px;border-radius:8px;box-shadow:11px 11px 0 color-mix(in srgb,var(--iv-accent) 22%,transparent)}
 .invite-chapter--calendar .date-orb::before,.invite-chapter--calendar .date-orb::after{content:none}
 .invite-chapter--calendar .venue-section{padding-top:25px;padding-bottom:70px}
 .invite-chapter--destination{background:var(--iv-bg)}
 .invite-chapter--destination .venue-section{padding-bottom:20px}
-.invite-chapter--destination .countdown-section{padding-top:25px;padding-bottom:82px;background:var(--iv-accent);color:var(--iv-paper)}
+.invite-chapter--destination .countdown-section{padding-top:25px;padding-bottom:82px;background:var(--iv-ink);color:var(--iv-paper)}
 .invite-chapter--destination .countdown-grid>div{border-radius:7px;border-color:color-mix(in srgb,var(--iv-paper) 70%,transparent)}
 .invite-chapter--postcard{margin:18px;background:var(--iv-paper);border:1px solid var(--iv-accent);border-radius:4px;box-shadow:9px 9px 0 color-mix(in srgb,var(--iv-accent) 25%,transparent)}
 .invite-chapter--postcard::after{content:'';position:absolute;top:22px;right:20px;width:45px;height:51px;border:2px dashed var(--iv-accent);opacity:.55}
@@ -755,7 +755,7 @@ body.invitation-shell{margin:0;background:#e6e2dc;color:#28231f;font-family:Manr
 .invite-chapter--postcard .date-orb::before,.invite-chapter--postcard .date-orb::after{content:none}
 .invite-chapter--postcard .date-orb strong{font-size:65px}
 .invite-chapter--postcard .venue-section{padding-top:22px}
-.invite-chapter--ticket{margin:18px;background:var(--iv-bg);border:1px dashed var(--iv-accent)}
+.invite-chapter--ticket{margin:18px;background:color-mix(in srgb,var(--iv-paper) 83%,var(--iv-soft));border:1px dashed var(--iv-accent)}
 .invite-chapter--ticket::before,.invite-chapter--ticket::after{content:'';position:absolute;z-index:2;top:50%;width:24px;height:24px;border:1px dashed var(--iv-accent);border-radius:50%;background:var(--iv-paper)}
 .invite-chapter--ticket::before{left:-13px}.invite-chapter--ticket::after{right:-13px}
 .invite-chapter--ticket .date-section{padding-bottom:15px}
@@ -782,7 +782,7 @@ body.invitation-shell{margin:0;background:#e6e2dc;color:#28231f;font-family:Manr
 .invite-chapter--silk{margin:15px;background:var(--iv-paper);border:1px solid var(--iv-accent);border-radius:130px 10px 130px 10px}
 .invite-chapter--silk .date-orb{border-radius:90px 10px 90px 10px}
 .invite-chapter--silk .date-orb::before,.invite-chapter--silk .date-orb::after{content:none}
-.invite-chapter--ribbon,.invite-chapter--banner{background:var(--iv-accent);color:var(--iv-paper)}
+.invite-chapter--ribbon,.invite-chapter--banner{background:var(--iv-ink);color:var(--iv-paper)}
 .invite-chapter--ribbon .invite-section,.invite-chapter--banner .invite-section{color:var(--iv-paper)}
 .invite-chapter--ribbon .countdown-grid>div,.invite-chapter--banner .countdown-grid>div{border-radius:0;border-color:var(--iv-paper)}
 .invite-chapter--ribbon .date-orb,.invite-chapter--banner .date-orb{border-color:var(--iv-paper)}
@@ -804,3 +804,36 @@ body.invitation-shell{margin:0;background:#e6e2dc;color:#28231f;font-family:Manr
 .invite-calendar-link{display:inline-flex;align-items:center;justify-content:center;gap:12px;min-height:44px;margin:22px auto 0;padding:10px 17px;border:1px solid currentColor;border-radius:999px;color:inherit;font:700 11px/1.2 Manrope,Arial,sans-serif;text-decoration:none;transition:transform .2s ease,background .2s ease}
 .invite-calendar-link:hover{transform:translateY(-2px);background:color-mix(in srgb,var(--iv-accent) 14%,transparent);text-decoration:none}
 .invite-calendar-link:focus-visible{outline:3px solid var(--iv-accent);outline-offset:3px}
+
+/* Chapter surfaces always own their text contrast, regardless of the original section palette. */
+.invite-chapter--evening .invite-section,.invite-chapter--royal .invite-section,.invite-chapter--medal .invite-section,.invite-chapter--ribbon .invite-section,.invite-chapter--banner .invite-section,.invite-chapter--cinema .invite-section{color:var(--iv-paper)}
+.invite-chapter--calendar .date-orb,.invite-chapter--ticket .date-orb{background:var(--iv-paper);color:var(--iv-ink)}
+.invite-chapter--calendar .countdown-grid>div,.invite-chapter--ticket .countdown-grid>div,.invite-chapter--sky .countdown-grid>div,.invite-chapter--festival .countdown-grid>div{border-color:color-mix(in srgb,var(--iv-ink) 38%,transparent);color:var(--iv-ink)}
+.invite-chapter--ribbon .date-orb,.invite-chapter--banner .date-orb{background:transparent;color:var(--iv-paper)}
+.invite-chapter--destination .countdown-section .invite-script,.invite-chapter--destination .countdown-grid>div{color:var(--iv-paper)}
+/* Distinct chapter details use each template’s own palette and the Kazakh ornament. */
+.invite-chapter-index{display:flex;align-items:center;gap:9px;color:var(--iv-ink)}
+.invite-chapter-index::after{content:"";display:block;width:28px;height:1px;background:var(--iv-accent)}
+.invite-chapter--evening .invite-chapter-index,.invite-chapter--royal .invite-chapter-index,.invite-chapter--medal .invite-chapter-index,.invite-chapter--ribbon .invite-chapter-index,.invite-chapter--banner .invite-chapter-index,.invite-chapter--cinema .invite-chapter-index{color:var(--iv-paper)}
+.invite-chapter--calendar{box-shadow:inset 0 0 0 9px color-mix(in srgb,var(--iv-paper) 50%,transparent)}
+.invite-chapter--calendar::before{content:"";position:absolute;top:20px;right:22px;width:46px;height:46px;background:var(--iv-accent);opacity:.7;mask:url("/invitation-assets/music-kazakh-ornament.svg") center/contain no-repeat;-webkit-mask:url("/invitation-assets/music-kazakh-ornament.svg") center/contain no-repeat}
+.invite-chapter--calendar .date-orb{border:1px solid var(--iv-accent);box-shadow:11px 11px 0 color-mix(in srgb,var(--iv-accent) 22%,transparent),inset 0 0 0 7px var(--iv-paper),inset 0 0 0 8px color-mix(in srgb,var(--iv-accent) 40%,transparent)}
+.invite-chapter--ticket{background-image:repeating-linear-gradient(135deg,transparent 0 18px,color-mix(in srgb,var(--iv-accent) 5%,transparent) 18px 19px);box-shadow:0 12px 26px color-mix(in srgb,var(--iv-ink) 10%,transparent)}
+.invite-chapter--postcard{background-image:linear-gradient(135deg,color-mix(in srgb,var(--iv-accent) 7%,transparent),transparent 40%);transform:rotate(-.4deg)}
+.invite-chapter--postcard .invite-section{transform:rotate(.4deg)}
+.invite-chapter--vow::before,.invite-chapter--toast::before,.invite-chapter--signature::before,.invite-chapter--family::before{content:"";display:block;position:absolute;top:22px;right:22px;width:55px;height:55px;background:var(--iv-accent);opacity:.63;mask:url("/invitation-assets/music-kazakh-ornament.svg") center/contain no-repeat;-webkit-mask:url("/invitation-assets/music-kazakh-ornament.svg") center/contain no-repeat}
+.invite-chapter--destination{background-image:radial-gradient(circle at 10% 12%,color-mix(in srgb,var(--iv-accent) 14%,transparent),transparent 38%)}
+.invite-chapter--destination .venue-section{border-top:1px solid color-mix(in srgb,var(--iv-accent) 45%,transparent)}
+.invite-chapter--reply{background-image:linear-gradient(155deg,color-mix(in srgb,var(--iv-paper) 72%,transparent),transparent 56%)}
+.invite-chapter--reply::before{content:"";position:absolute;top:22px;right:26px;width:56px;height:56px;background:var(--iv-accent);opacity:.5;mask:url("/invitation-assets/music-kazakh-ornament.svg") center/contain no-repeat;-webkit-mask:url("/invitation-assets/music-kazakh-ornament.svg") center/contain no-repeat}
+.invite-chapter--ribbon::before,.invite-chapter--banner::before{content:"";position:absolute;inset:18px;border:1px solid color-mix(in srgb,var(--iv-accent) 72%,transparent);pointer-events:none}
+.invite-chapter--ribbon .countdown-grid>div,.invite-chapter--banner .countdown-grid>div{border-color:color-mix(in srgb,var(--iv-paper) 68%,transparent);color:var(--iv-paper)}
+.invite-chapter--sky,.invite-chapter--festival{background-image:radial-gradient(circle at 85% 8%,color-mix(in srgb,var(--iv-accent) 24%,transparent),transparent 42%),linear-gradient(180deg,var(--iv-bg),var(--iv-paper))}
+.invite-chapter--pearl{box-shadow:inset 0 0 0 9px var(--iv-paper),inset 0 0 0 10px var(--iv-soft)}
+.invite-chapter--silk{box-shadow:inset 0 0 0 8px var(--iv-paper),inset 0 0 0 9px color-mix(in srgb,var(--iv-accent) 45%,transparent)}
+.invite-chapter--journey{background-image:repeating-linear-gradient(0deg,transparent 0 31px,color-mix(in srgb,var(--iv-accent) 8%,transparent) 31px 32px),linear-gradient(160deg,var(--iv-paper),var(--iv-bg))}
+.invite-chapter--farewell{border-image:linear-gradient(180deg,var(--iv-accent),var(--iv-soft)) 1}
+@media(max-width:430px){.invite-chapter--calendar::before{width:36px;height:36px;top:17px;right:17px}.invite-chapter--vow::before,.invite-chapter--toast::before,.invite-chapter--signature::before,.invite-chapter--family::before{width:42px;height:42px}}
+
+.invite-chapter--bouquet .countdown-section .invite-script{color:var(--iv-ink)}
+.invite-chapter--bouquet .countdown-grid>div,.invite-chapter--vow .countdown-grid>div,.invite-chapter--toast .countdown-grid>div{border-color:color-mix(in srgb,var(--iv-ink) 42%,transparent);color:var(--iv-ink)}
