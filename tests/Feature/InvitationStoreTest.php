@@ -164,27 +164,45 @@ class InvitationStoreTest extends TestCase
         $this->get('/checkout/'.$wedding->id)->assertOk()->assertSee('Той иелері');
     }
 
-    public function test_catalog_templates_keep_distinct_section_sequences_and_kazakh_ornaments(): void
+    public function test_catalog_templates_have_distinct_chapters_and_truthful_price_features(): void
     {
         $this->seed(InvitationCatalogSeeder::class);
         $layouts = config('invitation_layouts');
+        $offers = config('invitation_offers');
         $this->assertCount(15, $layouts);
-        $this->assertCount(count($layouts), array_unique(array_map(fn ($sections) => implode(',', $sections), $layouts)));
-        foreach ($layouts as $slug => $sections) {
+        $this->assertCount(count($layouts), array_unique(array_map('json_encode', $layouts)));
+        foreach ($layouts as $slug => $chapters) {
+            $sections = array_merge(...array_column($chapters, 'sections'));
             $this->assertSame('intro', $sections[0], $slug);
             $this->assertSame('rsvp', end($sections), $slug);
+            $this->assertCount(count($sections), array_unique($sections), $slug);
+            $this->assertNotEmpty($offers[$slug]['kk']);
+            $this->assertNotEmpty($offers[$slug]['ru']);
             $this->assertDatabaseHas('templates', ['slug' => $slug, 'is_active' => true]);
         }
 
         $sage = Template::where('slug', 'sage-wedding')->firstOrFail();
         $rose = Template::where('slug', 'rose-wedding')->firstOrFail();
+        $gold = Template::where('slug', 'gold-wedding')->firstOrFail();
         $this->get('/designs/'.$sage->id.'/preview')
             ->assertOk()
             ->assertSee('invite-kazakh-mark', false)
-            ->assertSeeInOrder(['invite-intro', 'date-section', 'venue-section', 'countdown-section', 'hosts-section', 'rsvp-section']);
+            ->assertSee('invite-chapter--letter', false)
+            ->assertSeeInOrder(['invite-intro', 'hosts-section', 'date-section', 'venue-section', 'countdown-section', 'rsvp-section']);
         $this->get('/designs/'.$rose->id.'/preview')
             ->assertOk()
-            ->assertSeeInOrder(['invite-intro', 'hosts-section', 'date-section', 'countdown-section', 'venue-section', 'rsvp-section']);
+            ->assertSee('invite-chapter--postcard', false)
+            ->assertSeeInOrder(['invite-intro', 'hosts-section', 'countdown-section', 'date-section', 'venue-section', 'rsvp-section']);
+        $this->get('/designs/'.$gold->id.'/preview')
+            ->assertOk()
+            ->assertSee('invite-calendar-link', false)
+            ->assertSee('calendar.google.com/calendar/render', false);
+        $this->get('/checkout/'.$gold->id)
+            ->assertOk()
+            ->assertSee('Күнтізбеге қосу');
+        $this->get('/?event=wedding')->assertOk()->assertSee('ОСЫ БАҒАҒА КІРЕДІ');
+        $this->assertSame('Той иелері', Template::where('slug', 'besik-toi')->firstOrFail()->config_json['content_kk']['hosts_title']);
+        $this->assertSame('Той иелері', Template::where('slug', 'aru-qyz-uzatu')->firstOrFail()->config_json['content_kk']['hosts_title']);
     }
 
     public function test_jubilee_template_has_its_own_kazakh_invitation_and_wish_book(): void

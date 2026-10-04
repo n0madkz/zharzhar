@@ -376,3 +376,11 @@ body.catalog-ui{
 @keyframes language-fade-out{to{opacity:.7}}
 @keyframes language-fade-in{from{opacity:.7}to{opacity:1}}
 @media(prefers-reduced-motion:reduce){.language-switch::before{transition:none}::view-transition-old(root),::view-transition-new(root){animation:none}}
+
+.design-offer{margin:0 5px 18px;padding:13px 14px;border:1px solid #e3e5ed;border-radius:13px;background:#f8f9fb;color:#353b4a}
+.design-offer-label{margin:0 0 8px;font-size:9px;font-weight:800;letter-spacing:.13em;color:#6b7280}
+.design-offer ul,.checkout-offer ul{display:grid;gap:6px;margin:0;padding:0;list-style:none}
+.design-offer li,.checkout-offer li{position:relative;padding-left:15px;font-size:11px;line-height:1.4}
+.design-offer li::before,.checkout-offer li::before{content:'✓';position:absolute;left:0;color:#496a5d;font-weight:800}
+.checkout-offer{margin:12px 0 18px;padding:15px;border:1px solid #e3e5ed;border-radius:14px;background:#f8f9fb}
+.checkout-offer strong{display:block;margin-bottom:9px;font-size:12px}

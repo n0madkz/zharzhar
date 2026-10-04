@@ -41,7 +41,7 @@
         <span class="besik-embroidered" aria-hidden="true"></span>
         <h2>Қадірлі<br>жақындар!</h2>
         <p>{{ $invitationText }}</p>
-        <div class="besik-letter-signature"><span>Ізгі ниетпен,</span><strong>{{ $details['hosts'] }}</strong></div>
+        <div class="besik-letter-signature"><span>Той иелері</span><strong>{{ $details['hosts'] }}</strong></div>
     </section>
 
     <section class="besik-details" data-reveal>

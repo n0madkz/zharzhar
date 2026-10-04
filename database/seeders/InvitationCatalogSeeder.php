@@ -124,7 +124,7 @@ class InvitationCatalogSeeder extends Seeder
                 'intro_title' => 'АҚ БОСАҒАДАН АҚ ЖОЛМЕН',
                 'invitation_text' => 'Аяулы қызымыздың жаңа өмірге қадам басар қыз ұзату тойына арналған ақ дастарханымызға шақырамыз.',
                 'date_title' => 'Қыз ұзату салтанаты',
-                'venue_name' => 'Ақ Босаға мейрамханасы', 'hosts_title' => 'Қыздың ата-анасы',
+                'venue_name' => 'Ақ Босаға мейрамханасы', 'hosts_title' => 'Той иелері',
                 'hosts_name' => 'Ақ тілек иелері', 'closing_text' => 'Ақ жол тілеп, қуанышымызға ортақ болыңыз!',
             ]],
             ['Дала шаттығы', 'dala-shattygy', 'birthday', 'birthday', 8990, '/invitation-assets/birthday-ethno.webp', [
@@ -158,7 +158,7 @@ class InvitationCatalogSeeder extends Seeder
                 'invitation_text' => 'Сүйікті бөбегімізді бесікке бөлейтін ақ тілекке толы күнімізге келіп, қуанышымызға ортақ болыңыздар!',
                 'event_date' => '2026-12-12', 'event_time' => '15:00',
                 'date_title' => 'Бесікке бөлейтін күн', 'countdown_title' => 'Бөпеміздің тойына дейін',
-                'venue_name' => 'Ақ бесік залы', 'hosts_title' => 'Бөбектің ата-анасы',
+                'venue_name' => 'Ақ бесік залы', 'hosts_title' => 'Той иелері',
                 'hosts_name' => 'Бақытты ата-ана', 'rsvp_title' => 'Сізді асыға күтеміз!',
                 'rsvp_hint' => 'Бесік тойға келетін-келмейтініңізді белгілеңіз.',
                 'message' => 'Бөпеге ақ тілегіңіз', 'closing_text' => 'Ақ бесігімізге ақ батаңызды арнаңыз!',

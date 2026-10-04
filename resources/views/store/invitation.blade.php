@@ -65,7 +65,7 @@
     ];
     $templateCopy = $kk ? array_replace($template->config_json['content_kk'] ?? [], $details['template_copy'] ?? []) : [];
     $customCopy = array_replace($templateCopy, $details['copy'] ?? []);
-    $sectionOrder = config('invitation_layouts.'.$template->slug, ['intro', 'photos', 'date', 'venue', 'countdown', 'hosts', 'rsvp']);
+    $chapters = config('invitation_layouts.'.$template->slug, [['kind' => 'letter', 'sections' => ['intro', 'photos']], ['kind' => 'calendar', 'sections' => ['date', 'venue']], ['kind' => 'ribbon', 'sections' => ['countdown', 'hosts']], ['kind' => 'reply', 'sections' => ['rsvp']]]);
     if ($customCopy) {
         $copy = array_replace($copy, array_filter([
             'event_label' => $customCopy['event_label'] ?? null,
@@ -91,6 +91,9 @@
             'send' => $customCopy['send'] ?? null,
             'closing' => $customCopy['closing_text'] ?? ($customCopy['closing'] ?? null),
         ], fn ($value) => filled($value)));
+    }
+    if ($kk && preg_match('/ата.?анасы/ui', $copy['hosts'])) {
+        $copy['hosts'] = 'Той иелері';
     }
     $copy['map'] = $kk ? '2GIS-те ашу' : 'Открыть в 2GIS';
     $copy['event_label'] ??= $templateCopy['event_label'] ?? ($eventLabels[$eventType] ?? $eventLabels['wedding']);
@@ -150,8 +153,13 @@
 
     @if($isBesikToi)<a class="besik-wish-link" href="#besik-rsvp">Бөпеге ақ тілек қалдыру <span aria-hidden="true">↓</span></a>@endif
 
-    @foreach($sectionOrder as $section)
-        @include('store.invitation-sections.'.$section)
+    @foreach($chapters as $chapter)
+        <div class="invite-chapter invite-chapter--{{ $chapter['kind'] }}" data-chapter="{{ $loop->iteration }}">
+            <span class="invite-chapter-index" aria-hidden="true">{{ str_pad($loop->iteration, 2, '0', STR_PAD_LEFT) }}</span>
+            @foreach($chapter['sections'] as $section)
+                @include('store.invitation-sections.'.$section)
+            @endforeach
+        </div>
     @endforeach
 
     <footer class="invite-finale" data-reveal>

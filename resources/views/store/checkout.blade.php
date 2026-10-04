@@ -63,12 +63,13 @@
     $supportsPhotos = (bool) data_get($template->config_json, 'supports_photos', false);
     $isVideo = data_get($template->config_json, 'format') === 'video';
     $designSignature = config('invitation_styles.'.$template->slug.'.'.($kk ? 'kk' : 'ru'));
+    $offer = config('invitation_offers.'.$template->slug.'.'.($kk ? 'kk' : 'ru'), []);
     $isBesikToi = $template->slug === 'besik-toi';
     $isKazakhOnly = in_array($template->slug, ['besik-toi', 'omir-ornegi'], true);
     if ($isBesikToi) {
         $t['names'] = $kk ? 'Бөбектің есімі' : 'Имя малыша';
         $t['names_placeholder'] = $kk ? 'Мысалы: Еңлік' : 'Например: Еңлік';
-        $t['hosts'] = $kk ? 'Бөбектің ата-анасы' : 'Родители малыша';
+        $t['hosts'] = $kk ? 'Той иелері' : 'Хозяева торжества';
         $t['hosts_placeholder'] = $kk ? 'Мысалы: Нұрлан мен Айдана' : 'Например: Нурлан и Айдана';
     }
     if ($template->slug === 'omir-ornegi') {
@@ -128,6 +129,7 @@
 <aside class="panel summary-panel"><p class="eyebrow">{{ $t['choice'] }}</p><div class="design-preview invite-card-{{ $template->config_json['theme'] ?? 'sage' }} event-card-{{ $template->event_type }}">@if($template->preview_image)<img src="{{ $template->preview_image }}" alt="">@endif<span class="card-shade"></span><span class="card-theme-mark" aria-hidden="true"><i></i><i></i><b></b></span><strong class="card-design-name"><span>{{ $templateTitleFirstLine }}</span>@if($templateTitleSecondLine)<span>{{ $templateTitleSecondLine }}</span>@endif</strong></div>
 <div class="summary-row"><span>{{ $template->name }}</span><strong>{{ number_format($template->price, 0, ',', ' ') }} ₸</strong></div>
 @if($designSignature)<p class="design-signature">{{ $designSignature }}</p>@endif
+@if($offer)<div class="checkout-offer"><strong>{{ $kk ? 'Бағаға не кіреді' : 'Что входит в цену' }}</strong><ul>@foreach($offer as $feature)<li>{{ $feature }}</li>@endforeach</ul></div>@endif
 <label class="field" for="promo_code">{{ $t['promo'] }}</label><div class="promo-control field"><input id="promo_code" name="promo_code" value="{{ old('promo_code') }}" maxlength="40" placeholder="{{ $t['promo_placeholder'] }}" style="text-transform:uppercase"><button class="button outline" type="button" id="apply-promo" data-template="{{ $template->id }}" data-price="{{ $template->price }}" data-url="{{ route('store.quote') }}">{{ $t['apply'] }}</button></div>
 <p class="hint" id="promo-result" aria-live="polite"></p>@error('promo_code')<p class="error">{{ $message }}</p>@enderror
 <div class="summary-row"><span>{{ $t['discount'] }}</span><strong id="discount-value">0 ₸</strong></div><div class="summary-row total"><span>{{ $t['total'] }}</span><strong id="total-value">{{ number_format($template->price, 0, ',', ' ') }} ₸</strong></div>

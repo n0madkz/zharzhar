@@ -722,3 +722,85 @@ body.invitation-shell{margin:0;background:#e6e2dc;color:#28231f;font-family:Manr
 /* Jubilee names lead; the editable age follows as a readable Kazakh label. */
 .invite-mobile .invite-cover .jubilee-number{display:flex;align-items:baseline;justify-content:center;gap:7px;margin:20px 0 0;color:inherit;font:500 33px/1.2 'Noto Serif Display',Georgia,serif;opacity:1}
 .invite-mobile .invite-cover .jubilee-number small{font-size:.67em;font-weight:400}
+
+/* Every catalog design is assembled as a sequence of designed scenes, not a reordered stack. */
+.invite-chapter{position:relative;isolation:isolate;overflow:hidden;background:var(--iv-paper)}
+.invite-chapter-index{position:absolute;z-index:3;top:17px;left:23px;color:var(--iv-accent);font:700 9px/1 Manrope,Arial,sans-serif;letter-spacing:.2em}
+.invite-chapter .invite-section{box-sizing:border-box;background:transparent}
+.invite-chapter .invite-section+.invite-section{padding-top:28px}
+.invite-chapter .invite-section:first-of-type{padding-top:90px}
+.invite-chapter .invite-section:last-of-type{padding-bottom:94px}
+.invite-chapter--letter{margin:22px;background:var(--iv-paper);border:1px solid var(--iv-soft);box-shadow:0 12px 28px color-mix(in srgb,var(--iv-ink) 8%,transparent)}
+.invite-chapter--letter::before{content:'';position:absolute;inset:11px;border:1px solid color-mix(in srgb,var(--iv-accent) 38%,transparent);pointer-events:none}
+.invite-chapter--letter .invite-intro{padding-bottom:18px}
+.invite-chapter--letter .hosts-section{padding-top:12px;padding-bottom:74px}
+.invite-chapter--letter .joined-rings{width:70px;height:45px;margin-bottom:14px;transform:scale(.65)}
+.invite-chapter--bouquet,.invite-chapter--botanical{background:radial-gradient(ellipse at top right,color-mix(in srgb,var(--iv-accent) 21%,var(--iv-paper)),transparent 64%),var(--iv-paper)}
+.invite-chapter--bouquet::before,.invite-chapter--botanical::before{content:'';position:absolute;top:15px;right:14px;width:90px;height:90px;background:var(--iv-accent);opacity:.55;mask:url('/invitation-assets/music-kazakh-ornament.svg') center/contain no-repeat;-webkit-mask:url('/invitation-assets/music-kazakh-ornament.svg') center/contain no-repeat}
+.invite-chapter--bouquet .orbit-mark,.invite-chapter--botanical .orbit-mark{width:75px;height:75px;margin-bottom:25px}
+.invite-chapter--bouquet .invite-message,.invite-chapter--botanical .invite-message{text-align:left;border-left:2px solid var(--iv-accent);padding-left:17px}
+.invite-chapter--calendar{margin:0 18px;background:var(--iv-bg);border-top:3px solid var(--iv-accent);border-bottom:3px solid var(--iv-accent)}
+.invite-chapter--calendar .date-section{padding-bottom:20px}
+.invite-chapter--calendar .date-orb{width:205px;height:205px;border-radius:8px;box-shadow:11px 11px 0 color-mix(in srgb,var(--iv-accent) 22%,transparent)}
+.invite-chapter--calendar .date-orb::before,.invite-chapter--calendar .date-orb::after{content:none}
+.invite-chapter--calendar .venue-section{padding-top:25px;padding-bottom:70px}
+.invite-chapter--destination{background:var(--iv-bg)}
+.invite-chapter--destination .venue-section{padding-bottom:20px}
+.invite-chapter--destination .countdown-section{padding-top:25px;padding-bottom:82px;background:var(--iv-accent);color:var(--iv-paper)}
+.invite-chapter--destination .countdown-grid>div{border-radius:7px;border-color:color-mix(in srgb,var(--iv-paper) 70%,transparent)}
+.invite-chapter--postcard{margin:18px;background:var(--iv-paper);border:1px solid var(--iv-accent);border-radius:4px;box-shadow:9px 9px 0 color-mix(in srgb,var(--iv-accent) 25%,transparent)}
+.invite-chapter--postcard::after{content:'';position:absolute;top:22px;right:20px;width:45px;height:51px;border:2px dashed var(--iv-accent);opacity:.55}
+.invite-chapter--postcard .date-section{padding-bottom:6px}
+.invite-chapter--postcard .date-orb{width:170px;height:170px;border-radius:50%;background:var(--iv-bg)}
+.invite-chapter--postcard .date-orb::before,.invite-chapter--postcard .date-orb::after{content:none}
+.invite-chapter--postcard .date-orb strong{font-size:65px}
+.invite-chapter--postcard .venue-section{padding-top:22px}
+.invite-chapter--ticket{margin:18px;background:var(--iv-bg);border:1px dashed var(--iv-accent)}
+.invite-chapter--ticket::before,.invite-chapter--ticket::after{content:'';position:absolute;z-index:2;top:50%;width:24px;height:24px;border:1px dashed var(--iv-accent);border-radius:50%;background:var(--iv-paper)}
+.invite-chapter--ticket::before{left:-13px}.invite-chapter--ticket::after{right:-13px}
+.invite-chapter--ticket .date-section{padding-bottom:15px}
+.invite-chapter--ticket .date-orb{border-radius:12px;width:178px;height:178px;background:var(--iv-paper)}
+.invite-chapter--ticket .date-orb::before,.invite-chapter--ticket .date-orb::after{content:none}
+.invite-chapter--ticket .countdown-section,.invite-chapter--ticket .venue-section{border-top:1px dashed var(--iv-soft)}
+.invite-chapter--ticket .countdown-grid>div{border-radius:8px}
+.invite-chapter--vow,.invite-chapter--toast,.invite-chapter--signature,.invite-chapter--family{background:var(--iv-paper);text-align:center}
+.invite-chapter--vow .hosts-section,.invite-chapter--toast .hosts-section,.invite-chapter--signature .hosts-section,.invite-chapter--family .hosts-section{padding-bottom:25px}
+.invite-chapter--vow .hosts-section h2,.invite-chapter--toast .hosts-section h2,.invite-chapter--signature .hosts-section h2,.invite-chapter--family .hosts-section h2{border-bottom:1px solid var(--iv-accent);padding-bottom:20px}
+.invite-chapter--vow .countdown-section,.invite-chapter--toast .countdown-section,.invite-chapter--family .countdown-section{padding-top:20px}
+.invite-chapter--evening,.invite-chapter--royal,.invite-chapter--medal{background:var(--iv-ink);color:var(--iv-paper)}
+.invite-chapter--evening::before,.invite-chapter--royal::before,.invite-chapter--medal::before{content:'';position:absolute;inset:17px;border:1px solid var(--iv-accent);pointer-events:none}
+.invite-chapter--evening .invite-section,.invite-chapter--royal .invite-section,.invite-chapter--medal .invite-section{color:var(--iv-paper)}
+.invite-chapter--evening .invite-message,.invite-chapter--royal .invite-message{font-size:30px}
+.invite-chapter--evening .venue-location,.invite-chapter--royal .venue-location,.invite-chapter--medal .venue-location{color:var(--iv-ink)}
+.invite-chapter--medal .date-orb{border:3px double var(--iv-accent);background:color-mix(in srgb,var(--iv-paper) 12%,transparent)}
+.invite-chapter--medal .date-orb::before,.invite-chapter--medal .date-orb::after{content:none}
+.invite-chapter--sky,.invite-chapter--festival{background:linear-gradient(180deg,var(--iv-bg),var(--iv-paper))}
+.invite-chapter--sky .countdown-section,.invite-chapter--festival .countdown-section{padding-top:18px}
+.invite-chapter--sky .countdown-grid>div,.invite-chapter--festival .countdown-grid>div{border-radius:16px;background:var(--iv-paper);color:var(--iv-ink)}
+.invite-chapter--pearl{margin:20px;background:var(--iv-paper);border-radius:180px 180px 12px 12px;border:2px solid var(--iv-soft)}
+.invite-chapter--pearl .invite-intro{padding-top:120px}
+.invite-chapter--silk{margin:15px;background:var(--iv-paper);border:1px solid var(--iv-accent);border-radius:130px 10px 130px 10px}
+.invite-chapter--silk .date-orb{border-radius:90px 10px 90px 10px}
+.invite-chapter--silk .date-orb::before,.invite-chapter--silk .date-orb::after{content:none}
+.invite-chapter--ribbon,.invite-chapter--banner{background:var(--iv-accent);color:var(--iv-paper)}
+.invite-chapter--ribbon .invite-section,.invite-chapter--banner .invite-section{color:var(--iv-paper)}
+.invite-chapter--ribbon .countdown-grid>div,.invite-chapter--banner .countdown-grid>div{border-radius:0;border-color:var(--iv-paper)}
+.invite-chapter--ribbon .date-orb,.invite-chapter--banner .date-orb{border-color:var(--iv-paper)}
+.invite-chapter--ribbon .date-orb::before,.invite-chapter--ribbon .date-orb::after,.invite-chapter--banner .date-orb::before,.invite-chapter--banner .date-orb::after{content:none}
+.invite-chapter--journey{background:linear-gradient(160deg,var(--iv-paper),var(--iv-bg))}
+.invite-chapter--journey .venue-section{padding-top:20px;border-top:1px solid var(--iv-accent)}
+.invite-chapter--farewell{background:var(--iv-paper);border-left:8px solid var(--iv-accent)}
+.invite-chapter--farewell .hosts-section{padding-top:20px}
+.invite-chapter--album{background:var(--iv-paper)}
+.invite-chapter--album .invite-intro{padding-bottom:20px}
+.invite-chapter--album .invite-photo-story{padding-top:25px}
+.invite-chapter--cinema{background:var(--iv-ink)}
+.invite-chapter--cinema .countdown-section{min-height:480px}
+.invite-chapter--reply{background:var(--iv-bg);border-top:1px solid var(--iv-soft)}
+.invite-chapter--reply .rsvp-section{padding-top:110px}
+.invite-chapter--reply .rsvp-preview,.invite-chapter--reply .invite-form{padding:19px;border:1px solid var(--iv-soft);border-radius:12px;background:var(--iv-paper);box-shadow:0 12px 28px color-mix(in srgb,var(--iv-ink) 9%,transparent)}
+@media(max-width:430px){.invite-chapter--letter,.invite-chapter--postcard,.invite-chapter--ticket,.invite-chapter--pearl,.invite-chapter--silk{margin-right:13px;margin-left:13px}.invite-chapter--calendar{margin:0 12px}.invite-chapter .invite-section{padding-right:24px;padding-left:24px}}
+
+.invite-calendar-link{display:inline-flex;align-items:center;justify-content:center;gap:12px;min-height:44px;margin:22px auto 0;padding:10px 17px;border:1px solid currentColor;border-radius:999px;color:inherit;font:700 11px/1.2 Manrope,Arial,sans-serif;text-decoration:none;transition:transform .2s ease,background .2s ease}
+.invite-calendar-link:hover{transform:translateY(-2px);background:color-mix(in srgb,var(--iv-accent) 14%,transparent);text-decoration:none}
+.invite-calendar-link:focus-visible{outline:3px solid var(--iv-accent);outline-offset:3px}

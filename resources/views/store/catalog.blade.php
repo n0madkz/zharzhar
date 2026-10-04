@@ -73,6 +73,7 @@
     $titleFirstLine = array_shift($titleWords);
     $titleSecondLine = implode(' ', $titleWords);
     $designSignature = config('invitation_styles.'.$template->slug.'.'.($kk ? 'kk' : 'ru'));
+    $offer = config('invitation_offers.'.$template->slug.'.'.($kk ? 'kk' : 'ru'), []);
 @endphp
 <article class="design-card design-card-{{ $theme }} design-template-{{ $template->slug }}" data-event-type="{{ $template->event_type }}" @if($category && $template->event_type && $template->event_type !== $category) hidden @endif>
 <a href="{{ route('store.preview', $template) }}" class="design-preview invite-card-{{ $theme }} theme-{{ $theme }} event-card-{{ $template->event_type }}" aria-label="{{ $copy['view'] }}: {{ $template->name }}">
@@ -85,7 +86,7 @@
 <strong class="card-design-name"><span>{{ $titleFirstLine }}</span>@if($titleSecondLine)<span>{{ $titleSecondLine }}</span>@endif</strong>
 <span class="mini-date">{{ \Carbon\Carbon::parse($template->config_json['content_kk']['event_date'] ?? '2026-11-08')->format('d / m / Y') }}</span>
 <span class="preview-pill">{{ $copy['view'] }} ↗</span></a>
-<div class="design-info"><div><p class="eyebrow">{{ $template->event_type ? ($eventLabels[$template->event_type] ?? $template->event_type) : $copy['any_event'] }}</p><h3 class="design-card-title"><span>{{ $titleFirstLine }}</span>@if($titleSecondLine)<span>{{ $titleSecondLine }}</span>@endif</h3></div><strong class="design-price">{{ number_format($template->price, 0, ',', ' ') }} ₸</strong></div>@if($designSignature)<p class="design-signature">{{ $designSignature }}</p>@endif<a class="button outline full" href="{{ route('store.checkout', $template) }}">{{ $copy['select_design'] }} <span>→</span></a>
+<div class="design-info"><div><p class="eyebrow">{{ $template->event_type ? ($eventLabels[$template->event_type] ?? $template->event_type) : $copy['any_event'] }}</p><h3 class="design-card-title"><span>{{ $titleFirstLine }}</span>@if($titleSecondLine)<span>{{ $titleSecondLine }}</span>@endif</h3></div><strong class="design-price">{{ number_format($template->price, 0, ',', ' ') }} ₸</strong></div>@if($designSignature)<p class="design-signature">{{ $designSignature }}</p>@endif@if($offer)<div class="design-offer"><p class="design-offer-label">{{ $kk ? 'ОСЫ БАҒАҒА КІРЕДІ' : 'ЧТО ВХОДИТ В ЦЕНУ' }}</p><ul>@foreach($offer as $feature)<li>{{ $feature }}</li>@endforeach</ul></div>@endif<a class="button outline full" href="{{ route('store.checkout', $template) }}">{{ $copy['select_design'] }} <span>→</span></a>
 </article>
 @empty
 <div class="empty-state"><h3>{{ $copy['empty'] }}</h3><p>{{ $copy['empty_text'] }}</p><a href="tel:{{ preg_replace('/[^+0-9]/', '', config('store.kaspi_phone')) }}">{{ $copy['contact'] }}</a></div>
