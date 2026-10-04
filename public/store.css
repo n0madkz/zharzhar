@@ -360,3 +360,19 @@ body.catalog-ui{
   .mobile-category-options b{display:grid;flex:none;min-width:30px;height:30px;place-items:center;border-radius:10px;background:#f0f2fa;color:#68708a;font:700 12px/1 'Noto Sans',Arial,sans-serif}
   .mobile-category-options a[aria-current="true"] b{background:#dfe1ff;color:#4548c8}
 @media(min-width:701px){.mobile-store-nav{bottom:20px}.catalog-ui{padding-bottom:108px}}
+
+/* Two-state language slider; the page content changes without navigation. */
+.language-switch{position:relative;isolation:isolate;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2px;padding:2px;--language-thumb:#263e34}
+.catalog-ui .language-switch{--language-thumb:#5052dc}
+.language-switch::before{content:'';position:absolute;z-index:0;top:2px;bottom:2px;left:2px;width:calc(50% - 3px);border-radius:999px;background:var(--language-thumb);box-shadow:0 5px 13px rgba(36,60,50,.2);transform:translateX(0);transition:transform .3s cubic-bezier(.22,1,.36,1),background .2s}
+.language-switch[data-locale="ru"]::before{transform:translateX(calc(100% + 2px))}
+.language-switch form{position:relative;z-index:1;min-width:0}
+.language-switch button,.language-switch button:hover,.language-switch button.active,.catalog-ui .language-switch button,.catalog-ui .language-switch button:hover,.catalog-ui .language-switch button.active{background:transparent;box-shadow:none}
+.language-switch button.active,.catalog-ui .language-switch button.active{color:#fff}
+.language-control[aria-busy="true"] .language-switch{cursor:progress}
+.language-status{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+::view-transition-old(root){animation:language-fade-out .18s ease both}
+::view-transition-new(root){animation:language-fade-in .24s ease both}
+@keyframes language-fade-out{to{opacity:.7}}
+@keyframes language-fade-in{from{opacity:.7}to{opacity:1}}
+@media(prefers-reduced-motion:reduce){.language-switch::before{transition:none}::view-transition-old(root),::view-transition-new(root){animation:none}}

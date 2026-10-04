@@ -1,4 +1,7 @@
-document.addEventListener('DOMContentLoaded', () => {
+let storefrontNavigationAbort;
+const initStorePage = () => {
+  storefrontNavigationAbort?.abort();
+  storefrontNavigationAbort = new AbortController();
   const kk = document.documentElement.lang === 'kk';
   const copy = kk ? {
     copied: 'Көшірілді', copyFallback: 'Мәтінді белгілеп, көшіріңіз', applyHint: 'Жеңілдікті тексеру үшін «Қолдану» батырмасын басыңыз.',
@@ -145,12 +148,12 @@ document.addEventListener('DOMContentLoaded', () => {
       if (window.location.hash === '#faq') setMobileTab('faq');
       else if (window.location.hash === '#designs') setMobileTab('designs');
       else setMobileTab('home');
-    });
+    }, { signal: storefrontNavigationAbort.signal });
 
     window.addEventListener('popstate', () => {
       const url = new URL(window.location.href);
       applyCatalogFilter(url.searchParams.get('event') || '', Number(url.searchParams.get('catalog_page')) || 1);
-    });
+    }, { signal: storefrontNavigationAbort.signal });
 
     const initialUrl = new URL(window.location.href);
     applyCatalogFilter(initialUrl.searchParams.get('event') || '', Number(initialUrl.searchParams.get('catalog_page')) || 1);
@@ -253,4 +256,95 @@ document.addEventListener('DOMContentLoaded', () => {
     const button = form.querySelector('button[type="submit"]');
     if (button) { button.disabled = true; button.textContent = copy.saving; }
   }));
+};
+
+document.addEventListener('DOMContentLoaded', initStorePage);
+
+let languageRequestPending = false;
+const setLanguageThumb = locale => {
+  const control = document.querySelector('[data-language-switch]');
+  if (!control) return;
+  control.dataset.locale = locale;
+  control.querySelectorAll('[data-language-button]').forEach(button => {
+    const active = button.dataset.languageButton === locale;
+    button.classList.toggle('active', active);
+    button.setAttribute('aria-pressed', String(active));
+  });
+};
+
+const rememberFields = () => Array.from(document.querySelectorAll('#main input, #main select, #main textarea')).map(field => ({
+  key: field.name || field.id,
+  type: field.type,
+  value: field.value,
+  checked: field.checked,
+  files: field.type === 'file' ? field.files : null,
+}));
+const restoreFields = saved => {
+  const fields = Array.from(document.querySelectorAll('#main input, #main select, #main textarea'));
+  fields.forEach((field, index) => {
+    const previous = saved[index];
+    if (!previous || previous.key !== (field.name || field.id) || previous.type !== field.type) return;
+    if (field.type === 'file') {
+      if (previous.files?.length) {
+        try { field.files = previous.files; field.dispatchEvent(new Event('change', { bubbles: true })); } catch { /* Browser disallows restoring files. */ }
+      }
+    } else if (field.type === 'checkbox' || field.type === 'radio') field.checked = previous.checked;
+    else if (field.type !== 'hidden') field.value = previous.value;
+  });
+};
+
+document.addEventListener('submit', async event => {
+  const form = event.target.closest?.('form[data-language-form]');
+  if (!form) return;
+  event.preventDefault();
+  if (languageRequestPending) return;
+  const requestedLocale = form.dataset.languageLocale;
+  const previousLocale = document.documentElement.lang;
+  if (requestedLocale === previousLocale) return;
+
+  languageRequestPending = true;
+  setLanguageThumb(requestedLocale);
+  const control = document.querySelector('.language-control');
+  control?.setAttribute('aria-busy', 'true');
+  const sliderAnimation = new Promise(resolve => setTimeout(resolve, 220));
+  try {
+    const response = await fetch(form.action, {
+      method: 'POST', body: new FormData(form), credentials: 'same-origin',
+      headers: { 'Accept': 'text/html' }, referrer: window.location.href,
+    });
+    if (!response.ok) throw new Error('Language update failed');
+    const nextPage = new DOMParser().parseFromString(await response.text(), 'text/html');
+    if (nextPage.documentElement.lang !== requestedLocale || !nextPage.querySelector('#main') || !nextPage.querySelector('.store-header')) {
+      throw new Error('Unexpected language response');
+    }
+    await sliderAnimation;
+    const savedFields = rememberFields();
+    const scrollPosition = window.scrollY;
+    const updatePage = () => {
+      document.title = nextPage.title;
+      document.documentElement.lang = requestedLocale;
+      document.body.className = nextPage.body.className;
+      const description = nextPage.querySelector('meta[name="description"]');
+      if (description) document.querySelector('meta[name="description"]')?.setAttribute('content', description.content);
+      document.querySelector('.skip-link')?.replaceWith(nextPage.querySelector('.skip-link'));
+      document.querySelector('.store-header')?.replaceWith(nextPage.querySelector('.store-header'));
+      document.querySelector('#main')?.replaceWith(nextPage.querySelector('#main'));
+      const nextFooter = nextPage.querySelector('.store-footer');
+      if (nextFooter) document.querySelector('.store-footer')?.replaceWith(nextFooter);
+      initStorePage();
+      restoreFields(savedFields);
+      window.scrollTo(0, scrollPosition);
+      document.querySelector('[data-language-button="' + requestedLocale + '"]')?.focus({ preventScroll: true });
+    };
+    if (document.startViewTransition && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      document.startViewTransition(updatePage);
+    } else updatePage();
+  } catch {
+    setLanguageThumb(previousLocale);
+    const status = document.querySelector('[data-language-status]');
+    if (status) status.textContent = previousLocale === 'kk' ? 'Тілді ауыстыру мүмкін болмады. Қайталап көріңіз.' : 'Не удалось сменить язык. Попробуйте ещё раз.';
+  } finally {
+    languageRequestPending = false;
+    document.querySelector('.language-control')?.removeAttribute('aria-busy');
+  }
 });

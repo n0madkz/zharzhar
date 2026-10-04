@@ -40,11 +40,12 @@
 <div class="header-tools">
     <div class="language-control" aria-label="{{ $kk ? 'Сайт тілі' : 'Язык сайта' }}">
         <span class="language-icon" aria-hidden="true">文</span>
-        <div class="language-switch">
+        <div class="language-switch" data-language-switch data-locale="{{ $uiLocale }}">
         @foreach(['kk' => ['Қазақша', 'ҚАЗ'], 'ru' => ['Русский', 'РУС']] as $locale => [$fullLabel, $shortLabel])
-            <form method="POST" action="{{ route('store.language', $locale) }}">@csrf<button type="submit" class="{{ app()->getLocale() === $locale ? 'active' : '' }}" @if(app()->getLocale() === $locale) aria-current="true" @endif><span class="language-full">{{ $fullLabel }}</span><span class="language-short">{{ $shortLabel }}</span></button></form>
+            <form method="POST" action="{{ route('store.language', $locale) }}" data-language-form data-language-locale="{{ $locale }}">@csrf<button type="submit" data-language-button="{{ $locale }}" class="{{ $uiLocale === $locale ? 'active' : '' }}" aria-pressed="{{ $uiLocale === $locale ? 'true' : 'false' }}"><span class="language-full">{{ $fullLabel }}</span><span class="language-short">{{ $shortLabel }}</span></button></form>
         @endforeach
         </div>
+        <span class="language-status" data-language-status role="status" aria-live="polite"></span>
     </div>
     <a class="header-contact" href="tel:{{ preg_replace('/[^+0-9]/', '', config('store.kaspi_phone')) }}">{{ $layoutCopy['contact'] }} ↗</a>
 </div>
