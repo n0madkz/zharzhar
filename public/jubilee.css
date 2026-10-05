@@ -92,3 +92,5 @@ body.invitation-shell:has(.jubilee-page){background:#e9e5df;color:#3b292d}
 
 .jubilee-cover-main .jubilee-age{margin:13px 0 8px;color:#fffaf2;font:500 clamp(43px,11vw,61px)/1.1 'Noto Serif Display',Georgia,serif}
 .jubilee-cover-main .jubilee-age strong,.jubilee-cover-main .jubilee-age span{font:inherit}
+
+.jubilee-cover-main p.jubilee-cover-date{margin:12px 0 0;color:#fff5e9;font:700 14px/1.4 'Noto Sans',Arial,sans-serif;letter-spacing:.14em}

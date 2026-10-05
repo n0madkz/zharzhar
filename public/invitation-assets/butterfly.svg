@@ -1,1 +1,14 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 84 70"><path d="M41 31C34 10 15 3 7 13c-7 10 5 26 21 26C9 39 7 54 16 59c9 5 21-4 26-22 5 18 17 27 26 22 9-5 7-20-12-20 16 0 28-16 21-26C69 3 50 10 43 31" fill="none" stroke="#9b6a59" stroke-width="2.5" stroke-linejoin="round"/><path d="M42 26v29M22 17c8 3 12 10 15 18M62 17c-8 3-12 10-15 18" fill="none" stroke="#c89c64" stroke-width="2" stroke-linecap="round"/><circle cx="42" cy="26" r="2" fill="#9b6a59"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 84 70">
+  <defs>
+    <linearGradient id="wing" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#fff5dc"/>
+      <stop offset=".5" stop-color="#edc9a9"/>
+      <stop offset="1" stop-color="#c9947e"/>
+    </linearGradient>
+  </defs>
+  <path d="M41 31C34 10 15 3 7 13c-7 10 5 26 21 26C9 39 7 54 16 59c9 5 21-4 26-22 5 18 17 27 26 22 9-5 7-20-12-20 16 0 28-16 21-26C69 3 50 10 43 31" fill="url(#wing)" stroke="#98634f" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="M42 26v29M20 18c8 3 13 10 17 18M64 18c-8 3-13 10-17 18M16 45c9-4 15-2 20-8M68 45c-9-4-15-2-20-8" fill="none" stroke="#fff4db" stroke-width="2" stroke-linecap="round"/>
+  <path d="M16 25c3 6 7 9 13 10M68 25c-3 6-7 9-13 10" fill="none" stroke="#c78a73" stroke-width="2" stroke-linecap="round"/>
+  <circle cx="24" cy="47" r="3" fill="#fff9e8"/><circle cx="60" cy="47" r="3" fill="#fff9e8"/>
+  <circle cx="42" cy="26" r="2" fill="#98634f"/>
+</svg>

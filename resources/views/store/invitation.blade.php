@@ -143,8 +143,8 @@
         @if($image)<img class="invite-cover-image" src="{{ $image }}" alt="" fetchpriority="high">@endif
         <span class="invite-cover-shade" aria-hidden="true"></span>
         @if($template->event_type === 'wedding' && $template->price >= 10990)
-            <span class="invite-butterfly invite-butterfly--one" aria-hidden="true"></span>
-            <span class="invite-butterfly invite-butterfly--two" aria-hidden="true"></span>
+            <span class="invite-butterfly invite-butterfly--one" aria-hidden="true"><i class="invite-butterfly-wing invite-butterfly-wing--left"></i><i class="invite-butterfly-body"></i><i class="invite-butterfly-wing invite-butterfly-wing--right"></i></span>
+            <span class="invite-butterfly invite-butterfly--two" aria-hidden="true"><i class="invite-butterfly-wing invite-butterfly-wing--left"></i><i class="invite-butterfly-body"></i><i class="invite-butterfly-wing invite-butterfly-wing--right"></i></span>
         @endif
         <span class="invite-kazakh-mark" aria-hidden="true"></span>
         @if($isPhotoStory)<span class="story-cover-frame" aria-hidden="true"></span>@endif
@@ -154,6 +154,7 @@
             @if($template->event_type === 'wedding')<span class="invite-wedding-rings" aria-hidden="true"><i></i><i></i></span>@endif
             <h1 class="invite-name{{ $preview ? ' invite-name-preview' : '' }}">@foreach($displayNameLines as $nameLine)<span>{{ $nameLine }}</span>@endforeach</h1>
             @if($eventType === 'anniversary' && $jubileeAge)<span class="jubilee-number">{{ $jubileeAge }} <small>жас</small></span>@else<span class="invite-monogram" aria-hidden="true">{{ $monogram }}</span>@endif
+            <p class="invite-cover-date">{{ $eventDate->translatedFormat('d · m · Y') }}</p>
         </div>
     </header>
 

@@ -192,3 +192,6 @@ body.invitation-shell:has(.besik-page){background:#edf2ee;color:#355a60}
 .besik-ending small{color:#52777b}
 .besik-page :focus-visible{outline-color:#d7755e}
 .besik-music{--music-ink:#d26d59;--music-accent:#d26d59;--music-ornament:#d26d59;--music-ring:#e6a05e;background:transparent}
+
+.besik-hero h1+.besik-hero-date{margin:18px 0 0!important;font-size:15px;line-height:1.4}
+.besik-hero h1+.besik-hero-date+.besik-hero-art{margin-top:17px}

@@ -31,6 +31,7 @@
         <div class="besik-hero-top"><span>БАЛАПАНЫМЫЗДЫҢ АЛҒАШҚЫ ТОЙЫ</span><span class="besik-star" aria-hidden="true"></span></div>
         <p class="besik-hero-kicker">Ақ бесікке ақ тілек</p>
         <h1><span>{{ $details['names'] }}</span><small>бесік тойы</small></h1>
+        <p class="besik-hero-date">{{ $eventDate->format('d.m.Y') }} <span aria-hidden="true">·</span> {{ $details['event_time'] }}</p>
         <img class="besik-hero-art" src="{{ asset('invitation-assets/besik-toi.svg') }}" alt="Қазақ бесігінің иллюстрациясы" fetchpriority="high">
         <a class="besik-hero-jump" href="#besik-invitation">Шақыруды ашу <span aria-hidden="true">↓</span></a>
     </header>

@@ -36,6 +36,7 @@
             <span class="jubilee-cover-overline">ҒҰМЫРДЫҢ ҚЫМБАТ БЕЛЕСІ</span>
             <h1>{{ $details['names'] }}</h1>
             @if($jubileeAge)<p class="jubilee-age"><strong>{{ $jubileeAge }}</strong><span> жас</span></p>@endif
+            <p class="jubilee-cover-date">{{ $eventDate->format('d.m.Y') }}</p>
             <p>мерейлі тойы</p>
         </div>
         <div class="jubilee-cover-tail"><span class="jubilee-cover-ornament" aria-hidden="true"></span><p>Сізге арналған<br>ақжарма шақыру</p><a href="#jubilee-letter">Шақыруды ашу <span aria-hidden="true">↓</span></a></div>

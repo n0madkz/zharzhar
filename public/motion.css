@@ -1075,11 +1075,18 @@
 .invite-template-royal-kesh .invite-chapter--royal .venue-location{background:#fffaf3;color:#512b38;border-color:#d5b68d}
 
 /* Butterflies belong only to the higher-priced wedding templates. */
-.invite-butterfly{position:absolute;z-index:1;width:45px;height:38px;background:url('/invitation-assets/butterfly.svg') center/contain no-repeat;pointer-events:none;filter:drop-shadow(0 3px 4px rgba(55,36,28,.16));animation:butterfly-drift 8s ease-in-out infinite}
+.invite-butterfly{position:absolute;z-index:3;width:52px;height:44px;perspective:140px;pointer-events:none;filter:drop-shadow(0 4px 5px rgba(55,36,28,.22));animation:butterfly-drift 8s ease-in-out infinite}
 .invite-butterfly--one{top:15%;left:7%}
-.invite-butterfly--two{top:34%;right:8%;width:32px;height:27px;animation-delay:-3.4s;animation-duration:9.5s}
+.invite-butterfly--two{top:34%;right:8%;width:40px;height:34px;animation-delay:-3.4s;animation-duration:9.5s}
+.invite-butterfly-wing{position:absolute;top:0;width:50%;height:100%;background-image:url('/invitation-assets/butterfly.svg');background-repeat:no-repeat;background-size:200% 100%;backface-visibility:visible;will-change:transform}
+.invite-butterfly-wing--left{left:0;background-position:left center;transform-origin:right center;animation:butterfly-left-wing 1.05s ease-in-out infinite alternate}
+.invite-butterfly-wing--right{right:0;background-position:right center;transform-origin:left center;animation:butterfly-right-wing 1.05s ease-in-out infinite alternate}
+.invite-butterfly--two .invite-butterfly-wing{animation-delay:-.55s;animation-duration:1.2s}
+.invite-butterfly-body{position:absolute;z-index:2;top:36%;left:calc(50% - 1px);width:2px;height:43%;border-radius:2px;background:#9b6a59}
+@keyframes butterfly-left-wing{from{transform:rotateY(-12deg)}to{transform:rotateY(-68deg)}}
+@keyframes butterfly-right-wing{from{transform:rotateY(12deg)}to{transform:rotateY(68deg)}}
 @keyframes butterfly-drift{0%,100%{transform:translate3d(0,0,0) rotate(-8deg)}50%{transform:translate3d(14px,-22px,0) rotate(10deg)}}
-@media(prefers-reduced-motion:reduce){.invite-butterfly,.invite-mobile .invite-cover-copy.is-visible .invite-wedding-rings i{animation:none!important}}
+@media(prefers-reduced-motion:reduce){.invite-butterfly,.invite-butterfly-wing,.invite-mobile .invite-cover-copy.is-visible .invite-wedding-rings i{animation:none!important}}
 
 /* Modern invitation covers: photography flows into type, without stacked arches,
    stamped initials, decorative outlines or an extra card inside the cover. */
@@ -1169,7 +1176,7 @@
 .invite-mobile .invite-kazakh-mark{top:22px!important;right:22px!important;bottom:auto!important;left:auto!important}
 .invite-mobile.invite-event-wedding .invite-name-preview{font-size:clamp(31px,8vw,42px)!important;line-height:1.15}
 
-/* Calm event caption; the date appears in the dedicated date chapter. */
+/* Calm event caption leaves the names as the main focus. */
 .invite-mobile[class*='invite-template-'] .invite-cover-copy p.invite-overline{display:inline-block;max-width:100%;min-height:0;align-self:center;margin:0 auto 13px!important;padding:5px 10px;border:0;border-radius:4px;background:rgba(255,251,245,.84);box-shadow:none;color:var(--iv-ink,#263b38)!important;font:600 11px/1.4 'Noto Sans',Manrope,Arial,sans-serif!important;letter-spacing:.12em!important;text-align:center;text-shadow:none!important;text-transform:uppercase;text-wrap:balance}
 .invite-mobile.invite-template-mahabbat-hikayasy .invite-cover-copy p.invite-overline{background:rgba(255,250,241,.9);color:#173a39!important}
 /* Sample couple names fit on one line without touching the photo edge. */
@@ -1187,3 +1194,10 @@
 .invite-mobile.invite-template-classic-anniversary .invite-cover-copy .jubilee-number,.invite-mobile.invite-template-mereyli-shenber .invite-cover-copy .jubilee-number{font-style:normal!important}
 @media(min-width:601px){.invitation-shell .music-orb:not(.jubilee-music){right:max(20px,calc(50% - 308px))}}
 @media(max-width:600px){.invitation-shell .music-orb:not(.jubilee-music){right:8px;bottom:max(12px,env(safe-area-inset-bottom));width:54px;height:54px}.invitation-shell .music-orb:not(.jubilee-music) .music-kazakh-ornament{width:54px;height:54px}.invitation-shell .music-orb:not(.jubilee-music) .music-control-icon{width:22px;height:22px}}
+
+/* Keep the date below the names while the event caption stays quiet. */
+.invite-mobile[class*='invite-template-'] .invite-cover-copy p.invite-cover-date{order:7;display:block;align-self:center;margin:16px auto 0!important;padding:6px 12px;border-radius:4px;background:rgba(255,251,245,.88);color:var(--iv-ink,#263b38)!important;font:700 13px/1.35 'Noto Sans',Manrope,Arial,sans-serif!important;letter-spacing:.14em!important;text-align:center;text-shadow:none!important}
+.invite-mobile.invite-template-mahabbat-hikayasy .invite-cover-copy p.invite-cover-date{background:rgba(255,250,241,.93);color:#173a39!important}
+/* A chapter may inherit pale text, but light countdown tiles always need dark numbers. */
+.invite-mobile .invite-chapter .countdown-section .countdown-grid>div{background:var(--iv-paper)!important;color:var(--iv-ink)!important;border-color:color-mix(in srgb,var(--iv-ink) 35%,transparent)!important}
+.invite-mobile .invite-chapter .countdown-section .countdown-grid>div :is(strong,span){color:var(--iv-ink)!important;opacity:1!important;text-shadow:none!important}
