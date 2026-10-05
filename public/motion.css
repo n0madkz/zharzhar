@@ -1192,8 +1192,9 @@
 .invite-mobile .countdown-grid>div{background:var(--iv-paper);color:var(--iv-ink)}
 
 .invite-mobile.invite-template-classic-anniversary .invite-cover-copy .jubilee-number,.invite-mobile.invite-template-mereyli-shenber .invite-cover-copy .jubilee-number{font-style:normal!important}
-@media(min-width:601px){.invitation-shell .music-orb:not(.jubilee-music){right:max(20px,calc(50% - 308px))}}
-@media(max-width:600px){.invitation-shell .music-orb:not(.jubilee-music){right:8px;bottom:max(12px,env(safe-area-inset-bottom));width:54px;height:54px}.invitation-shell .music-orb:not(.jubilee-music) .music-kazakh-ornament{width:54px;height:54px}.invitation-shell .music-orb:not(.jubilee-music) .music-control-icon{width:22px;height:22px}}
+/* Center the fixed player against the 430px invitation, with room for its ornament. */
+@media(min-width:601px){.invitation-shell .music-orb:not(.jubilee-music){right:max(28px,calc(50% - 187px))}}
+@media(max-width:600px){.invitation-shell .music-orb:not(.jubilee-music){right:max(16px,calc(50% - 187px));bottom:max(12px,env(safe-area-inset-bottom));width:54px;height:54px}.invitation-shell .music-orb:not(.jubilee-music) .music-kazakh-ornament{width:54px;height:54px}.invitation-shell .music-orb:not(.jubilee-music) .music-control-icon{width:22px;height:22px}}
 
 /* Keep the date below the names while the event caption stays quiet. */
 .invite-mobile[class*='invite-template-'] .invite-cover-copy p.invite-cover-date{order:7;display:block;align-self:center;margin:16px auto 0!important;padding:6px 12px;border-radius:4px;background:rgba(255,251,245,.88);color:var(--iv-ink,#263b38)!important;font:700 13px/1.35 'Noto Sans',Manrope,Arial,sans-serif!important;letter-spacing:.14em!important;text-align:center;text-shadow:none!important}
