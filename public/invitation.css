@@ -861,9 +861,10 @@ body.invitation-shell{margin:0;background:#e6e2dc;color:#28231f;font-family:Manr
 .invite-event-wedding .orbit-mark,.invite-event-wedding .joined-rings,.invite-event-wedding .venue-rings{width:78px;height:53px;margin-right:auto;margin-left:auto;color:var(--iv-accent);background:none!important}
 .invite-event-wedding .orbit-mark{margin-bottom:34px;border:0;border-radius:0}
 .invite-event-wedding .orbit-mark::before,.invite-event-wedding .orbit-mark::after{content:none!important}
-.invite-event-wedding .orbit-mark i{inset:auto!important}
+.invite-event-wedding .orbit-mark i,.invite-event-wedding .joined-rings i{top:5px!important;bottom:auto!important}
+.invite-event-wedding .orbit-mark i:first-child,.invite-event-wedding .joined-rings i:first-child{left:2px!important;right:auto!important}
+.invite-event-wedding .orbit-mark i:last-child,.invite-event-wedding .joined-rings i:last-child{left:auto!important;right:2px!important}
 .invite-event-wedding .joined-rings{margin-bottom:25px}
-.invite-event-wedding .joined-rings i{inset:auto!important}
 .invite-event-wedding .venue-rings{margin-bottom:25px}
 .invite-event-wedding .venue-rings::before,.invite-event-wedding .venue-rings::after{content:"";position:absolute;top:5px;width:43px;height:43px;border:3px solid currentColor;border-radius:50%;background:none;transform:none}
 .invite-event-wedding .venue-rings::before{left:2px}.invite-event-wedding .venue-rings::after{right:2px;left:auto}
