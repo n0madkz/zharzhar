@@ -126,7 +126,7 @@
 </div></fieldset>
 <button class="button primary full" type="submit">{{ $t['submit'] }} →</button><p class="hint">{{ $t['submit_hint'] }}</p>
 </div>
-<aside class="panel summary-panel"><p class="eyebrow">{{ $t['choice'] }}</p><div class="design-preview invite-card-{{ $template->config_json['theme'] ?? 'sage' }} event-card-{{ $template->event_type }}">@if($template->preview_image)<img src="{{ $template->preview_image }}" alt="">@endif<span class="card-shade"></span><span class="card-theme-mark" aria-hidden="true"><i></i><i></i><b></b></span><strong class="card-design-name"><span>{{ $templateTitleFirstLine }}</span>@if($templateTitleSecondLine)<span>{{ $templateTitleSecondLine }}</span>@endif</strong></div>
+<aside class="panel summary-panel"><p class="eyebrow">{{ $t['choice'] }}</p><div class="design-preview invite-card-{{ $template->config_json['theme'] ?? 'sage' }} event-card-{{ $template->event_type }}">@if($template->preview_image)<img src="{{ $template->preview_image }}{{ $template->slug === 'altyn-nomad' ? '?v=2' : '' }}" alt="">@endif<span class="card-shade"></span><span class="card-theme-mark" aria-hidden="true"><i></i><i></i><b></b></span><strong class="card-design-name"><span>{{ $templateTitleFirstLine }}</span>@if($templateTitleSecondLine)<span>{{ $templateTitleSecondLine }}</span>@endif</strong></div>
 <div class="summary-row"><span>{{ $template->name }}</span><strong>{{ number_format($template->price, 0, ',', ' ') }} ₸</strong></div>
 @if($designSignature)<p class="design-signature">{{ $designSignature }}</p>@endif
 @if($offer)<div class="checkout-offer"><strong>{{ $kk ? 'Бағаға не кіреді' : 'Что входит в цену' }}</strong><ul>@foreach($offer as $feature)<li>{{ $feature }}</li>@endforeach</ul></div>@endif

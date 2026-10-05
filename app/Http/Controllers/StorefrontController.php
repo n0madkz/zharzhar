@@ -79,10 +79,19 @@ class StorefrontController extends Controller
             'invitation_text' => 'Сіздерді қуанышымыздың қадірлі қонағы болуға шақырамыз.',
             'event_date' => now()->addMonths(2)->format('Y-m-d'),
             'event_time' => '18:00',
-            'venue_name' => 'Салтанат сарайы',
-            'venue_address' => 'Алматы қаласы, Абай даңғылы, 50',
+            'venue_name' => 'Altyn Sarai',
+            'venue_address' => 'Атырау қаласы, Құрманғазы көшесі, 40',
             'hosts_name' => 'Қуаныш иелері',
         ], $template->config_json['content_kk'] ?? []);
+
+        // Older catalog records still contain the former Almaty placeholder.
+        if ($content['venue_address'] === 'Алматы қаласы, Абай даңғылы, 50') {
+            $content['venue_name'] = 'Altyn Sarai';
+            $content['venue_address'] = 'Атырау қаласы, Құрманғазы көшесі, 40';
+            $content['two_gis_url'] = 'https://2gis.kz/atyrau/firm/70000001034884476';
+        } elseif ($content['venue_name'] === 'Altyn Sarai' && $content['venue_address'] === 'Атырау қаласы, Құрманғазы көшесі, 40') {
+            $content['two_gis_url'] ??= 'https://2gis.kz/atyrau/firm/70000001034884476';
+        }
 
         return view($this->invitationView($template), [
             'template' => $template,

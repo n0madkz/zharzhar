@@ -77,7 +77,7 @@
 @endphp
 <article class="design-card design-card-{{ $theme }} design-template-{{ $template->slug }}" data-event-type="{{ $template->event_type }}" @if($category && $template->event_type && $template->event_type !== $category) hidden @endif>
 <a href="{{ route('store.preview', $template) }}" class="design-preview invite-card-{{ $theme }} theme-{{ $theme }} event-card-{{ $template->event_type }}" aria-label="{{ $copy['view'] }}: {{ $template->name }}">
-@if($template->preview_image)<img src="{{ $template->preview_image }}" alt="" loading="lazy">@endif
+@if($template->preview_image)<img src="{{ $template->preview_image }}{{ $template->slug === 'altyn-nomad' ? '?v=2' : '' }}" alt="" loading="lazy">@endif
 @if(data_get($template->config_json, 'format') === 'video')<span class="video-template-badge">{{ $kk ? 'БЕЙНЕ' : 'ВИДЕО' }}</span>@endif
 <span class="card-shade" aria-hidden="true"></span>
 <span class="card-theme-mark" aria-hidden="true"><i></i><i></i><b></b></span>

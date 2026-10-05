@@ -19,6 +19,9 @@
     if ($supportsPhotos && $photoGallery) {
         $image = $photoGallery[0];
     }
+    if ($template->slug === 'altyn-nomad' && $image && str_contains($image, '/invitation-assets/nomad-horse.webp')) {
+        $image .= '?v=2';
+    }
     $storyCountdownImage = $isPhotoStory ? ($photoGallery[1] ?? $photoGallery[0] ?? $image) : null;
     $storyFinalImage = $isPhotoStory ? ($photoGallery[2] ?? $photoGallery[0] ?? $image) : null;
     $eventLabels = [

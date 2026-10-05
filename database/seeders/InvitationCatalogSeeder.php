@@ -14,8 +14,9 @@ class InvitationCatalogSeeder extends Seeder
             'event_time' => '18:00',
             'date_title' => 'Той салтанаты',
             'venue_title' => 'Мекенжайымыз',
-            'venue_name' => 'Салтанат сарайы',
-            'venue_address' => 'Алматы қаласы, Абай даңғылы, 50',
+            'venue_name' => 'Altyn Sarai',
+            'venue_address' => 'Атырау қаласы, Құрманғазы көшесі, 40',
+            'two_gis_url' => 'https://2gis.kz/atyrau/firm/70000001034884476',
             'countdown_title' => 'Салтанатқа дейін',
             'hosts_title' => 'Той иелері',
             'hosts_name' => 'Қуаныш иелері',
@@ -170,7 +171,11 @@ class InvitationCatalogSeeder extends Seeder
 
             $settings = $content['_settings'] ?? [];
             unset($content['_settings']);
-            $content = array_replace($base, $content);
+            $content = array_replace($base, $content, [
+                'venue_name' => $base['venue_name'],
+                'venue_address' => $base['venue_address'],
+                'two_gis_url' => $base['two_gis_url'],
+            ]);
             $sampleNames = $content['sample_names'] ?? match ($event) {
                 'qyz_uzatu' => 'Айдана',
                 'anniversary' => 'Айдын',
