@@ -1,7 +1,8 @@
 (() => {
     'use strict';
 
-    const {venues, csrf} = window.brokerData;
+    const {venues, city, csrf} = window.brokerData;
+    const {distance, planRoute, validPoint} = window.BrokerRoute;
     const $ = id => document.getElementById(id);
     const text = (tag, value, cls) => {
         const element = document.createElement(tag);
@@ -10,22 +11,20 @@
         return element;
     };
     const digits = value => String(value || '').replace(/\D/g, '');
-    const validPoint = venue => Number.isFinite(venue.lat) && Number.isFinite(venue.lng);
     const filterGroups = Object.fromEntries([...document.querySelectorAll('[data-filters]')].map(group => [group.dataset.filters, group]));
     let origin = null;
     let map;
     let markers;
     let startMarker;
+    let routeLine;
     let venuePage = 1;
     let dealPage = 1;
-
-    const distance = (a, b) => {
-        const radians = number => number * Math.PI / 180;
-        const value = Math.sin(radians(b.lat - a.lat) / 2) ** 2
-            + Math.cos(radians(a.lat)) * Math.cos(radians(b.lat))
-            * Math.sin(radians(b.lng - a.lng) / 2) ** 2;
-        return 6371 * 2 * Math.asin(Math.sqrt(Math.min(1, value)));
-    };
+    const routeStorageKey = `broker-route-excluded:${city}`;
+    let excludedRouteIds = new Set();
+    try {
+        const saved = JSON.parse(localStorage.getItem(routeStorageKey));
+        if (Array.isArray(saved)) excludedRouteIds = new Set(saved.filter(Number.isInteger));
+    } catch {}
 
     function field(scope, name) {
         return filterGroups[scope].querySelector(`[data-field="${name}"]`);
@@ -44,13 +43,16 @@
         const query = field(scope, 'search').value.trim().toLocaleLowerCase();
         const phone = digits(query);
         const district = field(scope, 'district')?.value || '';
+        const registration = field(scope, 'registration')?.value || '';
         const status = field(scope, 'status')?.value || '';
         const sort = field(scope, 'sort')?.value || 'nearest';
         const items = source.filter(venue => {
             const matchesQuery = !query
                 || [venue.name, venue.address, venue.phone].some(value => String(value || '').toLocaleLowerCase().includes(query))
                 || (phone.length > 0 && digits(venue.phone).includes(phone));
-            return matchesQuery && (!district || venue.district === district) && (!status || venue.dealStatus === status);
+            return matchesQuery && (!district || venue.district === district)
+                && (!registration || Boolean(venue.partner) === (registration === 'yes'))
+                && (!status || venue.dealStatus === status);
         });
         items.sort((first, second) => {
             const firstDistance = origin && validPoint(first) ? distance(origin, first) : Infinity;
@@ -251,45 +253,76 @@
         visible.forEach(venue => $('deal-list').append(venueCard(venue, true)));
     }
 
+    function saveRouteExclusions() {
+        try { localStorage.setItem(routeStorageKey, JSON.stringify([...excludedRouteIds])); } catch {}
+    }
+
+    function directionsUrl(from, to, waypoints = []) {
+        const point = value => `${value.lat},${value.lng}`;
+        const params = new URLSearchParams({api: '1', origin: point(from), destination: point(to), travelmode: 'driving'});
+        if (waypoints.length) params.set('waypoints', waypoints.map(point).join('|'));
+        return `https://www.google.com/maps/dir/?${params}`;
+    }
+
     function updateRoute(items) {
         $('route').hidden = true;
+        $('route-stops').replaceChildren();
+        $('route-reset').hidden = excludedRouteIds.size === 0;
+        if (routeLine && map) {
+            map.removeLayer(routeLine);
+            routeLine = null;
+        }
         if (!origin) {
             $('route-note').textContent = 'Определите местоположение или выберите точку на карте.';
-            return;
+            return [];
         }
-        const district = field('map', 'district').value;
-        if (!district) {
-            $('route-note').textContent = 'Выберите район для маршрута объезда.';
-            return;
-        }
-        const remaining = items.filter(venue => validPoint(venue) && venue.dealStatus === 'open' && !venue.partner);
-        const stops = [];
-        let current = origin;
-        while (remaining.length && stops.length < 4) {
-            remaining.sort((first, second) => distance(current, first) - distance(current, second));
-            current = remaining.shift();
-            stops.push(current);
-        }
+        const stops = planRoute(origin, items, excludedRouteIds);
         if (!stops.length) {
-            $('route-note').textContent = 'В этом районе нет незавершённых залов с координатами.';
-            return;
+            $('route-note').textContent = 'По выбранным фильтрам нет незарегистрированных ресторанов с открытой сделкой и координатами.';
+            return [];
         }
-        const point = value => `${value.lat},${value.lng}`;
-        const params = new URLSearchParams({api: '1', origin: point(origin), destination: point(stops.at(-1)), travelmode: 'driving'});
-        if (stops.length > 1) params.set('waypoints', stops.slice(0, -1).map(point).join('|'));
-        $('route').href = `https://www.google.com/maps/dir/?${params}`;
+        stops.forEach(({venue, distanceKm}, index) => {
+            const item = text('li', '', 'broker-route-stop');
+            const number = text('span', String(index + 1), 'broker-route-number');
+            const details = text('div', '', 'broker-route-details');
+            details.append(text('strong', venue.name), text('small', `${venue.address || venue.district} · ${distanceKm.toFixed(1)} км по прямой`));
+            const navigate = text('a', 'Ехать ↗', 'broker-route-navigate');
+            navigate.href = directionsUrl(index ? stops[index - 1].venue : origin, venue);
+            navigate.target = '_blank';
+            navigate.rel = 'noopener noreferrer';
+            navigate.setAttribute('aria-label', `Построить маршрут к ресторану ${venue.name}`);
+            const remove = text('button', 'Убрать', 'broker-route-remove');
+            remove.type = 'button';
+            remove.setAttribute('aria-label', `Убрать ${venue.name} из маршрута`);
+            remove.onclick = () => {
+                excludedRouteIds.add(venue.id);
+                saveRouteExclusions();
+                renderMap();
+            };
+            item.append(number, details, navigate, remove);
+            $('route-stops').append(item);
+        });
+        const points = stops.map(stop => stop.venue);
+        $('route').href = directionsUrl(origin, points.at(-1), points.slice(0, -1));
         $('route').hidden = false;
-        $('route-note').textContent = `Маршрут: ${stops.map(venue => venue.name).join(' → ')}`;
+        $('route-note').textContent = `${stops.length} из 5 остановок · порядок по прямой от каждой точки. На телефоне открывайте остановки по одной кнопкой «Ехать».`;
+        if (map) routeLine = L.polyline([[origin.lat, origin.lng], ...points.map(venue => [venue.lat, venue.lng])], {
+            color: '#2563eb', weight: 3, opacity: .8, dashArray: '8 6', interactive: false,
+        }).addTo(map);
+        return stops;
     }
 
     function renderMap() {
         const items = filters('map');
         $('map-count').textContent = `На карте: ${items.length}`;
+        const routeStops = updateRoute(items);
+        const routePositions = new Map(routeStops.map(({venue}, index) => [venue.id, index + 1]));
         if (markers) {
             markers.clearLayers();
-            items.filter(validPoint).forEach((venue, index) => {
+            items.filter(validPoint).forEach(venue => {
                 const popup = text('div', '');
                 popup.append(text('strong', venue.name), document.createElement('br'), text('span', venue.address || 'Адрес не указан'));
+                popup.append(document.createElement('br'), text('small', venue.partner ? 'Зарегистрирован' : 'Не зарегистрирован'));
                 if (!venue.partner) {
                     const open = text('button', 'Открыть карточку');
                     open.type = 'button';
@@ -303,11 +336,10 @@
                     popup.append(document.createElement('br'), open);
                 }
                 L.marker([venue.lat, venue.lng], {
-                    icon: L.divIcon({className: `broker-pin${venue.partner ? ' connected' : ''}`, html: venue.partner ? '✓' : String(index + 1), iconSize: [28, 28]}),
+                    icon: L.divIcon({className: `broker-pin${venue.partner ? ' connected' : ''}${routePositions.has(venue.id) ? ' route-stop' : ''}`, html: routePositions.get(venue.id) || (venue.partner ? '✓' : '·'), iconSize: [28, 28]}),
                 }).addTo(markers).bindPopup(popup);
             });
         }
-        updateRoute(items);
     }
 
     function renderAll() {
@@ -342,6 +374,11 @@
         button.textContent = 'Загрузка из 2GIS…';
     }));
     $('locate').onclick = () => locate(true);
+    $('route-reset').onclick = () => {
+        excludedRouteIds.clear();
+        saveRouteExclusions();
+        renderMap();
+    };
     $('group-district').onchange = () => {
         venuePage = 1;
         renderVenues();

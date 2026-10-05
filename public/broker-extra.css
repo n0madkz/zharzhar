@@ -19,6 +19,129 @@
     grid-template-columns: 1.4fr 1fr 1fr;
 }
 
+.broker-tools-map {
+    grid-template-columns: minmax(190px, 1.5fr) repeat(4, minmax(125px, 1fr));
+}
+
+.broker-route-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.broker-route-head h2 {
+    margin: 0 0 4px;
+    font-size: 17px;
+}
+
+.broker-route-head small {
+    display: block;
+    line-height: 1.5;
+}
+
+.broker-route-stops {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 9px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.broker-route-stops:empty {
+    display: none;
+}
+
+.broker-route-stop {
+    display: grid;
+    grid-template-columns: 32px minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: 10px;
+    min-height: 62px;
+    padding: 9px 10px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: #f8fafc;
+}
+
+.broker-route-number {
+    display: grid;
+    width: 32px;
+    height: 32px;
+    place-items: center;
+    border-radius: 50%;
+    background: #1d4ed8;
+    color: #fff;
+    font-weight: 800;
+}
+
+.broker-route-details {
+    display: grid;
+    min-width: 0;
+    gap: 2px;
+}
+
+.broker-route-details strong,
+.broker-route-details small {
+    overflow-wrap: anywhere;
+}
+
+.broker-route-remove,
+.broker-route-navigate {
+    display: grid;
+    place-items: center;
+    min-width: 60px;
+    min-height: 44px;
+    border: 0;
+    border-radius: 9px;
+    background: #e8eef8;
+    color: #1e3a5f;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.broker-route-navigate {
+    padding: 0 10px;
+    background: #dbeafe;
+    color: #1e3a8a;
+}
+
+.broker-route-remove:hover,
+.broker-route-remove:focus-visible,
+.broker-route-navigate:hover,
+.broker-route-navigate:focus-visible {
+    background: #dbeafe;
+    outline: 2px solid #2563eb;
+}
+
+.broker-pin.route-stop {
+    background: #1d4ed8;
+    color: #fff;
+}
+
+@media (max-width: 1100px) {
+    .broker-tools-map { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@media (max-width: 700px) {
+    .broker-tools-map { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .broker-route-stops { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 480px) {
+    .broker-tools-map { grid-template-columns: 1fr; }
+    .broker-route-head { flex-direction: column; }
+    #route-reset { width: 100%; }
+    .broker-route-stop { grid-template-columns: 32px minmax(0, 1fr) auto; }
+    .broker-route-details { grid-column: 2 / -1; }
+    .broker-route-navigate { grid-column: 2; }
+    .broker-route-remove { grid-column: 3; }
+}
+
 .broker-map {
     position: static;
 }

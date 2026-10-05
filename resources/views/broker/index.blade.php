@@ -12,14 +12,15 @@
 <main class="broker-app">
     <section class="broker-screen is-active" data-screen="map">
         <div class="broker-heading"><div><p class="eyebrow">КАРТА</p><h1>Залы рядом</h1></div></div>
-        <div class="card broker-tools" data-filters="map">
+        <div class="card broker-tools broker-tools-map" data-filters="map">
             <label>Поиск<input data-field="search" type="search" placeholder="Название, адрес или телефон"></label>
             <label>Район<select data-field="district"><option value="">Все районы</option></select></label>
+            <label>Регистрация<select data-field="registration"><option value="">Все рестораны</option><option value="no">Не зарегистрированы</option><option value="yes">Зарегистрированы</option></select></label>
             <label>Сделка<select data-field="status"><option value="">Все сделки</option><option value="open">В работе</option><option value="closed">Закрытые</option><option value="failed">Не состоялись</option></select></label>
             <label>Порядок<select data-field="sort"><option value="nearest">Сначала ближайшие</option><option value="farthest">Сначала дальние</option><option value="name">По названию</option></select></label>
         </div>
         <p data-location-note>Разрешите геолокацию или выберите начальную точку на карте.</p>
-        <aside class="broker-map"><div id="map" aria-label="Карта банкетных залов"></div><p id="map-error" role="status" hidden>Карта не загрузилась. Список залов и ссылки на 2GIS доступны.</p><div class="broker-map-footer"><strong id="map-count"></strong><a id="route" class="button" target="_blank" rel="noopener noreferrer" hidden>Открыть маршрут</a><small id="route-note">Выберите район для маршрута объезда.</small></div></aside>
+        <aside class="broker-map"><div id="map" aria-label="Карта банкетных залов"></div><p id="map-error" role="status" hidden>Карта не загрузилась. Список залов и ссылки на 2GIS доступны.</p><div class="broker-map-footer"><strong id="map-count"></strong><div class="broker-route-head"><div><h2>Маршрут по 5 ресторанам</h2><small id="route-note" role="status">Определите местоположение или выберите начальную точку на карте.</small></div><button id="route-reset" class="button secondary" type="button" hidden>Вернуть исключённые</button></div><ol id="route-stops" class="broker-route-stops" aria-label="Остановки маршрута"></ol><a id="route" class="button" target="_blank" rel="noopener noreferrer" hidden>Открыть маршрут в Google Картах</a></div></aside>
     </section>
 
     <section class="broker-screen" data-screen="venues" hidden>
@@ -76,5 +77,6 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.js"></script>
 <script src="https://unpkg.com/@maplibre/maplibre-gl-leaflet/leaflet-maplibre-gl.js"></script>
-<script src="{{ asset('broker.js') }}" defer></script>
+<script src="{{ asset('broker-route.js') }}?v={{ filemtime(public_path('broker-route.js')) }}"></script>
+<script src="{{ asset('broker.js') }}?v={{ filemtime(public_path('broker.js')) }}" defer></script>
 @endsection
