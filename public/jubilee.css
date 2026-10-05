@@ -88,4 +88,7 @@ body.invitation-shell:has(.jubilee-page){background:#e9e5df;color:#3b292d}
 @media(max-width:360px){.jubilee-topline span:last-child{display:none}.jubilee-date-ticket strong{font-size:25px}.jubilee-date-ticket>div:nth-child(2) strong{font-size:18px}.jubilee-form{padding:21px 16px}}
 @media(prefers-reduced-motion:reduce){.jubilee-music,.jubilee-page *{scroll-behavior:auto;animation:none}}
 
-.jubilee-event-label{display:inline-flex;min-height:42px;align-items:center;justify-content:center;margin:0 auto 18px;padding:9px 18px;border-radius:999px;background:#fff8ed;color:#5a2b38;font:700 14px/1.35 'Noto Sans',Arial,sans-serif;letter-spacing:.13em;text-align:center;box-shadow:0 8px 22px rgba(46,17,27,.2)}
+.jubilee-event-label{display:block;margin:0 auto 17px;color:#f1d8c1;font:600 11px/1.4 'Noto Sans',Arial,sans-serif;letter-spacing:.17em;text-align:center}
+
+.jubilee-cover-main .jubilee-age{margin:13px 0 8px;color:#fffaf2;font:500 clamp(43px,11vw,61px)/1.1 'Noto Serif Display',Georgia,serif}
+.jubilee-cover-main .jubilee-age strong,.jubilee-cover-main .jubilee-age span{font:inherit}

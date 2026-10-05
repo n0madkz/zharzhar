@@ -151,7 +151,6 @@
         <div class="invite-cover-copy" data-reveal>
             @if($isPhotoStory)<span class="story-chapter-label">{{ $copy['story_chapter'] }}</span>@endif
             <p class="invite-overline">{{ $copy['event_label'] }}</p>
-            <p class="invite-cover-date">{{ $eventDate->translatedFormat('d · m · Y') }}</p>
             @if($template->event_type === 'wedding')<span class="invite-wedding-rings" aria-hidden="true"><i></i><i></i></span>@endif
             <h1 class="invite-name{{ $preview ? ' invite-name-preview' : '' }}">@foreach($displayNameLines as $nameLine)<span>{{ $nameLine }}</span>@endforeach</h1>
             @if($eventType === 'anniversary' && $jubileeAge)<span class="jubilee-number">{{ $jubileeAge }} <small>жас</small></span>@else<span class="invite-monogram" aria-hidden="true">{{ $monogram }}</span>@endif

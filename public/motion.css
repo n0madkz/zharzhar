@@ -1169,6 +1169,21 @@
 .invite-mobile .invite-kazakh-mark{top:22px!important;right:22px!important;bottom:auto!important;left:auto!important}
 .invite-mobile.invite-event-wedding .invite-name-preview{font-size:clamp(31px,8vw,42px)!important;line-height:1.15}
 
-/* Event names remain readable over every cover photo. */
-.invite-mobile[class*='invite-template-'] .invite-cover-copy p.invite-overline{display:inline-flex;max-width:100%;min-height:42px;align-items:center;justify-content:center;margin:0 auto 12px!important;padding:9px 18px;border:1px solid color-mix(in srgb,var(--iv-accent) 55%,white);border-radius:999px;background:rgba(255,251,245,.97);box-shadow:0 5px 20px rgba(30,32,30,.13);color:var(--iv-ink,#263b38)!important;font:750 14px/1.35 'Noto Sans',Manrope,Arial,sans-serif!important;letter-spacing:.1em!important;text-align:center;text-shadow:none!important;text-transform:uppercase;text-wrap:balance}
-.invite-mobile.invite-template-mahabbat-hikayasy .invite-cover-copy p.invite-overline{background:#fffaf1;color:#173a39!important}
+/* Calm event caption; the date appears in the dedicated date chapter. */
+.invite-mobile[class*='invite-template-'] .invite-cover-copy p.invite-overline{display:inline-block;max-width:100%;min-height:0;align-self:center;margin:0 auto 13px!important;padding:5px 10px;border:0;border-radius:4px;background:rgba(255,251,245,.84);box-shadow:none;color:var(--iv-ink,#263b38)!important;font:600 11px/1.4 'Noto Sans',Manrope,Arial,sans-serif!important;letter-spacing:.12em!important;text-align:center;text-shadow:none!important;text-transform:uppercase;text-wrap:balance}
+.invite-mobile.invite-template-mahabbat-hikayasy .invite-cover-copy p.invite-overline{background:rgba(255,250,241,.9);color:#173a39!important}
+/* Sample couple names fit on one line without touching the photo edge. */
+.invite-mobile.invite-event-wedding .invite-name-preview{font-size:clamp(25px,6.8vw,34px)!important;line-height:1.16!important;letter-spacing:-.035em!important}
+.invite-mobile.invite-event-wedding .invite-name-preview span{white-space:nowrap;overflow-wrap:normal}
+/* Jubilee age follows the host name with the same display typography. */
+.invite-mobile.invite-event-anniversary .invite-cover-copy .jubilee-number{display:block;margin:12px auto 0!important;color:var(--iv-ink,#263b38)!important;font:italic 500 clamp(40px,11vw,56px)/1.08 'Cormorant Garamond',Georgia,serif!important;opacity:1!important;text-align:center}
+.invite-mobile.invite-event-anniversary .invite-cover-copy .jubilee-number small{font:inherit}
+/* Keep long farewell text inside its panel, including on narrow phones. */
+.invite-mobile .invite-finale .finale-circle{width:min(310px,100%);height:auto;min-height:250px;padding:27px 24px}
+.invite-mobile .invite-finale .finale-circle p{max-width:100%;margin:0;font-size:clamp(21px,6vw,28px);line-height:1.18;overflow-wrap:anywhere;text-wrap:balance}
+/* Numbers stay legible on the light countdown tiles of every theme. */
+.invite-mobile .countdown-grid>div{background:var(--iv-paper);color:var(--iv-ink)}
+
+.invite-mobile.invite-template-classic-anniversary .invite-cover-copy .jubilee-number,.invite-mobile.invite-template-mereyli-shenber .invite-cover-copy .jubilee-number{font-style:normal!important}
+@media(min-width:601px){.invitation-shell .music-orb:not(.jubilee-music){right:max(20px,calc(50% - 308px))}}
+@media(max-width:600px){.invitation-shell .music-orb:not(.jubilee-music){right:8px;bottom:max(12px,env(safe-area-inset-bottom));width:54px;height:54px}.invitation-shell .music-orb:not(.jubilee-music) .music-kazakh-ornament{width:54px;height:54px}.invitation-shell .music-orb:not(.jubilee-music) .music-control-icon{width:22px;height:22px}}

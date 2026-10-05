@@ -32,7 +32,6 @@
         <p class="besik-hero-kicker">Ақ бесікке ақ тілек</p>
         <h1><span>{{ $details['names'] }}</span><small>бесік тойы</small></h1>
         <img class="besik-hero-art" src="{{ asset('invitation-assets/besik-toi.svg') }}" alt="Қазақ бесігінің иллюстрациясы" fetchpriority="high">
-        <p class="besik-hero-date">{{ $eventDate->format('d.m.Y') }} <span aria-hidden="true">·</span> {{ $details['event_time'] }}</p>
         <a class="besik-hero-jump" href="#besik-invitation">Шақыруды ашу <span aria-hidden="true">↓</span></a>
     </header>
 
