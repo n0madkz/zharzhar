@@ -1075,9 +1075,9 @@
 .invite-template-royal-kesh .invite-chapter--royal .venue-location{background:#fffaf3;color:#512b38;border-color:#d5b68d}
 
 /* Butterflies belong only to the higher-priced wedding templates. */
-.invite-butterfly{position:absolute;z-index:3;width:52px;height:44px;perspective:140px;pointer-events:none;filter:drop-shadow(0 4px 5px rgba(55,36,28,.22));animation:butterfly-drift 8s ease-in-out infinite}
+.invite-butterfly{position:absolute;z-index:3;width:52px;height:44px;perspective:140px;opacity:.48;pointer-events:none;filter:drop-shadow(0 2px 3px rgba(55,36,28,.12));animation:butterfly-drift 8s ease-in-out infinite}
 .invite-butterfly--one{top:15%;left:7%}
-.invite-butterfly--two{top:34%;right:8%;width:40px;height:34px;animation-delay:-3.4s;animation-duration:9.5s}
+.invite-butterfly--two{top:34%;right:8%;width:40px;height:34px;opacity:.4;animation-delay:-3.4s;animation-duration:9.5s}
 .invite-butterfly-wing{position:absolute;top:0;width:50%;height:100%;background-image:url('/invitation-assets/butterfly.svg');background-repeat:no-repeat;background-size:200% 100%;backface-visibility:visible;will-change:transform}
 .invite-butterfly-wing--left{left:0;background-position:left center;transform-origin:right center;animation:butterfly-left-wing 1.05s ease-in-out infinite alternate}
 .invite-butterfly-wing--right{right:0;background-position:right center;transform-origin:left center;animation:butterfly-right-wing 1.05s ease-in-out infinite alternate}
