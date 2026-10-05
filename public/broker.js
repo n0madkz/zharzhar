@@ -1,7 +1,7 @@
 (() => {
     'use strict';
 
-    const {venues, city, csrf} = window.brokerData;
+    const {venues, city, csrf, routingConfigured} = window.brokerData;
     const {distance, planRoute, validPoint} = window.BrokerRoute;
     const $ = id => document.getElementById(id);
     const text = (tag, value, cls) => {
@@ -17,6 +17,9 @@
     let markers;
     let startMarker;
     let routeLine;
+    let routeRequest;
+    let routeTimer;
+    let routeGeneration = 0;
     let venuePage = 1;
     let dealPage = 1;
     const routeStorageKey = `broker-route-excluded:${city}`;
@@ -193,6 +196,7 @@
             register.type = 'button';
             register.onclick = () => openRegistration(venue);
             actions.append(register);
+            if (venue.dealStatus === 'open' && validPoint(venue)) actions.append(routeToggle(venue));
         }
         body.append(actions);
         if (!completed) {
@@ -257,6 +261,30 @@
         try { localStorage.setItem(routeStorageKey, JSON.stringify([...excludedRouteIds])); } catch {}
     }
 
+    function toggleRouteVenue(venue) {
+        if (excludedRouteIds.has(venue.id)) excludedRouteIds.delete(venue.id);
+        else excludedRouteIds.add(venue.id);
+        saveRouteExclusions();
+        document.querySelectorAll(`[data-route-toggle="${venue.id}"]`).forEach(button => {
+            button.textContent = excludedRouteIds.has(venue.id) ? 'Вернуть в маршрут' : 'Убрать из маршрута';
+        });
+        renderMap();
+    }
+
+    function refreshRouteButtons() {
+        document.querySelectorAll('[data-route-toggle]').forEach(button => {
+            button.textContent = excludedRouteIds.has(Number(button.dataset.routeToggle)) ? 'Вернуть в маршрут' : 'Убрать из маршрута';
+        });
+    }
+
+    function routeToggle(venue) {
+        const button = text('button', excludedRouteIds.has(venue.id) ? 'Вернуть в маршрут' : 'Убрать из маршрута', 'button secondary broker-route-toggle');
+        button.type = 'button';
+        button.dataset.routeToggle = venue.id;
+        button.onclick = () => toggleRouteVenue(venue);
+        return button;
+    }
+
     function directionsUrl(from, to, waypoints = []) {
         const point = value => `${value.lat},${value.lng}`;
         const params = new URLSearchParams({api: '1', origin: point(from), destination: point(to), travelmode: 'driving'});
@@ -264,8 +292,9 @@
         return `https://www.google.com/maps/dir/?${params}`;
     }
 
-    function updateRoute(items) {
+    function updateRoute(items, roadResult = null, routeError = '') {
         $('route').hidden = true;
+        $('route-attribution').hidden = !roadResult;
         $('route-stops').replaceChildren();
         $('route-reset').hidden = excludedRouteIds.size === 0;
         if (routeLine && map) {
@@ -276,7 +305,9 @@
             $('route-note').textContent = 'Определите местоположение или выберите точку на карте.';
             return [];
         }
-        const stops = planRoute(origin, items, excludedRouteIds);
+        const fallbackStops = planRoute(origin, items, excludedRouteIds);
+        const byId = new Map(items.map(venue => [venue.id, venue]));
+        const stops = roadResult ? roadResult.stops.map(stop => ({venue: byId.get(stop.id), distanceKm: stop.distanceKm})).filter(stop => stop.venue) : fallbackStops;
         if (!stops.length) {
             $('route-note').textContent = 'По выбранным фильтрам нет незарегистрированных ресторанов с открытой сделкой и координатами.';
             return [];
@@ -285,7 +316,7 @@
             const item = text('li', '', 'broker-route-stop');
             const number = text('span', String(index + 1), 'broker-route-number');
             const details = text('div', '', 'broker-route-details');
-            details.append(text('strong', venue.name), text('small', `${venue.address || venue.district} · ${distanceKm.toFixed(1)} км по прямой`));
+            details.append(text('strong', venue.name), text('small', `${venue.address || venue.district} · ${distanceKm.toFixed(1)} км ${roadResult ? 'по дорогам' : 'по прямой'}`));
             const navigate = text('a', 'Ехать ↗', 'broker-route-navigate');
             navigate.href = directionsUrl(index ? stops[index - 1].venue : origin, venue);
             navigate.target = '_blank';
@@ -294,28 +325,29 @@
             const remove = text('button', 'Убрать', 'broker-route-remove');
             remove.type = 'button';
             remove.setAttribute('aria-label', `Убрать ${venue.name} из маршрута`);
-            remove.onclick = () => {
-                excludedRouteIds.add(venue.id);
-                saveRouteExclusions();
-                renderMap();
-            };
+            remove.onclick = () => toggleRouteVenue(venue);
             item.append(number, details, navigate, remove);
             $('route-stops').append(item);
         });
         const points = stops.map(stop => stop.venue);
         $('route').href = directionsUrl(origin, points.at(-1), points.slice(0, -1));
         $('route').hidden = false;
-        $('route-note').textContent = `${stops.length} из 5 остановок · порядок по прямой от каждой точки. На телефоне открывайте остановки по одной кнопкой «Ехать».`;
-        if (map) routeLine = L.polyline([[origin.lat, origin.lng], ...points.map(venue => [venue.lat, venue.lng])], {
-            color: '#2563eb', weight: 3, opacity: .8, dashArray: '8 6', interactive: false,
+        $('route-note').textContent = roadResult
+            ? `${stops.length} из 5 остановок · порядок и линия построены по дорогам${roadResult.limited ? ' среди 49 ближайших ресторанов' : ''}. На телефоне открывайте остановки по одной кнопкой «Ехать».`
+            : routeError || (routingConfigured ? 'Рассчитываем маршрут по дорогам…' : 'Маршрут по дорогам пока недоступен. Откройте остановки по одной в Google Картах.');
+        if (map && roadResult) routeLine = L.polyline(roadResult.geometry.map(([lng, lat]) => [lat, lng]), {
+            color: '#2563eb', weight: 5, opacity: .9, interactive: false,
         }).addTo(map);
         return stops;
     }
 
-    function renderMap() {
+    function renderMap(roadResult = null, routeError = '') {
+        clearTimeout(routeTimer);
+        if (routeRequest) routeRequest.abort();
+        const generation = ++routeGeneration;
         const items = filters('map');
         $('map-count').textContent = `На карте: ${items.length}`;
-        const routeStops = updateRoute(items);
+        const routeStops = updateRoute(items, roadResult, routeError);
         const routePositions = new Map(routeStops.map(({venue}, index) => [venue.id, index + 1]));
         if (markers) {
             markers.clearLayers();
@@ -334,11 +366,36 @@
                         setTimeout(() => document.getElementById(`venue-${venue.id}`)?.scrollIntoView({block: 'center', behavior: 'smooth'}), 50);
                     };
                     popup.append(document.createElement('br'), open);
+                    if (venue.dealStatus === 'open') popup.append(document.createElement('br'), routeToggle(venue));
                 }
                 L.marker([venue.lat, venue.lng], {
                     icon: L.divIcon({className: `broker-pin${venue.partner ? ' connected' : ''}${routePositions.has(venue.id) ? ' route-stop' : ''}`, html: routePositions.get(venue.id) || (venue.partner ? '✓' : '·'), iconSize: [28, 28]}),
                 }).addTo(markers).bindPopup(popup);
             });
+        }
+        if (routingConfigured && origin && !roadResult && !routeError) {
+            const eligible = items.filter(venue => validPoint(venue) && !venue.partner
+                && venue.dealStatus === 'open' && !excludedRouteIds.has(venue.id));
+            const candidates = eligible.sort((a, b) => distance(origin, a) - distance(origin, b)).slice(0, 49);
+            if (candidates.length) routeTimer = setTimeout(async () => {
+                routeRequest = new AbortController();
+                try {
+                    const response = await fetch('/broker/route', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': csrf},
+                        body: JSON.stringify({city, origin, ids: candidates.map(venue => venue.id)}),
+                        signal: routeRequest.signal,
+                    });
+                    const result = await response.json();
+                    if (generation !== routeGeneration) return;
+                    if (!response.ok) throw new Error(result.message || 'Не удалось построить маршрут по дорогам.');
+                    result.limited = eligible.length > 49;
+                    renderMap(result);
+                } catch (error) {
+                    if (generation !== routeGeneration || error.name === 'AbortError') return;
+                    renderMap(null, error.message || 'Не удалось построить маршрут по дорогам.');
+                }
+            }, 250);
         }
     }
 
@@ -377,6 +434,7 @@
     $('route-reset').onclick = () => {
         excludedRouteIds.clear();
         saveRouteExclusions();
+        refreshRouteButtons();
         renderMap();
     };
     $('group-district').onchange = () => {

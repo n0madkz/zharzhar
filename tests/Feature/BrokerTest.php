@@ -9,6 +9,7 @@ use App\Support\BrokerDirectory;
 use App\Support\BrokerParser;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 use Mockery;
 use Tests\TestCase;
 
@@ -24,6 +25,26 @@ class BrokerTest extends TestCase
             'latitude' => 43.22, 'longitude' => 76.91, 'phone' => '77001234567',
             'two_gis_url' => 'https://2gis.kz/firm/700000010001',
         ], $attributes));
+    }
+
+    public function test_broker_road_route_uses_only_restaurants_in_assigned_city(): void
+    {
+        config()->set('services.openrouteservice.key', 'test-key');
+        $broker = User::factory()->create(['role' => 'broker', 'broker_city' => 'Алматы', 'broker_cities' => ['Алматы']]);
+        $nearby = $this->venue();
+        $otherCity = $this->venue(['source_id' => '700000010002', 'city' => 'Атырау']);
+        Http::fake([
+            '*/openrouteservice/v2/matrix/driving-car' => Http::response(['distances' => [[0, 1200], [1200, 0]]]),
+            '*/openrouteservice/v2/directions/driving-car/geojson' => Http::response(['features' => [[
+                'geometry' => ['coordinates' => [[76.9, 43.2], [76.91, 43.22]]],
+            ]]]),
+        ]);
+
+        $this->actingAs($broker)->postJson('https://broker.zharzhar.kz/broker/route', [
+            'city' => 'Алматы', 'origin' => ['lat' => 43.2, 'lng' => 76.9], 'ids' => [$otherCity->id, $nearby->id],
+        ])->assertOk()->assertJsonPath('stops.0.id', $nearby->id)
+            ->assertJsonPath('stops.0.distanceKm', 1.2);
+        Http::assertSentCount(2);
     }
 
     public function test_broker_requires_login_role_and_correct_domain(): void

@@ -23,6 +23,7 @@ Route::middleware(['auth', 'role:broker,admin'])->prefix('broker')->name('broker
     Route::post('/settings', [BrokerController::class, 'settings'])->name('settings');
     Route::post('/cities', [BrokerController::class, 'addCity'])->name('cities.store');
     Route::post('/collect', [BrokerController::class, 'collect'])->name('collect');
+    Route::post('/route', [BrokerController::class, 'route'])->middleware('throttle:20,1')->name('route');
     Route::post('/venues/{venue}/complete', [BrokerController::class, 'complete'])->name('complete');
     Route::post('/venues/{venue}/register', [BrokerController::class, 'register'])->middleware('throttle:10,1')->name('register');
 });

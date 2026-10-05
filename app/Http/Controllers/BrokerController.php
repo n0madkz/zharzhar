@@ -7,6 +7,7 @@ use App\Models\Restaurant;
 use App\Models\User;
 use App\Support\BrokerDirectory;
 use App\Support\BrokerParser;
+use App\Support\BrokerRoadRoute;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -15,6 +16,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
+use RuntimeException;
 
 class BrokerController extends Controller
 {
@@ -47,6 +49,35 @@ class BrokerController extends Controller
         $parserReady = true;
 
         return view('broker.index', compact('cities', 'availableCities', 'city', 'venues', 'parserReady'));
+    }
+
+    public function route(Request $request, BrokerRoadRoute $roadRoute, BrokerDirectory $directory): JsonResponse
+    {
+        $data = $request->validate([
+            'city' => ['required', Rule::in($this->assignedCities($request->user())->all())],
+            'origin.lat' => ['required', 'numeric', 'between:-90,90'],
+            'origin.lng' => ['required', 'numeric', 'between:-180,180'],
+            'ids' => ['required', 'array', 'min:1', 'max:49'],
+            'ids.*' => ['required', 'integer', 'distinct'],
+        ]);
+
+        $requested = $data['ids'];
+        $restaurants = Restaurant::with('partner')->get();
+        $venues = BrokerVenue::where('city', $data['city'])->whereIn('id', $requested)->get()
+            ->filter(fn ($venue) => $venue->latitude !== null && $venue->longitude !== null
+                && ($venue->deal_status ?: ($venue->completed_at ? 'closed' : 'open')) === 'open'
+                && ! $directory->match($venue, $restaurants)?->partner)
+            ->keyBy('id');
+        $ordered = collect($requested)->map(fn ($id) => $venues->get($id))->filter()->values()->all();
+        if ($ordered === []) {
+            return response()->json(['message' => 'Для маршрута нет доступных ресторанов.'], 422);
+        }
+
+        try {
+            return response()->json($roadRoute->build($data['origin'], $ordered));
+        } catch (RuntimeException $exception) {
+            return response()->json(['message' => $exception->getMessage()], 503);
+        }
     }
 
     public function settings(Request $request): RedirectResponse
