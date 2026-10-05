@@ -13,7 +13,7 @@ class InvitationCatalogSeeder extends Seeder
             'event_date' => '2026-11-08',
             'event_time' => '18:00',
             'date_title' => 'Той салтанаты',
-            'venue_title' => 'Мекенжайымыз',
+            'venue_title' => 'Мекен-жайымыз',
             'venue_name' => 'Altyn Sarai',
             'venue_address' => 'Атырау қаласы, Құрманғазы көшесі, 40',
             'two_gis_url' => 'https://2gis.kz/atyrau/firm/70000001034884476',

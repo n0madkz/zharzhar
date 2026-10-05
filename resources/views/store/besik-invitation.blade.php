@@ -59,7 +59,7 @@
     </section>
 
     <section class="besik-place" data-reveal>
-        <span class="besik-section-number">03 / МЕКЕНЖАЙ</span>
+        <span class="besik-section-number">03 / МЕКЕН-ЖАЙЫМЫЗ</span>
         <h2>Сізді күтеміз!</h2>
         <p class="besik-place-name">{{ $details['venue_name'] }}</p>
         <p class="besik-place-address">{{ $details['venue_address'] }}</p>

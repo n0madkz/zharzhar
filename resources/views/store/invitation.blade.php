@@ -34,8 +34,8 @@
     $copy = $kk ? [
         'intro' => 'ҚҰРМЕТТІ АҒАЙЫН-ТУЫС, БАУЫРЛАР, ҚҰДА-ЖЕКЖАТ, ДОС-ЖАРАНДАР!',
         'date_title' => 'Той салтанаты',
-        'venue' => 'Мекенжайымыз',
-        'address_label' => 'Мекенжай',
+        'venue' => 'Мекен-жайымыз',
+        'address_label' => 'Мекен-жай',
         'map' => '2GIS-те ашу',
         'countdown' => 'Салтанатқа дейін',
         'days' => 'күн', 'hours' => 'сағат', 'minutes' => 'минут', 'seconds' => 'секунд',
@@ -94,6 +94,9 @@
             'send' => $customCopy['send'] ?? null,
             'closing' => $customCopy['closing_text'] ?? ($customCopy['closing'] ?? null),
         ], fn ($value) => filled($value)));
+    }
+    if ($kk && $copy['venue'] === 'Мекенжайымыз') {
+        $copy['venue'] = 'Мекен-жайымыз';
     }
     if ($kk && preg_match('/ата.?анасы/ui', $copy['hosts'])) {
         $copy['hosts'] = 'Той иелері';
