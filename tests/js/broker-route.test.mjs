@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import '../../public/broker-route.js';
 
-const {planRoute} = globalThis.BrokerRoute;
+const {planRoute, visibleVenues} = globalThis.BrokerRoute;
 const venue = (id, lng, extra = {}) => ({id, name: `Ресторан ${id}`, lat: 0, lng, dealStatus: 'open', partner: null, ...extra});
 
 test('each next stop is chosen from the previous restaurant, up to five stops', () => {
@@ -24,4 +24,12 @@ test('removed, registered, closed and unlocated restaurants are skipped', () => 
 
     assert.deepEqual(planRoute({lat: 0, lng: 0}, places, new Set([1])).map(stop => stop.venue.id), [5]);
     assert.deepEqual(planRoute(null, places), []);
+});
+
+test('basket hides venues from the map and lists until they are restored', () => {
+    const places = [venue(1, .01), venue(2, .02)];
+    const hidden = new Set([1]);
+    assert.deepEqual(visibleVenues(places, hidden).map(item => item.id), [2]);
+    hidden.delete(1);
+    assert.deepEqual(visibleVenues(places, hidden).map(item => item.id), [1, 2]);
 });

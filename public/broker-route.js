@@ -12,6 +12,8 @@
         return 6371 * 2 * Math.asin(Math.sqrt(Math.min(1, value)));
     };
 
+    const visibleVenues = (venues, hiddenIds) => venues.filter(venue => !hiddenIds.has(venue.id));
+
     function planRoute(origin, venues, excludedIds = new Set(), limit = 5) {
         if (!validPoint(origin)) return [];
         const remaining = venues.filter(venue => validPoint(venue)
@@ -30,5 +32,5 @@
         return stops;
     }
 
-    globalThis.BrokerRoute = {distance, planRoute, validPoint};
+    globalThis.BrokerRoute = {distance, planRoute, validPoint, visibleVenues};
 })();

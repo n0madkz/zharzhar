@@ -2,7 +2,7 @@
     'use strict';
 
     const {venues, city, csrf} = window.brokerData;
-    const {distance, planRoute, validPoint} = window.BrokerRoute;
+    const {distance, planRoute, validPoint, visibleVenues} = window.BrokerRoute;
     const $ = id => document.getElementById(id);
     const text = (tag, value, cls) => {
         const element = document.createElement(tag);
@@ -15,11 +15,13 @@
     let origin = null;
     let map;
     let markers;
+    let openPopupVenueId = null;
     let startMarker;
     let routeLine;
     let routeRequest;
     let routeTimer;
-    let routeGeneration = 0;
+    const routeCache = new Map();
+    const routeFailures = new Map();
     let venuePage = 1;
     let dealPage = 1;
     const routeStorageKey = `broker-route-excluded:${city}`;
@@ -49,7 +51,7 @@
         const registration = field(scope, 'registration')?.value || '';
         const status = field(scope, 'status')?.value || '';
         const sort = field(scope, 'sort')?.value || 'nearest';
-        const items = source.filter(venue => {
+        const items = visibleVenues(source, excludedRouteIds).filter(venue => {
             const matchesQuery = !query
                 || [venue.name, venue.address, venue.phone].some(value => String(value || '').toLocaleLowerCase().includes(query))
                 || (phone.length > 0 && digits(venue.phone).includes(phone));
@@ -102,10 +104,10 @@
         }, () => {
             $('locate').disabled = false;
             if (interactive) setLocationNote('Не удалось определить местоположение. Разрешите геолокацию или выберите точку на карте.');
-        }, {enableHighAccuracy: true, timeout: 15000, maximumAge: 60000});
+        }, {enableHighAccuracy: false, timeout: 6000, maximumAge: 300000});
     }
 
-    function switchScreen(name) {
+    function switchScreen(name, resetScroll = true) {
         document.querySelectorAll('[data-screen]').forEach(screen => {
             const active = screen.dataset.screen === name;
             screen.hidden = !active;
@@ -114,7 +116,7 @@
         document.querySelectorAll('[data-tab]').forEach(button => button.classList.toggle('is-active', button.dataset.tab === name));
         history.replaceState(null, '', `#${name}`);
         if (name === 'map' && map) setTimeout(() => map.invalidateSize(), 0);
-        window.scrollTo({top: 0, behavior: 'smooth'});
+        if (resetScroll) window.scrollTo({top: 0, behavior: 'smooth'});
     }
 
     function updateHallFields() {
@@ -171,21 +173,27 @@
         card.className = 'broker-venue';
         card.id = `venue-${venue.id}`;
         const summary = document.createElement('summary');
-        const heading = text('div', '');
+        const heading = text('div', '', 'broker-venue-heading');
+        heading.append(text('span', venue.district, 'broker-venue-district'));
         heading.append(text('h3', venue.name, venue.partner ? 'broker-partner' : ''));
-        heading.append(text('small', `${venue.district} · ${venue.address || 'Адрес не указан'}`));
-        if (origin && validPoint(venue)) heading.append(text('strong', `${distance(origin, venue).toFixed(1)} км`, 'broker-distance'));
-        summary.append(heading, text('span', completed ? 'Подключён' : 'Открыть', 'broker-card-state'));
+        heading.append(text('small', venue.address || 'Адрес не указан', 'broker-venue-address'));
+        const meta = text('div', '', 'broker-venue-meta');
+        if (origin && validPoint(venue)) meta.append(text('span', `${distance(origin, venue).toFixed(1)} км от вас`, 'broker-distance'));
+        meta.append(text('span', venue.partner ? 'Зарегистрирован' : 'Не зарегистрирован', venue.partner ? 'broker-meta-connected' : ''));
+        heading.append(meta);
+        const summaryEnd = text('div', '', 'broker-venue-summary-end');
+        summaryEnd.append(text('span', completed ? 'Партнёр' : 'Подробнее', 'broker-card-state'), text('span', '⌄', 'broker-venue-chevron'));
+        summary.append(heading, summaryEnd);
         card.append(summary);
 
         const body = text('div', '', 'broker-venue-body');
         if (venue.partner) {
-            body.append(text('p', `Партнёр: ${venue.partner.name} · ${venue.partner.status === 'active' ? 'активен' : 'отключён'}`, 'broker-partner'));
-            body.append(text('p', [venue.partner.phone, venue.partner.email].filter(Boolean).join(' · ')));
+            body.append(text('p', `Партнёр: ${venue.partner.name} · ${venue.partner.status === 'active' ? 'активен' : 'отключён'}`, 'broker-venue-contact'));
+            body.append(text('p', [venue.partner.phone, venue.partner.email].filter(Boolean).join(' · '), 'broker-venue-contact'));
         } else if (venue.phone) {
-            body.append(text('p', venue.phone));
+            body.append(text('p', `Телефон: ${venue.phone}`, 'broker-venue-contact'));
         }
-        const actions = text('div', '', 'actions');
+        const actions = text('div', '', 'actions broker-venue-actions');
         const link = text('a', 'Открыть в 2GIS', 'button secondary');
         link.href = venue.url;
         link.target = '_blank';
@@ -196,8 +204,8 @@
             register.type = 'button';
             register.onclick = () => openRegistration(venue);
             actions.append(register);
-            if (venue.dealStatus === 'open' && validPoint(venue)) actions.append(routeToggle(venue));
         }
+        actions.append(routeToggle(venue));
         body.append(actions);
         if (!completed) {
             const statusLabel = text('label', 'Состояние сделки', 'broker-complete');
@@ -265,24 +273,34 @@
         if (excludedRouteIds.has(venue.id)) excludedRouteIds.delete(venue.id);
         else excludedRouteIds.add(venue.id);
         saveRouteExclusions();
-        document.querySelectorAll(`[data-route-toggle="${venue.id}"]`).forEach(button => {
-            button.textContent = excludedRouteIds.has(venue.id) ? 'Вернуть в маршрут' : 'Убрать из маршрута';
-        });
-        renderMap();
-    }
-
-    function refreshRouteButtons() {
-        document.querySelectorAll('[data-route-toggle]').forEach(button => {
-            button.textContent = excludedRouteIds.has(Number(button.dataset.routeToggle)) ? 'Вернуть в маршрут' : 'Убрать из маршрута';
-        });
+        renderAll();
     }
 
     function routeToggle(venue) {
-        const button = text('button', excludedRouteIds.has(venue.id) ? 'Вернуть в маршрут' : 'Убрать из маршрута', 'button secondary broker-route-toggle');
+        const button = text('button', 'В корзину', 'button secondary broker-route-toggle');
         button.type = 'button';
-        button.dataset.routeToggle = venue.id;
         button.onclick = () => toggleRouteVenue(venue);
         return button;
+    }
+
+    function renderTrash() {
+        const hidden = venues.filter(venue => excludedRouteIds.has(venue.id)).sort((a, b) => a.name.localeCompare(b.name));
+        $('trash-count').textContent = hidden.length;
+        $('trash-map-count').textContent = hidden.length;
+        $('trash-empty').hidden = hidden.length > 0;
+        $('trash-restore-all').hidden = hidden.length === 0;
+        $('route-reset').hidden = hidden.length === 0;
+        $('trash-list').replaceChildren();
+        hidden.forEach(venue => {
+            const item = text('li', '', 'broker-trash-item');
+            const details = text('div', '', 'broker-trash-details');
+            details.append(text('strong', venue.name), text('small', venue.address || venue.district));
+            const restore = text('button', 'Восстановить', 'button secondary');
+            restore.type = 'button';
+            restore.onclick = () => toggleRouteVenue(venue);
+            item.append(details, restore);
+            $('trash-list').append(item);
+        });
     }
 
     function directionsUrl(from, to, waypoints = []) {
@@ -295,6 +313,7 @@
     function updateRoute(items, roadResult = null, routeError = '') {
         $('route').hidden = true;
         $('route-attribution').hidden = !roadResult;
+        $('route-note').classList.remove('is-loading');
         $('route-stops').replaceChildren();
         $('route-reset').hidden = excludedRouteIds.size === 0;
         if (routeLine && map) {
@@ -322,9 +341,9 @@
             navigate.target = '_blank';
             navigate.rel = 'noopener noreferrer';
             navigate.setAttribute('aria-label', `Построить маршрут к ресторану ${venue.name}`);
-            const remove = text('button', 'Убрать', 'broker-route-remove');
+            const remove = text('button', 'В корзину', 'broker-route-remove');
             remove.type = 'button';
-            remove.setAttribute('aria-label', `Убрать ${venue.name} из маршрута`);
+            remove.setAttribute('aria-label', `Убрать ${venue.name} с карты в корзину`);
             remove.onclick = () => toggleRouteVenue(venue);
             item.append(number, details, navigate, remove);
             $('route-stops').append(item);
@@ -334,73 +353,114 @@
         $('route').hidden = false;
         $('route-note').textContent = roadResult
             ? `${stops.length} из 5 остановок · порядок и линия построены по дорогам${roadResult.limited ? ' среди 19 ближайших ресторанов' : ''}. На телефоне открывайте остановки по одной кнопкой «Ехать».`
-            : routeError || 'Рассчитываем маршрут по дорогам…';
+            : routeError ? `${routeError} Предварительный список сохранён; нажмите «Повторить».`
+                : 'Предварительный порядок показан сразу. Уточняем путь по дорогам…';
+        $('route-note').classList.toggle('is-loading', !roadResult && !routeError);
         if (map && roadResult) routeLine = L.polyline(roadResult.geometry.map(([lng, lat]) => [lat, lng]), {
             color: '#2563eb', weight: 5, opacity: .9, interactive: false,
+        }).addTo(map);
+        else if (map && !routeError) routeLine = L.polyline([origin, ...points].map(point => [point.lat, point.lng]), {
+            color: '#2563eb', weight: 3, opacity: .55, dashArray: '6 8', interactive: false,
         }).addTo(map);
         return stops;
     }
 
-    function renderMap(roadResult = null, routeError = '') {
-        clearTimeout(routeTimer);
-        if (routeRequest) routeRequest.abort();
-        const generation = ++routeGeneration;
+    let queuedRouteKey = null;
+
+    function renderMap() {
         const items = filters('map');
+        const eligible = origin ? items.filter(venue => validPoint(venue) && !venue.partner
+            && venue.dealStatus === 'open') : [];
+        const candidates = eligible.sort((a, b) => distance(origin, a) - distance(origin, b)).slice(0, 19);
+        const routeKey = origin && candidates.length
+            ? JSON.stringify([city, origin.lat.toFixed(5), origin.lng.toFixed(5), candidates.map(venue => venue.id)]) : null;
+        if (queuedRouteKey !== routeKey) {
+            clearTimeout(routeTimer);
+            queuedRouteKey = null;
+        }
+        if (routeRequest && routeRequest.key !== routeKey) {
+            routeRequest.controller.abort();
+            routeRequest = null;
+        }
+        const roadResult = routeKey ? routeCache.get(routeKey) : null;
+        const routeError = routeKey ? routeFailures.get(routeKey) || '' : '';
+        $('route-retry').hidden = !routeError;
         $('map-count').textContent = `На карте: ${items.length}`;
         const routeStops = updateRoute(items, roadResult, routeError);
         const routePositions = new Map(routeStops.map(({venue}, index) => [venue.id, index + 1]));
         if (markers) {
+            const previouslyOpen = openPopupVenueId;
+            openPopupVenueId = null;
             markers.clearLayers();
             items.filter(validPoint).forEach(venue => {
-                const popup = text('div', '');
-                popup.append(text('strong', venue.name), document.createElement('br'), text('span', venue.address || 'Адрес не указан'));
-                popup.append(document.createElement('br'), text('small', venue.partner ? 'Зарегистрирован' : 'Не зарегистрирован'));
-                const twoGis = text('a', 'Открыть в 2GIS ↗');
+                const popup = text('div', '', 'broker-map-popup');
+                popup.append(text('small', venue.partner ? 'Зарегистрирован' : 'Не зарегистрирован', 'broker-map-popup-status'));
+                popup.append(text('strong', venue.name), text('p', venue.address || 'Адрес не указан'));
+                const popupActions = text('div', '', 'broker-map-popup-actions');
+                const twoGis = text('a', '2GIS ↗');
                 twoGis.href = venue.url;
                 twoGis.target = '_blank';
                 twoGis.rel = 'noopener noreferrer';
-                popup.append(document.createElement('br'), twoGis);
+                popupActions.append(twoGis);
                 if (!venue.partner) {
-                    const open = text('button', 'Открыть карточку');
+                    const open = text('button', 'Карточка');
                     open.type = 'button';
                     open.onclick = () => {
                         field('venues', 'search').value = venue.name;
                         venuePage = 1;
                         renderVenues();
-                        switchScreen('venues');
-                        setTimeout(() => document.getElementById(`venue-${venue.id}`)?.scrollIntoView({block: 'center', behavior: 'smooth'}), 50);
+                        switchScreen('venues', false);
+                        setTimeout(() => {
+                            const card = document.getElementById(`venue-${venue.id}`);
+                            if (card) {
+                                card.open = true;
+                                card.scrollIntoView({block: 'center', behavior: 'smooth'});
+                            }
+                        }, 50);
                     };
-                    popup.append(document.createElement('br'), open);
-                    if (venue.dealStatus === 'open') popup.append(document.createElement('br'), routeToggle(venue));
+                    popupActions.append(open);
                 }
-                L.marker([venue.lat, venue.lng], {
+                popupActions.append(routeToggle(venue));
+                popup.append(popupActions);
+                const marker = L.marker([venue.lat, venue.lng], {
                     icon: L.divIcon({className: `broker-pin${venue.partner ? ' connected' : ''}${routePositions.has(venue.id) ? ' route-stop' : ''}`, html: routePositions.get(venue.id) || (venue.partner ? '✓' : '·'), iconSize: [28, 28]}),
                 }).addTo(markers).bindPopup(popup);
+                marker.on('popupopen', () => { openPopupVenueId = venue.id; });
+                marker.on('popupclose', () => {
+                    if (openPopupVenueId === venue.id) openPopupVenueId = null;
+                });
+                if (previouslyOpen === venue.id) marker.openPopup();
             });
         }
-        if (origin && !roadResult && !routeError) {
-            const eligible = items.filter(venue => validPoint(venue) && !venue.partner
-                && venue.dealStatus === 'open' && !excludedRouteIds.has(venue.id));
-            const candidates = eligible.sort((a, b) => distance(origin, a) - distance(origin, b)).slice(0, 19);
-            if (candidates.length) routeTimer = setTimeout(async () => {
-                routeRequest = new AbortController();
+        if (routeKey && !roadResult && !routeError && !routeRequest && queuedRouteKey !== routeKey) {
+            queuedRouteKey = routeKey;
+            routeTimer = setTimeout(async () => {
+                queuedRouteKey = null;
+                const controller = new AbortController();
+                routeRequest = {key: routeKey, controller};
                 try {
                     const response = await fetch('/broker/route', {
                         method: 'POST',
                         headers: {'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': csrf},
                         body: JSON.stringify({city, origin, ids: candidates.map(venue => venue.id)}),
-                        signal: routeRequest.signal,
+                        signal: controller.signal,
                     });
-                    const result = await response.json();
-                    if (generation !== routeGeneration) return;
-                    if (!response.ok) throw new Error(result.message || 'Не удалось построить маршрут по дорогам.');
+                    const result = await response.json().catch(() => ({}));
+                    if (!response.ok) throw new Error(result.message || (response.status === 429
+                        ? 'Слишком много запросов к маршруту.' : 'Не удалось построить маршрут по дорогам.'));
+                    if (!Array.isArray(result.stops) || !Array.isArray(result.geometry)) {
+                        throw new Error('Сервис вернул неполный маршрут. Повторите расчёт.');
+                    }
                     result.limited = eligible.length > 19;
-                    renderMap(result);
+                    routeCache.set(routeKey, result);
+                    if (routeCache.size > 30) routeCache.delete(routeCache.keys().next().value);
                 } catch (error) {
-                    if (generation !== routeGeneration || error.name === 'AbortError') return;
-                    renderMap(null, error.message || 'Не удалось построить маршрут по дорогам.');
+                    if (error.name !== 'AbortError') routeFailures.set(routeKey, error.message || 'Не удалось построить маршрут по дорогам.');
+                } finally {
+                    if (routeRequest?.controller === controller) routeRequest = null;
+                    renderMap();
                 }
-            }, 250);
+            }, 120);
         }
     }
 
@@ -408,6 +468,7 @@
         renderMap();
         renderVenues();
         renderDeals();
+        renderTrash();
     }
 
     if (window.L) {
@@ -439,7 +500,12 @@
     $('route-reset').onclick = () => {
         excludedRouteIds.clear();
         saveRouteExclusions();
-        refreshRouteButtons();
+        renderAll();
+    };
+    $('trash-restore-all').onclick = $('route-reset').onclick;
+    $('trash-map-link').onclick = () => switchScreen('trash');
+    $('route-retry').onclick = () => {
+        routeFailures.clear();
         renderMap();
     };
     $('group-district').onchange = () => {
@@ -475,7 +541,7 @@
         const saved = JSON.parse(localStorage.getItem('broker-origin'));
         if (saved && Number.isFinite(saved.lat) && Number.isFinite(saved.lng)) setOrigin(saved.lat, saved.lng);
     } catch {}
-    locate(false);
-    const initialScreen = ['map', 'venues', 'deals', 'settings'].includes(location.hash.slice(1)) ? location.hash.slice(1) : 'map';
+    if (!origin) locate(false);
+    const initialScreen = ['map', 'venues', 'deals', 'trash', 'settings'].includes(location.hash.slice(1)) ? location.hash.slice(1) : 'map';
     switchScreen(initialScreen);
 })();

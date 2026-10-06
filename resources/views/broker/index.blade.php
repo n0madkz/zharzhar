@@ -21,6 +21,8 @@
         </div>
         <p data-location-note>Разрешите геолокацию или выберите начальную точку на карте.</p>
         <aside class="broker-map"><div id="map" aria-label="Карта банкетных залов"></div><p id="map-error" role="status" hidden>Карта не загрузилась. Список залов и ссылки на 2GIS доступны.</p><div class="broker-map-footer"><strong id="map-count"></strong><div class="broker-route-head"><div><h2>Маршрут по 5 ресторанам</h2><small id="route-note" role="status">Определите местоположение или выберите начальную точку на карте.</small></div><button id="route-reset" class="button secondary" type="button" hidden>Вернуть исключённые</button></div><ol id="route-stops" class="broker-route-stops" aria-label="Остановки маршрута"></ol><a id="route" class="button" target="_blank" rel="noopener noreferrer" hidden>Открыть маршрут в Google Картах</a><small id="route-attribution" hidden>Маршруты: <a href="https://routing.openstreetmap.de/about.html" target="_blank" rel="noopener noreferrer">FOSSGIS / OSRM</a> · Карта: <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">© OpenStreetMap contributors</a> · <a href="https://www.openstreetmap.org/fixthemap" target="_blank" rel="noopener noreferrer">Исправить карту</a></small></div></aside>
+        <button id="route-retry" class="button secondary broker-route-retry" type="button" hidden>Повторить расчёт маршрута</button>
+        <button id="trash-map-link" class="broker-trash-shortcut" type="button">Корзина <span id="trash-map-count">0</span> →</button>
     </section>
 
     <section class="broker-screen" data-screen="venues" hidden>
@@ -49,6 +51,12 @@
         <nav class="broker-pages" aria-label="Страницы сделок"><button class="button secondary" id="deal-prev" type="button">Назад</button><span id="deal-page-label"></span><button class="button secondary" id="deal-next" type="button">Далее</button></nav>
     </section>
 
+    <section class="broker-screen" data-screen="trash" hidden>
+        <div class="broker-heading"><div><p class="eyebrow">СКРЫТЫЕ РЕСТОРАНЫ</p><h1>Корзина</h1><p>Убранные рестораны не показываются на карте и не входят в маршрут. Их можно восстановить в любой момент.</p></div><button id="trash-restore-all" class="button secondary" type="button" hidden>Восстановить все</button></div>
+        <p id="trash-empty" class="broker-trash-empty">Корзина пуста. Здесь появятся рестораны, которые вы уберёте с карты.</p>
+        <ul id="trash-list" class="broker-trash-list"></ul>
+    </section>
+
     <section class="broker-screen" data-screen="settings" hidden>
         <div class="broker-heading"><div><p class="eyebrow">ПРОФИЛЬ</p><h1>Настройки</h1></div></div>
         <section class="card broker-settings">
@@ -69,6 +77,7 @@
     <button class="is-active" type="button" data-tab="map"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18-6 3V6l6-3 6 3 6-3v15l-6 3-6-3Zm0 0V3m6 18V6"/></svg><span>Карта</span></button>
     <button type="button" data-tab="venues"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 21V5l8-3 8 3v16M8 8h1m6 0h1M8 12h1m6 0h1M8 16h1m6 0h1M2 21h20"/></svg><span>Рестораны</span></button>
     <button type="button" data-tab="deals"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l4 4L19 6M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2Z"/></svg><span>Сделки</span></button>
+    <button type="button" data-tab="trash"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3m3 0-1 13H7L6 7m4 4v5m4-5v5"/></svg><span>Корзина <span id="trash-count">0</span></span></button>
     <button type="button" data-tab="settings"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15.5A3.5 3.5 0 1 0 12 8a3.5 3.5 0 0 0 0 7.5ZM19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.83 2.83-.06-.06a1.7 1.7 0 0 0-1.88-.34 1.7 1.7 0 0 0-1.03 1.55V21h-4v-.08A1.7 1.7 0 0 0 8.95 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06-2.83-2.83.06-.06A1.7 1.7 0 0 0 4.6 15 1.7 1.7 0 0 0 3.08 14H3v-4h.08A1.7 1.7 0 0 0 4.6 8.95a1.7 1.7 0 0 0-.34-1.88l-.06-.06 2.83-2.83.06.06A1.7 1.7 0 0 0 8.97 4.6 1.7 1.7 0 0 0 10 3.08V3h4v.08a1.7 1.7 0 0 0 1.03 1.52 1.7 1.7 0 0 0 1.88-.34l.06-.06 2.83 2.83-.06.06a1.7 1.7 0 0 0-.34 1.88A1.7 1.7 0 0 0 20.92 10H21v4h-.08A1.7 1.7 0 0 0 19.4 15Z"/></svg><span>Настройки</span></button>
 </nav>
 
