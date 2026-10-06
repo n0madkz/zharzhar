@@ -35,8 +35,8 @@ return [
         ],
     ],
 
-    'openrouteservice' => [
-        'key' => env('OPENROUTESERVICE_API_KEY'),
+    'osrm' => [
+        'url' => env('OSRM_URL', 'https://routing.openstreetmap.de/routed-car'),
     ],
 
 ];

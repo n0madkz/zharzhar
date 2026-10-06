@@ -29,13 +29,13 @@ class BrokerTest extends TestCase
 
     public function test_broker_road_route_uses_only_restaurants_in_assigned_city(): void
     {
-        config()->set('services.openrouteservice.key', 'test-key');
+        config()->set('services.osrm.url', 'https://routing.example.test/routed-car');
         $broker = User::factory()->create(['role' => 'broker', 'broker_city' => 'Алматы', 'broker_cities' => ['Алматы']]);
         $nearby = $this->venue();
         $otherCity = $this->venue(['source_id' => '700000010002', 'city' => 'Атырау']);
         Http::fake([
-            '*/openrouteservice/v2/matrix/driving-car' => Http::response(['distances' => [[0, 1200], [1200, 0]]]),
-            '*/openrouteservice/v2/directions/driving-car/geojson' => Http::response(['features' => [[
+            '*/table/v1/driving/*' => Http::response(['code' => 'Ok', 'distances' => [[0, 1200], [1200, 0]]]),
+            '*/route/v1/driving/*' => Http::response(['code' => 'Ok', 'routes' => [[
                 'geometry' => ['coordinates' => [[76.9, 43.2], [76.91, 43.22]]],
             ]]]),
         ]);

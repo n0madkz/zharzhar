@@ -1,7 +1,7 @@
 (() => {
     'use strict';
 
-    const {venues, city, csrf, routingConfigured} = window.brokerData;
+    const {venues, city, csrf} = window.brokerData;
     const {distance, planRoute, validPoint} = window.BrokerRoute;
     const $ = id => document.getElementById(id);
     const text = (tag, value, cls) => {
@@ -333,8 +333,8 @@
         $('route').href = directionsUrl(origin, points.at(-1), points.slice(0, -1));
         $('route').hidden = false;
         $('route-note').textContent = roadResult
-            ? `${stops.length} из 5 остановок · порядок и линия построены по дорогам${roadResult.limited ? ' среди 49 ближайших ресторанов' : ''}. На телефоне открывайте остановки по одной кнопкой «Ехать».`
-            : routeError || (routingConfigured ? 'Рассчитываем маршрут по дорогам…' : 'Маршрут по дорогам пока недоступен. Откройте остановки по одной в Google Картах.');
+            ? `${stops.length} из 5 остановок · порядок и линия построены по дорогам${roadResult.limited ? ' среди 19 ближайших ресторанов' : ''}. На телефоне открывайте остановки по одной кнопкой «Ехать».`
+            : routeError || 'Рассчитываем маршрут по дорогам…';
         if (map && roadResult) routeLine = L.polyline(roadResult.geometry.map(([lng, lat]) => [lat, lng]), {
             color: '#2563eb', weight: 5, opacity: .9, interactive: false,
         }).addTo(map);
@@ -355,6 +355,11 @@
                 const popup = text('div', '');
                 popup.append(text('strong', venue.name), document.createElement('br'), text('span', venue.address || 'Адрес не указан'));
                 popup.append(document.createElement('br'), text('small', venue.partner ? 'Зарегистрирован' : 'Не зарегистрирован'));
+                const twoGis = text('a', 'Открыть в 2GIS ↗');
+                twoGis.href = venue.url;
+                twoGis.target = '_blank';
+                twoGis.rel = 'noopener noreferrer';
+                popup.append(document.createElement('br'), twoGis);
                 if (!venue.partner) {
                     const open = text('button', 'Открыть карточку');
                     open.type = 'button';
@@ -373,10 +378,10 @@
                 }).addTo(markers).bindPopup(popup);
             });
         }
-        if (routingConfigured && origin && !roadResult && !routeError) {
+        if (origin && !roadResult && !routeError) {
             const eligible = items.filter(venue => validPoint(venue) && !venue.partner
                 && venue.dealStatus === 'open' && !excludedRouteIds.has(venue.id));
-            const candidates = eligible.sort((a, b) => distance(origin, a) - distance(origin, b)).slice(0, 49);
+            const candidates = eligible.sort((a, b) => distance(origin, a) - distance(origin, b)).slice(0, 19);
             if (candidates.length) routeTimer = setTimeout(async () => {
                 routeRequest = new AbortController();
                 try {
@@ -389,7 +394,7 @@
                     const result = await response.json();
                     if (generation !== routeGeneration) return;
                     if (!response.ok) throw new Error(result.message || 'Не удалось построить маршрут по дорогам.');
-                    result.limited = eligible.length > 49;
+                    result.limited = eligible.length > 19;
                     renderMap(result);
                 } catch (error) {
                     if (generation !== routeGeneration || error.name === 'AbortError') return;

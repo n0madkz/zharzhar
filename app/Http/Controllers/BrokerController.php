@@ -57,7 +57,7 @@ class BrokerController extends Controller
             'city' => ['required', Rule::in($this->assignedCities($request->user())->all())],
             'origin.lat' => ['required', 'numeric', 'between:-90,90'],
             'origin.lng' => ['required', 'numeric', 'between:-180,180'],
-            'ids' => ['required', 'array', 'min:1', 'max:49'],
+            'ids' => ['required', 'array', 'min:1', 'max:19'],
             'ids.*' => ['required', 'integer', 'distinct'],
         ]);
 

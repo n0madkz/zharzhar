@@ -3,6 +3,7 @@
 namespace Tests\Unit;
 
 use App\Support\BrokerRoadRoute;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use RuntimeException;
 use Tests\TestCase;
@@ -11,15 +12,16 @@ class BrokerRoadRouteTest extends TestCase
 {
     public function test_orders_stops_by_driving_distance_and_returns_road_geometry(): void
     {
-        config()->set('services.openrouteservice.key', 'test-key');
+        config()->set('services.osrm.url', 'https://routing.example.test/routed-car');
+        Cache::flush();
         Http::fake([
-            '*/openrouteservice/v2/matrix/driving-car' => Http::response(['distances' => [
+            '*/table/v1/driving/*' => Http::response(['code' => 'Ok', 'distances' => [
                 [0, 900, 500, 1200],
                 [900, 0, 300, 600],
                 [500, 400, 0, 1000],
                 [1200, 600, 300, 0],
             ]]),
-            '*/openrouteservice/v2/directions/driving-car/geojson' => Http::response(['features' => [[
+            '*/route/v1/driving/*' => Http::response(['code' => 'Ok', 'routes' => [[
                 'geometry' => ['coordinates' => [[76.9, 43.2], [76.91, 43.21], [76.92, 43.22]]],
             ]]]),
         ]);
@@ -35,11 +37,13 @@ class BrokerRoadRouteTest extends TestCase
         $this->assertSame([0.5, 0.4, 0.6], array_column($route['stops'], 'distanceKm'));
         $this->assertCount(3, $route['geometry']);
         Http::assertSentCount(2);
+
+        (new BrokerRoadRoute)->build(['lat' => 43.2, 'lng' => 76.9], $venues);
+        Http::assertSentCount(2);
     }
 
-    public function test_requires_a_configured_routing_key(): void
+    public function test_requires_a_restaurant(): void
     {
-        config()->set('services.openrouteservice.key', null);
         $this->expectException(RuntimeException::class);
         (new BrokerRoadRoute)->build(['lat' => 43.2, 'lng' => 76.9], []);
     }
