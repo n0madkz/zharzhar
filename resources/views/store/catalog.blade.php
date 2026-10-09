@@ -97,7 +97,7 @@
 <a class="button outline full" href="{{ route('store.checkout', $template) }}">{{ $copy['select_design'] }} <span>→</span></a>
 </article>
 @empty
-<div class="empty-state"><h3>{{ $copy['empty'] }}</h3><p>{{ $copy['empty_text'] }}</p><a href="tel:{{ preg_replace('/[^+0-9]/', '', config('store.kaspi_phone')) }}">{{ $copy['contact'] }}</a></div>
+<div class="empty-state"><h3>{{ $copy['empty'] }}</h3><p>{{ $copy['empty_text'] }}</p><a href="https://wa.me/{{ preg_replace('/\D+/', '', config('store.contact_phone')) }}" target="_blank" rel="noopener noreferrer">{{ $copy['contact'] }}</a></div>
 @endforelse
 <div class="empty-state" data-catalog-empty hidden><h3>{{ $copy['empty'] }}</h3><p>{{ $copy['empty_text'] }}</p></div>
 </div>
@@ -112,7 +112,6 @@
 <nav class="mobile-store-nav" data-mobile-store-nav aria-label="{{ $kk ? 'Мобильді навигация' : 'Мобильная навигация' }}">
     <a href="#main" data-mobile-tab="home" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></svg><span>{{ $kk ? 'Басты бет' : 'Главная' }}</span></a>
     <a href="#designs" data-mobile-tab="designs"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/></svg><span>{{ $kk ? 'Дизайндар' : 'Дизайны' }}</span></a>
-    <button type="button" data-mobile-tab="categories" data-category-open aria-haspopup="dialog" aria-controls="mobile-categories"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="7" cy="6" r="1.5"/><circle cx="16" cy="12" r="1.5"/><circle cx="10" cy="18" r="1.5"/></svg><span>{{ $kk ? 'Санаттар' : 'Категории' }}</span></button>
     <a href="#faq" data-mobile-tab="faq"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 0 1 5 0c0 2-2.5 2-2.5 4M12 17h.01"/></svg><span>{{ $kk ? 'Сұрақтар' : 'Вопросы' }}</span></a>
 </nav>
 <dialog class="mobile-category-sheet" id="mobile-categories" data-category-sheet aria-labelledby="mobile-category-title">

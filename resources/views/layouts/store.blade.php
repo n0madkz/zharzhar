@@ -39,6 +39,7 @@
 <a class="wordmark" href="{{ route('store.catalog') }}">zharzhar<span>●</span><small>{{ $layoutCopy['tagline'] }}</small></a>
 <nav aria-label="{{ $kk ? 'Негізгі навигация' : 'Основная навигация' }}"><a href="{{ route('store.catalog') }}#designs">{{ $layoutCopy['designs'] }}</a><a href="{{ route('store.catalog') }}#how">{{ $layoutCopy['how'] }}</a><a href="{{ route('store.catalog') }}#faq">{{ $layoutCopy['faq'] }}</a></nav>
 <div class="header-tools">
+    @if(request()->routeIs('store.catalog'))<button class="header-categories" type="button" data-category-open aria-haspopup="dialog" aria-controls="mobile-categories">{{ $kk ? 'Санаттар' : 'Категории' }}</button>@endif
     <div class="language-control" aria-label="{{ $kk ? 'Сайт тілі' : 'Язык сайта' }}">
         <span class="language-icon" aria-hidden="true">文</span>
         <div class="language-switch" data-language-switch data-locale="{{ $uiLocale }}">
@@ -48,7 +49,7 @@
         </div>
         <span class="language-status" data-language-status role="status" aria-live="polite"></span>
     </div>
-    <a class="header-contact" href="tel:{{ preg_replace('/[^+0-9]/', '', config('store.kaspi_phone')) }}">{{ $layoutCopy['contact'] }} ↗</a>
+    <a class="header-contact" href="https://wa.me/{{ preg_replace('/\D+/', '', config('store.contact_phone')) }}" target="_blank" rel="noopener noreferrer">{{ $layoutCopy['contact'] }} ↗</a>
 </div>
 </header>
 @endunless

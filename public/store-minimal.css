@@ -214,3 +214,90 @@ body.catalog-ui {
   .catalog-ui .hero-ornament i,
   .catalog-ui .hero-ornament::after { animation: none !important; }
 }
+
+/* Put the category chooser with the page controls instead of the bottom bar. */
+.catalog-ui .header-categories {
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.catalog-ui .header-categories:hover { background: var(--sage); }
+.catalog-ui .mobile-store-nav { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.catalog-ui .mobile-category-sheet[open] {
+  inset: 50% 0 auto;
+  transform: translateY(-50%);
+  max-height: min(80dvh, 690px);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+}
+
+/* Smaller catalog cards retain the artwork, name, price and both actions. */
+.catalog-ui .catalog-grid { gap: 18px 14px; }
+.catalog-ui .catalog-grid .design-card { padding: 8px; border-radius: 18px; }
+.catalog-ui .catalog-grid .design-preview {
+  height: 310px;
+  min-height: 310px;
+  max-height: 310px;
+}
+.catalog-ui .catalog-grid .design-info { min-height: 92px; padding: 12px 3px 8px; }
+.catalog-ui .catalog-grid .design-signature { min-height: 28px; margin-bottom: 8px; }
+.catalog-ui .catalog-grid .design-offer { margin: 0 2px 10px; padding: 10px; }
+.catalog-ui .catalog-grid .design-card > .button { min-height: 44px; height: 44px; }
+
+@media (max-width: 700px) {
+  .catalog-ui .mobile-category-sheet[open] {
+    inset: max(12px, env(safe-area-inset-top, 0px)) 0 auto;
+    transform: none;
+    max-height: calc(100dvh - 24px);
+    margin: 0 12px;
+    width: calc(100% - 24px);
+  }
+  .catalog-ui .header-tools { gap: 7px; }
+  .catalog-ui .header-categories { padding: 0 9px; font-size: 11px; }
+  .catalog-ui .catalog-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; padding: 3px 0 20px; }
+  .catalog-ui .catalog-grid .design-card { padding: 6px; border-radius: 14px; }
+  .catalog-ui .catalog-grid .design-preview,
+  .catalog-ui .catalog-grid .invite-card-jubilee {
+    height: 218px;
+    min-height: 218px !important;
+    max-height: 218px;
+  }
+  .catalog-ui .catalog-grid .design-preview[class*='invite-card-'] { gap: 5px; padding: 13px 8px 10px; }
+  .catalog-ui .catalog-grid .design-preview .mini-kicker,
+  .catalog-ui .catalog-grid .design-preview .mini-date { display: none; }
+  .catalog-ui .catalog-grid .design-preview[class*='invite-card-'] .card-design-name {
+    min-height: 0;
+    flex: 1;
+    font-size: clamp(17px, 5vw, 23px) !important;
+    line-height: 1.08 !important;
+  }
+  .catalog-ui .catalog-grid .design-preview[class*='invite-card-'] .preview-pill {
+    width: 100%;
+    min-width: 0;
+    min-height: 40px;
+    margin: 0;
+    padding: 7px 3px;
+    font-size: 10px;
+  }
+  .catalog-ui .catalog-grid .design-info { min-height: 55px; gap: 2px; padding: 8px 2px 5px; }
+  .catalog-ui .catalog-grid .design-info > div { display: block; }
+  .catalog-ui .catalog-grid .design-info .eyebrow { font-size: 10px; letter-spacing: 0; }
+  .catalog-ui .catalog-grid .design-card-title,
+  .catalog-ui .catalog-grid .design-signature,
+  .catalog-ui .catalog-grid .design-offer { display: none; }
+  .catalog-ui .catalog-grid .design-price { font-size: 14px; line-height: 1.3; }
+  .catalog-ui .catalog-grid .design-card > .button { gap: 3px; padding: 7px 3px; font-size: 10px; line-height: 1.2; }
+}
+
+@media (max-width: 360px) {
+  .catalog-ui .wordmark { font-size: 22px; }
+  .catalog-ui .header-categories { padding: 0 7px; }
+  .catalog-ui .catalog-grid .design-preview,
+  .catalog-ui .catalog-grid .invite-card-jubilee { height: 195px; min-height: 195px !important; max-height: 195px; }
+}

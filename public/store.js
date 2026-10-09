@@ -26,7 +26,7 @@ const initStorePage = () => {
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const mobileNav = document.querySelector('[data-mobile-store-nav]');
     const categorySheet = document.querySelector('[data-category-sheet]');
-    const categoryOpen = mobileNav?.querySelector('[data-category-open]');
+    const categoryOpen = document.querySelector('[data-category-open]');
     const categoryChoices = Array.from(categorySheet?.querySelectorAll('[data-mobile-event-filter]') || []);
     const mobileTabs = Array.from(mobileNav?.querySelectorAll('[data-mobile-tab]') || []);
     const setMobileTab = name => {
@@ -110,7 +110,7 @@ const initStorePage = () => {
 
     categoryOpen?.addEventListener('click', () => {
       if (!categorySheet?.open) categorySheet?.showModal();
-      setMobileTab('categories');
+      setMobileTab('designs');
     });
     categorySheet?.querySelector('[data-category-close]')?.addEventListener('click', () => categorySheet.close());
     categorySheet?.addEventListener('click', event => {
@@ -120,7 +120,7 @@ const initStorePage = () => {
       event.preventDefault();
       applyCatalogFilter(choice.dataset.mobileEventFilter || '', 1, true);
       categorySheet.close();
-      setMobileTab('categories');
+      setMobileTab('designs');
       document.querySelector('#designs')?.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
     });
     categorySheet?.addEventListener('close', () => categoryOpen?.focus({ preventScroll: true }));

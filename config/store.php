@@ -8,6 +8,7 @@ return [
     'kaspi_phone' => env('STORE_KASPI_PHONE', '+7 778 736 78 50'),
     'kaspi_recipient' => env('STORE_KASPI_RECIPIENT', 'Айдын Б.'),
     'whatsapp_phone' => env('STORE_WHATSAPP_PHONE', '+7 778 736 78 50'),
+    'contact_phone' => '+7 778 736 78 50',
     'partner_invitation_whatsapp_phone' => env('STORE_PARTNER_INVITATION_WHATSAPP_PHONE', '+7 706 716 01 99'),
     'admin_login' => env('STORE_ADMIN_LOGIN', 'Admin1601'),
     'admin_email' => env('STORE_ADMIN_EMAIL', 'admin@zharzhar.local'),
