@@ -36,7 +36,7 @@ body.invitation-shell:has(.besik-page){background:#e5e9dc;color:#243c36}
 .besik-letter>p{max-width:380px;color:#435d54}
 .besik-letter-signature{display:flex;flex-direction:column;gap:5px;margin-top:42px;padding-left:17px;border-left:5px solid #d69b68}
 .besik-letter-signature span{color:#6d7c6a;font-size:12px}
-.besik-letter-signature strong{font-size:19px;line-height:1.4}
+.besik-letter-signature strong{font-size:19px;line-height:1.4;white-space:pre-line;overflow-wrap:anywhere}
 .besik-details{background:#e8bc8e;color:#273d35;text-align:center}
 .besik-details::before,.besik-details::after{content:'';position:absolute;left:0;right:0;height:23px;background:#fbf7e9;clip-path:polygon(0 0,5% 80%,10% 0,15% 80%,20% 0,25% 80%,30% 0,35% 80%,40% 0,45% 80%,50% 0,55% 80%,60% 0,65% 80%,70% 0,75% 80%,80% 0,85% 80%,90% 0,95% 80%,100% 0)}
 .besik-details::before{top:0}.besik-details::after{bottom:0;transform:rotate(180deg)}

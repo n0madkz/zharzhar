@@ -28,7 +28,7 @@ body.invitation-shell:has(.jubilee-page){background:#e9e5df;color:#3b292d}
 .jubilee-letter h2 em,.jubilee-place h2 em,.jubilee-rsvp h2 em{color:#b0795b;font-weight:400}
 .jubilee-letter-text{max-width:380px;margin:0 auto;color:#51464a;font:400 18px/1.85 'Noto Serif Display',Georgia,serif}
 .jubilee-signature{display:flex;flex-direction:column;gap:6px;margin-top:53px;color:#8c5b60;font-size:13px}
-.jubilee-signature strong{color:#713844;font:500 23px/1.35 'Noto Serif Display',Georgia,serif}
+.jubilee-signature strong{color:#713844;font:500 23px/1.35 'Noto Serif Display',Georgia,serif;white-space:pre-line;overflow-wrap:anywhere}
 .jubilee-date{padding:70px 31px 76px;background:#ecd9ca;color:#5a303b;text-align:center}
 .jubilee-date-heading span{font-size:10px;font-weight:700;letter-spacing:.2em}
 .jubilee-date h2{margin:18px 0 34px;font:500 41px/1.2 'Noto Serif Display',Georgia,serif}
