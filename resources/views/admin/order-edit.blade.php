@@ -86,6 +86,11 @@
             <legend>Все тексты внутри приглашения</legend>
             <p class="hint">Можно изменить заголовки, подписи таймера, варианты ответа гостя и текст кнопок.</p>
             <div class="form-grid">
+                @if($order->template?->slug === 'besik-toi')
+                    <label class="field wide">Обращение в разделе «Ақ тілек»
+                        <input name="copy[besik_greeting]" value="{{ old('copy.besik_greeting', $copy['besik_greeting'] ?? 'Қадірлі қонақтар!') }}" maxlength="120" required>
+                    </label>
+                @endif
                 @foreach($copyFields as $key => [$label, $wide])
                     <label class="field {{ $wide ? 'wide' : '' }}">{{ $label }}
                         @if($wide)<textarea name="copy[{{ $key }}]" maxlength="300" required>{{ old('copy.'.$key, $copy[$key] ?? '') }}</textarea>@else<input name="copy[{{ $key }}]" value="{{ old('copy.'.$key, $copy[$key] ?? '') }}" maxlength="300" required>@endif

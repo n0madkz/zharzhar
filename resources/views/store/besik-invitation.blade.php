@@ -39,7 +39,7 @@
     <section class="besik-letter" id="besik-invitation" data-reveal>
         <span class="besik-section-number">01 / АҚ ТІЛЕК</span>
         <span class="besik-embroidered" aria-hidden="true"></span>
-        <h2>Қадірлі<br>жақындар!</h2>
+        <h2>{{ $copy['besik_greeting'] ?? 'Қадірлі қонақтар!' }}</h2>
         <p>{{ $invitationText }}</p>
         <div class="besik-letter-signature">
             <span class="besik-hosts-heading">Той иелері</span>
