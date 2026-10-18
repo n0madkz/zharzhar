@@ -89,7 +89,7 @@ class InvitationStoreTest extends TestCase
     private function adminTemplateData(array $overrides = []): array
     {
         return array_replace([
-            'name' => 'Ақ арман', 'slug' => 'ak-arman', 'price' => 9990, 'theme' => 'pearl',
+            'name' => 'Ақ арман', 'slug' => 'ak-arman', 'price' => 9990, 'discount_percent' => 50, 'theme' => 'pearl',
             'format' => 'web',
             'event_type' => 'wedding', 'is_active' => 1,
             'content_title' => 'Ақ арман', 'content_event_label' => 'ҮЙЛЕНУ ТОЙЫ',
@@ -528,6 +528,44 @@ class InvitationStoreTest extends TestCase
         $this->get('/orders/'.$order->token)->assertOk()->assertSee('+7 778 736 78 50')->assertDontSee($order->responses_token)->assertHeader('X-Robots-Tag', 'noindex, nofollow');
         $this->get('/responses/'.$order->responses_token)->assertNotFound();
         $this->get('/orders/not-a-real-token')->assertNotFound();
+    }
+
+    public function test_template_sale_is_reflected_in_catalog_quote_order_and_payment(): void
+    {
+        $template = Template::factory()->create(['price' => 9990, 'discount_percent' => 50]);
+        $promo = PromoCode::factory()->create(['code' => 'EXTRA10', 'type' => 'percent', 'value' => 10]);
+
+        $this->get('/')->assertOk()->assertSee('4 995')->assertSee('−50%');
+        $this->postJson('/checkout/quote', ['template_id' => $template->id])
+            ->assertOk()->assertJson(['subtotal' => 9990, 'discount' => 4995, 'total' => 4995]);
+        $this->postJson('/checkout/quote', ['template_id' => $template->id, 'promo_code' => $promo->code])
+            ->assertOk()->assertJson(['subtotal' => 9990, 'discount' => 5494, 'total' => 4496]);
+
+        $this->placeOrder([...$this->checkoutData($template), 'promo_code' => $promo->code])->assertRedirect();
+        $order = InvitationOrder::firstOrFail();
+        $this->assertSame(4496, $order->total);
+        $this->assertSame(4995, $order->details['template_discount']);
+        $this->assertSame(499, $order->details['promo_discount']);
+        $this->get('/orders/'.$order->token)->assertOk()->assertSee('4 496');
+    }
+
+    public function test_admin_can_set_discount_for_all_or_one_template(): void
+    {
+        $first = Template::factory()->create(['discount_percent' => 50]);
+        $second = Template::factory()->create(['discount_percent' => 20]);
+        $this->actingAs(User::factory()->create(['role' => 'admin']));
+
+        $this->post('/admin/store/templates-discount', ['discount_percent' => 101])->assertSessionHasErrors('discount_percent');
+        $this->post('/admin/store/templates-discount', ['discount_percent' => 25])->assertRedirect();
+        $this->assertSame(25, $first->fresh()->discount_percent);
+        $this->assertSame(25, $second->fresh()->discount_percent);
+
+        $this->post('/admin/store/templates/'.$first->id, $this->adminTemplateData([
+            'slug' => $first->slug,
+            'discount_percent' => 0,
+        ]))->assertRedirect();
+        $this->assertSame(0, $first->fresh()->discount_percent);
+        $this->assertSame(25, $second->fresh()->discount_percent);
     }
 
     public function test_selected_language_is_used_by_the_published_invitation(): void

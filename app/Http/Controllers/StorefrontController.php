@@ -57,8 +57,9 @@ class StorefrontController extends Controller
         $category = $request->string('event')->toString();
         $category = array_key_exists($category, config('store.event_types')) ? $category : '';
         $templates = Template::where('is_active', true)->orderBy('price')->get();
+        $startingPrice = $templates->min(fn (Template $template) => $template->salePrice()) ?? 0;
 
-        return view('store.catalog', compact('templates', 'category'));
+        return view('store.catalog', compact('templates', 'category', 'startingPrice'));
     }
 
     public function preview(Template $template): View
@@ -148,7 +149,7 @@ class StorefrontController extends Controller
         $data = $request->validate(['template_id' => ['required', 'integer'], 'promo_code' => ['nullable', 'string', 'max:40']]);
         $template = Template::where('is_active', true)->findOrFail($data['template_id']);
         $promo = $this->promo($data['promo_code'] ?? '');
-        $discount = $promo?->discountFor($template->price) ?? 0;
+        $discount = $template->discountAmount() + ($promo?->discountFor($template->salePrice()) ?? 0);
 
         return response()->json(['subtotal' => $template->price, 'discount' => $discount, 'total' => $template->price - $discount]);
     }
@@ -180,7 +181,9 @@ class StorefrontController extends Controller
                     return $existing;
                 }
                 $promo = $this->promo($data['promo_code'] ?? '', true);
-                $discount = $promo?->discountFor($template->price) ?? 0;
+                $templateDiscount = $template->discountAmount();
+                $promoDiscount = $promo?->discountFor($template->salePrice()) ?? 0;
+                $discount = $templateDiscount + $promoDiscount;
                 if ($template->event_type && $template->event_type !== $data['event_type']) {
                     throw ValidationException::withMessages(['event_type' => app()->isLocale('kk') ? 'Бұл дизайн басқа мерекеге арналған.' : 'Этот дизайн предназначен для другого события.']);
                 }
@@ -195,6 +198,9 @@ class StorefrontController extends Controller
                 $details['music_url'] = $music?->audio_url;
                 $details['music_name'] = $music?->name;
                 $details['two_gis_url'] = $restaurant?->two_gis_url;
+                $details['template_discount_percent'] = $template->discount_percent;
+                $details['template_discount'] = $templateDiscount;
+                $details['promo_discount'] = $promoDiscount;
                 if ((bool) data_get($template->config_json, 'supports_photos', false)) {
                     $storedPhotos = collect($data['photos'] ?? [])->map(
                         fn ($photo) => $photo->store('invitation-photos', 'public')

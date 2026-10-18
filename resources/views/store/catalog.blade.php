@@ -59,7 +59,7 @@
 @extends('layouts.store')
 @section('content')
 <section class="hero shell">
-<div><p class="eyebrow">{{ $copy['eyebrow'] }}</p><h1>{{ $copy['hero'] }}<br><em>{{ $copy['hero_em'] }}</em></h1><p class="lead">{{ $copy['lead'] }}</p><div class="actions"><a class="button primary" href="#designs">{{ $copy['choose'] }} <span>↗</span></a><span class="price-note">{{ $copy['from'] }} <strong>7 990 ₸</strong><small>{{ $copy['payment'] }}</small></span></div><p class="hero-footnote">{{ $copy['features'] }}</p></div>
+<div><p class="eyebrow">{{ $copy['eyebrow'] }}</p><h1>{{ $copy['hero'] }}<br><em>{{ $copy['hero_em'] }}</em></h1><p class="lead">{{ $copy['lead'] }}</p><div class="actions"><a class="button primary" href="#designs">{{ $copy['choose'] }} <span>↗</span></a><span class="price-note">{{ $copy['from'] }} <strong>{{ number_format($startingPrice, 0, ',', ' ') }} ₸</strong><small>{{ $copy['payment'] }}</small></span></div><p class="hero-footnote">{{ $copy['features'] }}</p></div>
 <div class="hero-art" aria-label="{{ $copy['art_label'] }}"><span class="orbit-label">{{ $copy['moments'] }}</span><div class="paper theme-sage"><span class="paper-kicker">ҮЙЛЕНУ ТОЙЫНА ШАҚЫРУ</span><span class="hero-ornament" aria-hidden="true"><i></i><i></i><b></b></span><span class="paper-script">Ақ інжу</span><span class="paper-date">08 · 11 · 2026</span><span class="paper-footer">БІЗДІҢ ҚУАНЫШЫМЫЗҒА ОРТАҚ БОЛЫҢЫЗ</span></div><span class="art-tag">{{ $copy['love'] }}</span></div>
 </section>
 <div class="occasion-band"><span>Үйлену той</span><b>✦</b><span>Қыз ұзату</span><b>✦</b><span>Мерейтой</span><b>✦</b><span>Туған күн</span><b>✦</b><span>Бесік той</span><b>✦</b><span>{{ $copy['special'] }}</span></div>
@@ -86,7 +86,7 @@
 <strong class="card-design-name"><span>{{ $titleFirstLine }}</span>@if($titleSecondLine)<span>{{ $titleSecondLine }}</span>@endif</strong>
 <span class="mini-date">{{ \Carbon\Carbon::parse($template->config_json['content_kk']['event_date'] ?? '2026-11-08')->format('d / m / Y') }}</span>
 <span class="preview-pill">{{ $copy['view'] }} ↗</span></a>
-<div class="design-info"><div><p class="eyebrow">{{ $template->event_type ? ($eventLabels[$template->event_type] ?? $template->event_type) : $copy['any_event'] }}</p><h3 class="design-card-title"><span>{{ $titleFirstLine }}</span>@if($titleSecondLine)<span>{{ $titleSecondLine }}</span>@endif</h3></div><strong class="design-price">{{ number_format($template->price, 0, ',', ' ') }} ₸</strong></div>
+<div class="design-info"><div><p class="eyebrow">{{ $template->event_type ? ($eventLabels[$template->event_type] ?? $template->event_type) : $copy['any_event'] }}</p><h3 class="design-card-title"><span>{{ $titleFirstLine }}</span>@if($titleSecondLine)<span>{{ $titleSecondLine }}</span>@endif</h3></div><div class="design-price-block">@if($template->discount_percent > 0)<span class="design-discount-badge">−{{ $template->discount_percent }}%</span><del class="design-old-price">{{ number_format($template->price, 0, ',', ' ') }} ₸</del>@endif<strong class="design-price">{{ number_format($template->salePrice(), 0, ',', ' ') }} ₸</strong></div></div>
 @if($designSignature)<p class="design-signature">{{ $designSignature }}</p>@endif
 @if($offer)
 <div class="design-offer">

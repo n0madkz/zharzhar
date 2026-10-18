@@ -59,6 +59,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin/store')->name('admin.st
     Route::post('/orders/{order}/reject', [StoreAdminController::class, 'reject'])->name('reject');
     Route::post('/orders/{order}/archive', [StoreAdminController::class, 'archiveInvitation'])->name('orders.archive');
     Route::post('/templates/{template?}', [StoreAdminController::class, 'saveTemplate'])->name('templates');
+    Route::post('/templates-discount', [StoreAdminController::class, 'discountAllTemplates'])->name('templates.discount-all');
     Route::post('/music/{music?}', [StoreAdminController::class, 'saveMusic'])->name('music');
     Route::post('/promos/{promo?}', [StoreAdminController::class, 'savePromo'])->name('promos');
     Route::post('/restaurants/{restaurant?}', [StoreAdminController::class, 'saveRestaurant'])->name('restaurants');

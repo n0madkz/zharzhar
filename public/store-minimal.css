@@ -301,3 +301,8 @@ body.catalog-ui {
   .catalog-ui .catalog-grid .design-preview,
   .catalog-ui .catalog-grid .invite-card-jubilee { height: 195px; min-height: 195px !important; max-height: 195px; }
 }
+
+.catalog-ui .design-price-block{display:flex;flex-direction:column;align-items:flex-end;gap:2px;text-align:right;white-space:nowrap}
+.catalog-ui .design-discount-badge{padding:2px 7px;border-radius:999px;background:#e7efe7;color:#2c593f;font-size:11px;font-weight:700;line-height:1.4}
+.catalog-ui .design-old-price{color:#69726e;font-size:12px;line-height:1.3}
+@media (max-width: 700px){.catalog-ui .catalog-grid .design-price-block{display:flex;align-items:flex-start;text-align:left}.catalog-ui .catalog-grid .design-old-price{font-size:11px}}

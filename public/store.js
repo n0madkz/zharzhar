@@ -230,7 +230,7 @@ const initStorePage = () => {
   const result = document.querySelector('#promo-result');
   const money = value => new Intl.NumberFormat('ru-RU').format(value) + ' ₸';
   const resetPrice = () => {
-    document.querySelector('#discount-value').textContent = '0 ₸';
+    document.querySelector('#discount-value').textContent = '−' + money(Number(apply.dataset.discount));
     document.querySelector('#total-value').textContent = money(Number(apply.dataset.price));
     result.textContent = copy.applyHint;
   };

@@ -271,6 +271,7 @@ class StoreAdminController extends Controller
             'slug' => ['required', 'alpha_dash:ascii', 'max:120', Rule::unique('templates')->ignore($template?->id)],
             'event_type' => ['nullable', Rule::in(array_keys(config('store.event_types')))],
             'price' => ['required', 'integer', 'min:7990', 'max:10000000'],
+            'discount_percent' => ['required', 'integer', 'between:0,100'],
             'theme' => ['required', Rule::in(array_keys(config('store.themes')))],
             'format' => ['required', Rule::in(['web', 'video'])],
             'video_url' => ['nullable', 'string', 'max:500', 'regex:/^(https:\/\/|\/)[^\s]+$/'],
@@ -342,6 +343,7 @@ class StoreAdminController extends Controller
             'event_type' => $data['event_type'] ?? null,
             'category' => $data['event_type'] ?? 'all',
             'price' => $data['price'],
+            'discount_percent' => $data['discount_percent'],
             'preview_image' => $previewImage,
             'config_json' => $config,
             'is_active' => $request->boolean('is_active'),
@@ -353,6 +355,17 @@ class StoreAdminController extends Controller
         }
 
         return back()->with('success', 'Дизайн сохранён.');
+    }
+
+    public function discountAllTemplates(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'discount_percent' => ['required', 'integer', 'between:0,100'],
+        ]);
+
+        Template::query()->update(['discount_percent' => $data['discount_percent']]);
+
+        return back()->with('success', 'Скидка для всех дизайнов обновлена.');
     }
 
     public function saveMusic(Request $request, ?Music $music = null): RedirectResponse

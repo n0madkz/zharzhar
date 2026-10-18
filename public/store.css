@@ -378,6 +378,9 @@ body.catalog-ui{
 @media(prefers-reduced-motion:reduce){.language-switch::before{transition:none}::view-transition-old(root),::view-transition-new(root){animation:none}}
 
 .design-offer{margin:0 5px 18px;padding:13px 14px;border:1px solid #e3e5ed;border-radius:13px;background:#f8f9fb;color:#353b4a}
+.template-discount-form{display:flex;align-items:end;flex-wrap:wrap;gap:12px;margin:16px 0 24px}
+.template-discount-form .field{width:min(240px,100%)}
+.template-discount-form .hint{flex-basis:100%;margin:0}
 .design-offer-label{margin:0 0 8px;font-size:9px;font-weight:800;letter-spacing:.13em;color:#6b7280}
 .design-offer ul,.checkout-offer ul{display:grid;gap:6px;margin:0;padding:0;list-style:none}
 .design-offer li,.checkout-offer li{position:relative;padding-left:15px;font-size:11px;line-height:1.4}

@@ -130,9 +130,9 @@
 <div class="summary-row"><span>{{ $template->name }}</span><strong>{{ number_format($template->price, 0, ',', ' ') }} ₸</strong></div>
 @if($designSignature)<p class="design-signature">{{ $designSignature }}</p>@endif
 @if($offer)<div class="checkout-offer"><strong>{{ $kk ? 'Бағаға не кіреді' : 'Что входит в цену' }}</strong><ul>@foreach($offer as $feature)<li>{{ $feature }}</li>@endforeach</ul></div>@endif
-<label class="field" for="promo_code">{{ $t['promo'] }}</label><div class="promo-control field"><input id="promo_code" name="promo_code" value="{{ old('promo_code') }}" maxlength="40" placeholder="{{ $t['promo_placeholder'] }}" style="text-transform:uppercase"><button class="button outline" type="button" id="apply-promo" data-template="{{ $template->id }}" data-price="{{ $template->price }}" data-url="{{ route('store.quote') }}">{{ $t['apply'] }}</button></div>
+<label class="field" for="promo_code">{{ $t['promo'] }}</label><div class="promo-control field"><input id="promo_code" name="promo_code" value="{{ old('promo_code') }}" maxlength="40" placeholder="{{ $t['promo_placeholder'] }}" style="text-transform:uppercase"><button class="button outline" type="button" id="apply-promo" data-template="{{ $template->id }}" data-price="{{ $template->salePrice() }}" data-discount="{{ $template->discountAmount() }}" data-url="{{ route('store.quote') }}">{{ $t['apply'] }}</button></div>
 <p class="hint" id="promo-result" aria-live="polite"></p>@error('promo_code')<p class="error">{{ $message }}</p>@enderror
-<div class="summary-row"><span>{{ $t['discount'] }}</span><strong id="discount-value">0 ₸</strong></div><div class="summary-row total"><span>{{ $t['total'] }}</span><strong id="total-value">{{ number_format($template->price, 0, ',', ' ') }} ₸</strong></div>
+<div class="summary-row"><span>{{ $t['discount'] }}@if($template->discount_percent > 0) ({{ $template->discount_percent }}%)@endif</span><strong id="discount-value">−{{ number_format($template->discountAmount(), 0, ',', ' ') }} ₸</strong></div><div class="summary-row total"><span>{{ $t['total'] }}</span><strong id="total-value">{{ number_format($template->salePrice(), 0, ',', ' ') }} ₸</strong></div>
 <p class="hint">{{ $t['price_hint'] }}</p>
 </aside></form></div>
 @endsection

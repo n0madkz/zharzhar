@@ -18,7 +18,7 @@
 <p class="order-card-brief">{{ $order->details['template_name'] }} · {{ $order->details['event_date'] }} · {{ $order->details['venue_name'] }}</p>
 <details class="order-management"><summary>Детали и управление заказом</summary><div class="order-management-body">
 <p class="hint">{{ $order->details['template_name'] }} · {{ $order->details['event_date'] }} {{ $order->details['event_time'] }} · {{ $order->details['venue_name'] }}<br>Той иелері: {{ $order->details['hosts'] }}<br>{{ $order->details['venue_address'] }} · {{ $order->details['music_name'] ?? 'Без музыки' }}</p>
-@if($order->promo_code)<p class="hint">Промокод <strong>{{ $order->promo_code }}</strong> · скидка {{ number_format($order->discount, 0, ',', ' ') }} ₸ · исходная цена {{ number_format($order->subtotal, 0, ',', ' ') }} ₸</p>@endif
+@if($order->discount > 0)<p class="hint">Исходная цена {{ number_format($order->subtotal, 0, ',', ' ') }} ₸ · скидка {{ number_format($order->discount, 0, ',', ' ') }} ₸ @if($order->promo_code)· промокод <strong>{{ $order->promo_code }}</strong>@endif</p>@endif
 @if($order->payment_reference)<p class="notice">Сообщение об оплате: {{ $order->payment_reference }}</p>@endif
 @if($order->status === 'paid')
 <p class="hint">Подтверждено {{ $order->paid_at->format('d.m.Y H:i') }} · администратор #{{ $order->confirmed_by }}</p>
@@ -65,6 +65,7 @@ $groups = [
 'name'=>['label'=>'Название дизайна на казахском','required'=>true], 'slug'=>['label'=>'Код дизайна (латиница)','required'=>true],
 'event_type'=>['label'=>'Событие','options'=>[''=>'Любое событие']+config('store.event_types')],
 'price'=>['label'=>'Цена, ₸','type'=>'number','min'=>7990,'max'=>10000000,'default'=>7990,'required'=>true],
+'discount_percent'=>['label'=>'Скидка на этот дизайн, %','type'=>'number','min'=>0,'max'=>100,'default'=>50,'required'=>true,'hint'=>'0% — без скидки. Промокод применяется к цене после этой скидки.'],
 'theme'=>['label'=>'Оформление','options'=>config('store.themes')],
 'format'=>['label'=>'Формат приглашения','config'=>'format','default'=>'web','options'=>['web'=>'Сайт-приглашение','video'=>'Видеоприглашение']],
 'video_url'=>['label'=>'Ссылка или путь к видео','config'=>'video_url','wide'=>true,'hint'=>'Для видеошаблона: HTTPS-ссылка либо загруженный ниже файл.'],
@@ -111,10 +112,20 @@ $groups = [
 @endphp
 @foreach($groups as $groupKey => $group)
 <section class="admin-section" id="{{ $groupKey }}"><h2>{{ $group['title'] }}</h2><p class="hint">{{ $group['hint'] }}</p>
+@if($groupKey === 'templates')
+<form method="POST" action="{{ route('admin.store.templates.discount-all') }}" class="panel template-discount-form">@csrf
+    <label class="field" for="all-template-discount">Скидка для всех дизайнов, %
+        <input id="all-template-discount" name="discount_percent" type="number" min="0" max="100" value="50" required>
+    </label>
+    <button class="button primary" type="submit">Применить ко всем дизайнам</button>
+    <p class="hint">Заменит индивидуальные скидки у всех дизайнов. Существующие заказы сохранят прежнюю сумму.</p>
+    @error('discount_percent')<span class="error">{{ $message }}</span>@enderror
+</form>
+@endif
 <div class="admin-grid"><div class="admin-editor"><h3>Добавить</h3><form method="POST" action="{{ route('admin.store.'.$group['route']) }}" @if(in_array($groupKey, ['templates', 'music'])) enctype="multipart/form-data" @endif>@csrf
 @include('admin.store-fields', ['fields'=>$group['fields'],'record'=>null,'editor'=>$groupKey.'-new'])
 </form></div><div class="stack">
-@forelse($group['records'] as $record)<details class="admin-editor"><summary><span>{{ $record->name ?? $record->code }} @if($groupKey==='templates') · {{ number_format($record->price,0,',',' ') }} ₸ @endif @if($groupKey==='music') · {{ $record->categoryLabel() }} @endif @if($groupKey==='promos') · {{ $record->value }}{{ $record->type === 'percent' ? '%' : ' ₸' }} · {{ $record->uses }}/{{ $record->max_uses ?? '∞' }} @endif @if($groupKey==='restaurants' ? $record->status !== 'active' : !$record->is_active) · Неактивен @endif</span></summary>
+@forelse($group['records'] as $record)<details class="admin-editor"><summary><span>{{ $record->name ?? $record->code }} @if($groupKey==='templates') · {{ number_format($record->salePrice(),0,',',' ') }} ₸ @if($record->discount_percent > 0)(−{{ $record->discount_percent }}%)@endif @endif @if($groupKey==='music') · {{ $record->categoryLabel() }} @endif @if($groupKey==='promos') · {{ $record->value }}{{ $record->type === 'percent' ? '%' : ' ₸' }} · {{ $record->uses }}/{{ $record->max_uses ?? '∞' }} @endif @if($groupKey==='restaurants' ? $record->status !== 'active' : !$record->is_active) · Неактивен @endif</span></summary>
 @if($groupKey === 'templates')<div class="admin-template-preview">@if($record->preview_image)<img src="{{ str_starts_with($record->preview_image, '/') ? asset(ltrim($record->preview_image, '/')) : $record->preview_image }}" alt="Обложка {{ $record->name }}">@endif<div><strong>{{ $record->name }}</strong><a href="{{ route('store.preview', $record) }}" target="_blank" rel="noopener">Открыть превью ↗</a></div></div>@endif
 <form method="POST" action="{{ route('admin.store.'.$group['route'], $record) }}" @if(in_array($groupKey, ['templates', 'music'])) enctype="multipart/form-data" @endif>@csrf
 @include('admin.store-fields', ['fields'=>$group['fields'],'record'=>$record,'editor'=>$groupKey.'-'.$record->id])

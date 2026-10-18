@@ -8,6 +8,6 @@ class TemplateFactory extends Factory
 {
     public function definition(): array
     {
-        return ['name' => 'Нежный шалфей', 'slug' => fake()->unique()->slug(), 'category' => 'wedding', 'event_type' => 'wedding', 'price' => 7990, 'config_json' => ['theme' => 'sage'], 'is_active' => true];
+        return ['name' => 'Нежный шалфей', 'slug' => fake()->unique()->slug(), 'category' => 'wedding', 'event_type' => 'wedding', 'price' => 7990, 'discount_percent' => 0, 'config_json' => ['theme' => 'sage'], 'is_active' => true];
     }
 }

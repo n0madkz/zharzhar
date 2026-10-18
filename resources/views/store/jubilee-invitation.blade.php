@@ -23,7 +23,7 @@
 <nav class="preview-toolbar" aria-label="Шаблонды алдын ала қарау">
     <a class="preview-back" href="{{ route('store.catalog') }}#designs"><span aria-hidden="true">←</span> Шаблондарға қайту</a>
     <span class="preview-template">{{ $details['names'] }}</span>
-    <a class="preview-choose" href="{{ route('store.checkout', $template) }}">Осы дизайнды таңдау · {{ number_format($template->price, 0, ',', ' ') }} ₸</a>
+    <a class="preview-choose" href="{{ route('store.checkout', $template) }}">Осы дизайнды таңдау · {{ number_format($template->salePrice(), 0, ',', ' ') }} ₸</a>
 </nav>
 @endif
 
