@@ -41,7 +41,16 @@
         <span class="besik-embroidered" aria-hidden="true"></span>
         <h2>Қадірлі<br>жақындар!</h2>
         <p>{{ $invitationText }}</p>
-        <div class="besik-letter-signature"><span>Той иелері</span><strong>{{ $details['hosts'] }}</strong></div>
+        <div class="besik-letter-signature">
+            <span class="besik-hosts-heading">Той иелері</span>
+            <strong>
+                @foreach(preg_split('/\R/u', trim($details['hosts'])) as $hostLine)
+                    @if(trim($hostLine) !== '')
+                        <span class="besik-host-line {{ preg_match('/:\s*$/u', trim($hostLine)) ? 'besik-host-line--label' : 'besik-host-line--name' }}">{{ trim($hostLine) }}</span>
+                    @endif
+                @endforeach
+            </strong>
+        </div>
     </section>
 
     <section class="besik-details" data-reveal>

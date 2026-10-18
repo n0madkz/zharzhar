@@ -34,9 +34,14 @@ body.invitation-shell:has(.besik-page){background:#e5e9dc;color:#243c36}
 .besik-embroidered{display:block;width:74px;height:74px;margin:0 0 29px;background:#be7855;mask:url('/invitation-assets/music-kazakh-ornament.svg') center/contain no-repeat;-webkit-mask:url('/invitation-assets/music-kazakh-ornament.svg') center/contain no-repeat}
 .besik-letter h2{margin-bottom:28px}
 .besik-letter>p{max-width:380px;color:#435d54}
-.besik-letter-signature{display:flex;flex-direction:column;align-items:center;gap:5px;margin-top:42px;text-align:center}
-.besik-letter-signature span{color:#6d7c6a;font-size:12px}
-.besik-letter-signature strong{width:100%;font-size:19px;line-height:1.4;white-space:pre-line;overflow-wrap:anywhere}
+.besik-letter-signature{display:flex;width:100%;max-width:390px;flex-direction:column;align-items:center;gap:12px;margin:48px auto 0;padding:0 12px 8px;text-align:center}
+.besik-letter-signature::before{content:'';display:block;width:44px;height:2px;margin-bottom:7px;background:#d69b68}
+.besik-letter-signature .besik-hosts-heading{color:#6d7c6a;font-size:12px;letter-spacing:.1em}
+.besik-letter-signature strong{display:block;width:100%;line-height:1.45;overflow-wrap:anywhere}
+.besik-letter-signature .besik-host-line{display:block}
+.besik-letter-signature .besik-host-line--label{margin-top:15px;color:#ad6954;font-size:13px;font-weight:500}
+.besik-letter-signature .besik-host-line--label:first-child{margin-top:0}
+.besik-letter-signature .besik-host-line--name{color:#226477;font-size:20px;font-weight:600}
 .besik-details{background:#e8bc8e;color:#273d35;text-align:center}
 .besik-details::before,.besik-details::after{content:'';position:absolute;left:0;right:0;height:23px;background:#fbf7e9;clip-path:polygon(0 0,5% 80%,10% 0,15% 80%,20% 0,25% 80%,30% 0,35% 80%,40% 0,45% 80%,50% 0,55% 80%,60% 0,65% 80%,70% 0,75% 80%,80% 0,85% 80%,90% 0,95% 80%,100% 0)}
 .besik-details::before{top:0}.besik-details::after{bottom:0;transform:rotate(180deg)}
