@@ -103,8 +103,9 @@ class RestaurantController extends Controller
             ->whereBetween('created_at', [now()->startOfMonth(), now()->endOfMonth()])
             ->exists();
         $packages = $restaurant->services->flatMap->tariffs->sortBy('sort_order')->sortBy('id')->values();
+        $staffRequests = $restaurant->staffRequests()->with('applications')->latest()->limit(30)->get();
 
-        return view('restaurant.framework', compact('restaurant', 'bookings', 'allBookings', 'selectedBookings', 'selectedDate', 'month', 'calendarDays', 'calendarBookingData', 'reportBookings', 'reportPeriod', 'reportFrom', 'reportTo', 'reportRows', 'reportPeriods', 'bonusTransactions', 'bonusBalance', 'payoutRequests', 'hasMonthlyPayout', 'packages', 'bookingSearch', 'bookingListMode'));
+        return view('restaurant.framework', compact('restaurant', 'bookings', 'allBookings', 'selectedBookings', 'selectedDate', 'month', 'calendarDays', 'calendarBookingData', 'reportBookings', 'reportPeriod', 'reportFrom', 'reportTo', 'reportRows', 'reportPeriods', 'bonusTransactions', 'bonusBalance', 'payoutRequests', 'hasMonthlyPayout', 'packages', 'bookingSearch', 'bookingListMode', 'staffRequests'));
     }
 
     public function requestPayout(Request $request): RedirectResponse

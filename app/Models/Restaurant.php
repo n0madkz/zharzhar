@@ -35,6 +35,11 @@ class Restaurant extends Model
         return $this->hasMany(Booking::class);
     }
 
+    public function staffRequests(): HasMany
+    {
+        return $this->hasMany(StaffRequest::class);
+    }
+
     public function services(): HasMany
     {
         return $this->hasMany(RestaurantService::class)->orderBy('sort_order')->orderBy('id');

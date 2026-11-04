@@ -12,6 +12,7 @@ use App\Models\Restaurant;
 use App\Models\RestaurantSlot;
 use App\Models\RestaurantService;
 use App\Models\RestaurantTariff;
+use App\Models\StaffRequest;
 use App\Models\Template;
 use App\Models\User;
 use App\Support\RestaurantInvitationCard;
@@ -389,6 +390,48 @@ class PartnerCalendarTest extends TestCase
             ->assertOk()
             ->assertViewHas('bookingListMode', 'archive')
             ->assertViewHas('bookings', fn ($bookings) => $bookings->total() === 1 && $bookings->first()->is($past));
+    }
+
+    public function test_waiter_can_apply_to_public_shift_and_partner_can_fill_it(): void
+    {
+        [$partner, $restaurant] = $this->partnerFixture();
+        $this->actingAs($partner)->post('http://partner.zharzhar.kz/restaurant/staff/requests', [
+            'event_date' => Carbon::today()->addWeek()->toDateString(),
+            'starts_at' => '17:00',
+            'ends_at' => '23:00',
+            'workers_needed' => 1,
+            'pay_per_worker' => 18000,
+            'description' => 'Wedding shift',
+        ])->assertRedirect('http://partner.zharzhar.kz/restaurant#staff');
+
+        $job = StaffRequest::where('restaurant_id', $restaurant->id)->firstOrFail();
+        $this->get('http://zharzhar.kz/staff/jobs')->assertOk()->assertSee('Wedding shift');
+        $this->post('http://zharzhar.kz/staff/jobs/'.$job->id.'/apply', [
+            'name' => 'Waiter One', 'phone' => '+7 700 123 45 67',
+        ])->assertRedirect();
+        $this->assertSame(1, $job->applications()->count());
+
+        $application = $job->applications()->firstOrFail();
+        $this->actingAs($partner)->put('http://partner.zharzhar.kz/restaurant/staff/requests/'.$job->id.'/applications/'.$application->id, [
+            'status' => 'accepted',
+        ])->assertRedirect('http://partner.zharzhar.kz/restaurant#staff');
+        $this->assertSame('accepted', $application->fresh()->status);
+        $this->assertSame('closed', $job->fresh()->status);
+        $this->get('http://zharzhar.kz/staff/jobs')->assertDontSee('Wedding shift');
+    }
+
+    public function test_partner_cannot_manage_another_restaurants_staff_request(): void
+    {
+        [$owner, $restaurant] = $this->partnerFixture();
+        [$other] = $this->partnerFixture();
+        $job = $restaurant->staffRequests()->create([
+            'event_date' => Carbon::today()->addWeek()->toDateString(),
+            'starts_at' => '17:00', 'ends_at' => '23:00',
+            'workers_needed' => 2, 'pay_per_worker' => 18000,
+        ]);
+
+        $this->actingAs($other)->put('http://partner.zharzhar.kz/restaurant/staff/requests/'.$job->id.'/close')->assertNotFound();
+        $this->assertSame('open', $job->fresh()->status);
     }
 
     public function test_booking_price_is_taken_from_own_active_tariff(): void

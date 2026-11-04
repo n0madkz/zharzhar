@@ -6,6 +6,7 @@ use App\Http\Controllers\BrokerController;
 use App\Http\Controllers\RestaurantController;
 use App\Http\Controllers\StoreAdminController;
 use App\Http\Controllers\StorefrontController;
+use App\Http\Controllers\StaffRequestController;
 use App\Http\Middleware\SetPartnerLocale;
 use Illuminate\Support\Facades\Route;
 
@@ -32,6 +33,8 @@ Route::post('/admin/brokers', [BrokerController::class, 'createStaff'])->middlew
 Route::put('/admin/brokers/{user}', [BrokerController::class, 'updateStaff'])->middleware(['auth', 'role:admin'])->name('admin.brokers.update');
 Route::domain(config('store.partner_domain'))->get('/', fn () => redirect(auth()->user()?->isRole('partner') ? '/restaurant' : '/login'))->name('partner.home');
 Route::get('/', [StorefrontController::class, 'index'])->name('store.catalog');
+Route::get('/staff/jobs', [StaffRequestController::class, 'index'])->name('staff.requests.index');
+Route::post('/staff/jobs/{staffRequest}/apply', [StaffRequestController::class, 'apply'])->middleware('throttle:5,1')->name('staff.requests.apply');
 Route::get('/designs/{template}/preview', [StorefrontController::class, 'preview'])->name('store.preview');
 Route::get('/checkout/{template}', [StorefrontController::class, 'checkout'])->name('store.checkout');
 Route::post('/checkout', [StorefrontController::class, 'store'])->middleware('throttle:10,1')->name('store.order');
@@ -80,6 +83,9 @@ Route::post('/admin/payouts/{payout}/pay', [AdminController::class, 'payPayout']
 Route::post('/admin/payouts/{payout}/reject', [AdminController::class, 'rejectPayout'])->middleware(['auth', 'role:admin'])->name('admin.payouts.reject');
 Route::domain(config('store.partner_domain'))->middleware(['partner.domain', 'auth', 'role:partner', SetPartnerLocale::class])->group(function () {
     Route::get('/restaurant', [RestaurantController::class, 'index'])->name('restaurant.dashboard');
+    Route::post('/restaurant/staff/requests', [StaffRequestController::class, 'store'])->name('restaurant.staff.requests.store');
+    Route::put('/restaurant/staff/requests/{staffRequest}/close', [StaffRequestController::class, 'close'])->name('restaurant.staff.requests.close');
+    Route::put('/restaurant/staff/requests/{staffRequest}/applications/{application}', [StaffRequestController::class, 'updateApplication'])->name('restaurant.staff.applications.update');
     Route::get('/restaurant/calendar-data', [RestaurantController::class, 'calendarData'])->name('restaurant.calendar.data');
     Route::get('/restaurant/reports/export', [RestaurantController::class, 'exportReports'])->name('restaurant.reports.export');
     Route::get('/restaurant/invitation-card', [RestaurantController::class, 'invitationCard'])->name('restaurant.invitation-card');

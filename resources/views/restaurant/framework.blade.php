@@ -151,7 +151,7 @@
         .restaurant-app{display:block;padding-bottom:70px}
         .restaurant-nav{position:fixed;z-index:20;left:12px;right:12px;bottom:12px;height:68px;border:1px solid #e1e8e3;border-radius:18px;background:rgba(255,255,255,.97);box-shadow:0 10px 30px rgba(23,51,42,.16);padding:5px;display:grid;grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:3px;backdrop-filter:blur(14px)}
         .restaurant-nav .brand{display:none}
-        .restaurant-nav a{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;text-align:center;font-size:10px;line-height:1.1;margin:0;padding:6px 2px;min-height:44px;font-weight:600}
+        .restaurant-nav a{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;text-align:center;font-size:10px;line-height:1.1;margin:0;padding:6px 2px;min-height:44px;min-width:0;font-weight:600;white-space:normal;overflow-wrap:anywhere}
         .restaurant-nav a .nav-icon{width:20px;height:20px;display:grid;place-items:center;font-size:0;margin-right:0}
         .restaurant-nav a .nav-icon svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8}
         .mobile-logout{display:block;margin:0;padding:0;min-height:44px}
@@ -253,6 +253,7 @@
     .payout-panel{margin-top:18px;padding:20px;border:1px solid #dbe4ff;border-radius:16px;background:#fff}.payout-panel h3{margin:0 0 6px}.payout-form{display:grid;grid-template-columns:minmax(150px,.7fr) minmax(220px,1fr) auto;gap:12px;align-items:end;margin-top:18px}.payout-form .field{margin:0}.payout-form .button{min-height:46px}.payout-notice{margin:16px 0 0;padding:13px 15px;border-radius:10px;background:#f2f4f7;color:#475467;font-weight:700}.payout-history{margin-top:20px;padding-top:18px;border-top:1px solid #eef1f5}.payout-history article{display:flex;justify-content:space-between;gap:16px;padding:12px 0;border-bottom:1px solid #eef1f5}.payout-history article strong{text-align:right}
     .booking-list-head{display:flex;align-items:end;justify-content:space-between;gap:18px;margin-bottom:10px}.booking-search{display:flex;gap:8px;width:min(480px,100%)}.booking-search input{flex:1;min-width:150px;padding:11px 13px;border:1px solid #d0d5dd;border-radius:9px;background:#fff}.booking-search .button{white-space:nowrap}.booking-search-reset{display:inline-flex;align-items:center;padding:0 5px;color:#475467;font-size:13px}
     .booking-list-tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}.booking-list-tabs a{display:inline-flex;align-items:center;justify-content:center;padding:9px 12px;border:1px solid #d0d5dd;border-radius:9px;color:#344054;text-decoration:none;font-size:13px;font-weight:650}.booking-list-tabs a.current{border-color:#2563eb;background:#eff4ff;color:#1d4ed8}.booking-list-tabs a:hover{border-color:#2563eb}
+    .staff-panel{display:none;margin-top:24px}.staff-panel h2{margin:0 0 6px}.staff-create{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:20px 0}.staff-create .field{margin:0}.staff-create .full{grid-column:1/-1}.staff-create .button{grid-column:1/-1}.staff-board-link{display:inline-block;margin-bottom:12px;color:#1746c9;font-weight:700}.staff-request-card{margin-top:14px;padding:16px;border:1px solid #e4e7ec;border-radius:12px;background:#fff}.staff-request-head{display:flex;justify-content:space-between;gap:12px;align-items:start}.staff-request-head p{margin:6px 0}.staff-application{padding:12px 0;border-top:1px solid #e4e7ec}.staff-application p{margin:5px 0}.staff-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}.staff-actions button{padding:8px 12px}.staff-request-card small{color:#667085}@media(max-width:560px){.staff-create{grid-template-columns:1fr}.staff-request-head{flex-direction:column}}
     @media(max-width:560px){
         .day-modal-backdrop{align-items:stretch;padding:8px}
         .day-modal{width:100%;max-height:calc(100dvh - 16px);padding:18px 14px;border-radius:16px}
@@ -268,6 +269,7 @@
         <div class="brand" style="margin:4px 0 28px">Жар-Жар</div>
         <a class="active" href="{{ route('restaurant.dashboard') }}#new-booking"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 9h18"/></svg></span>{{ __('partner.nav.bookings') }}</a>
         <a href="#schedule"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 13h3M8 17h3M14 13h3"/></svg></span>{{ __('partner.nav.calendar') }}</a>
+        <a href="#staff"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3 20v-2a6 6 0 0 1 12 0v2M17 7h4M19 5v4M17 16h4"/></svg></span>{{ __('partner.staff.nav') }}</a>
         <a href="#bonuses"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18M17 7H9.5a3 3 0 1 0 0 6H14a3 3 0 1 1 0 6H6"/></svg></span>{{ __('partner.nav.bonuses') }}</a>
         <a href="#settings"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.5 2.4 2.8.5.5 2.8L19 10l-1.2 2 1.2 2-2.2 1.3-.5 2.8-2.8.5L12 21l-1.5-2.4-2.8-.5-.5-2.8L5 14l1.2-2L5 10l2.2-1.3.5-2.8 2.8-.5L12 3Z"/><circle cx="12" cy="12" r="2.5"/></svg></span>{{ __('partner.nav.settings') }}</a>
         <a href="#reports"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V10M12 20V4M19 20v-7"/></svg></span>{{ __('partner.nav.reports') }}</a>
@@ -360,6 +362,32 @@
             @endif
         </section>
 
+        <section class="panel staff-panel" id="staff">
+            <h2>{{ __('partner.staff.title') }}</h2><p class="muted">{{ __('partner.staff.hint') }}</p>
+            <a class="staff-board-link" href="{{ route('staff.requests.index') }}" target="_blank" rel="noopener">{{ __('partner.staff.board') }} ↗</a>
+            <form class="staff-create" method="POST" action="{{ route('restaurant.staff.requests.store') }}">@csrf
+                <label class="field">{{ __('partner.staff.date') }}<input type="date" name="event_date" min="{{ today()->toDateString() }}" value="{{ old('event_date') }}" required></label>
+                <label class="field">{{ __('partner.staff.count') }}<input type="number" name="workers_needed" min="1" max="100" value="{{ old('workers_needed', 2) }}" required></label>
+                <label class="field">{{ __('partner.staff.start') }}<input type="time" name="starts_at" value="{{ old('starts_at', '17:00') }}" required></label>
+                <label class="field">{{ __('partner.staff.end') }}<input type="time" name="ends_at" value="{{ old('ends_at', '23:00') }}" required></label>
+                <label class="field full">{{ __('partner.staff.pay') }}<input type="number" name="pay_per_worker" min="1000" max="1000000" value="{{ old('pay_per_worker') }}" required></label>
+                <label class="field full">{{ __('partner.staff.description') }}<textarea name="description" rows="3" maxlength="1000">{{ old('description') }}</textarea></label>
+                <button class="button" type="submit">{{ __('partner.staff.publish') }}</button>
+            </form>
+            @if($errors->any())<p class="error" role="alert">{{ $errors->first() }}</p>@endif
+            @forelse($staffRequests as $staffRequest)
+                <article class="staff-request-card"><div class="staff-request-head"><div><strong>{{ $staffRequest->event_date->format('d.m.Y') }} · {{ substr($staffRequest->starts_at, 0, 5) }}–{{ substr($staffRequest->ends_at, 0, 5) }}</strong><p>{{ __('partner.staff.count') }}: {{ $staffRequest->applications->where('status', 'accepted')->count() }}/{{ $staffRequest->workers_needed }} · {{ number_format($staffRequest->pay_per_worker, 0, ',', ' ') }} ₸ · {{ __('partner.staff.status_'.$staffRequest->status) }}</p></div>@if($staffRequest->status === 'open')<form method="POST" action="{{ route('restaurant.staff.requests.close', $staffRequest) }}">@csrf @method('PUT')<button class="button button-secondary" type="submit">{{ __('partner.staff.close') }}</button></form>@endif</div>
+                    @if($staffRequest->description)<p>{{ $staffRequest->description }}</p>@endif
+                    <small>{{ __('partner.staff.applications') }}: {{ $staffRequest->applications->count() }}</small>
+                    @foreach($staffRequest->applications as $application)
+                        <div class="staff-application"><strong>{{ $application->name }}</strong> · <a href="tel:+{{ $application->phone }}">+{{ $application->phone }}</a> <small>· {{ __('partner.staff.application_'.$application->status) }}</small>@if($application->message)<p>{{ $application->message }}</p>@endif
+                            @if($application->status === 'new' && $staffRequest->status === 'open')<div class="staff-actions"><form method="POST" action="{{ route('restaurant.staff.applications.update', [$staffRequest, $application]) }}">@csrf @method('PUT')<input type="hidden" name="status" value="accepted"><button class="button" type="submit">{{ __('partner.staff.accept') }}</button></form><form method="POST" action="{{ route('restaurant.staff.applications.update', [$staffRequest, $application]) }}">@csrf @method('PUT')<input type="hidden" name="status" value="rejected"><button class="button button-secondary" type="submit">{{ __('partner.staff.reject') }}</button></form></div>@endif
+                        </div>
+                    @endforeach
+                </article>
+            @empty<p class="muted">{{ __('partner.staff.empty') }}</p>@endforelse
+        </section>
+
         <section class="panel info-panel" id="bonuses">
             <h2>{{ __('partner.bonuses.title') }}</h2><p class="muted">{{ __('partner.bonuses.subtitle') }}</p>
             <div class="bonus-summary">
@@ -420,13 +448,14 @@ const partnerLocale = @js(app()->getLocale());
 const partnerBrowserLocale = { kk: 'kk-KZ', ru: 'ru-RU', en: 'en-US' }[partnerLocale] || 'kk-KZ';
 const partnerI18n = @json($partnerI18n);
 (() => {
-    const tabs = ['schedule', 'bonuses', 'reports', 'settings'];
+    const tabs = ['schedule', 'staff', 'bonuses', 'reports', 'settings'];
     const applyTab = () => {
         const active = tabs.includes(window.location.hash.slice(1)) ? window.location.hash.slice(1) : 'schedule';
         const calendar = document.querySelector('.calendar-layout');
         const bookingList = document.querySelector('.booking-list');
         const newBooking = document.getElementById('new-booking');
         const sections = {
+            staff: document.getElementById('staff'),
             bonuses: document.getElementById('bonuses'),
             reports: document.getElementById('reports'),
             settings: document.getElementById('settings')
@@ -444,7 +473,7 @@ const partnerI18n = @json($partnerI18n);
 </script>
 <script>
     (() => {
-        const sections = ['schedule', 'bonuses', 'reports', 'settings'];
+        const sections = ['schedule', 'staff', 'bonuses', 'reports', 'settings'];
         document.querySelectorAll('.restaurant-nav a[href*="#new-booking"]').forEach((link) => link.remove());
         const reportLinks = [...document.querySelectorAll('.restaurant-nav a[href="#reports"]')];
         reportLinks.slice(1).forEach((link) => link.remove());
@@ -455,12 +484,14 @@ const partnerI18n = @json($partnerI18n);
             const calendarLayout = document.querySelector('.calendar-layout');
             const schedule = document.getElementById('schedule');
             const bookingList = document.querySelector('.booking-list');
+            const staff = document.getElementById('staff');
                 const bonuses = document.getElementById('bonuses');
             const reports = document.getElementById('reports');
             const settings = document.getElementById('settings');
             if (calendarLayout) calendarLayout.style.display = current === 'schedule' ? 'grid' : 'none';
             if (schedule) schedule.style.display = current === 'schedule' ? 'block' : 'none';
             if (bookingList) bookingList.style.display = current === 'schedule' ? 'block' : 'none';
+            if (staff) staff.style.display = current === 'staff' ? 'block' : 'none';
             if (bonuses) bonuses.style.display = current === 'bonuses' ? 'block' : 'none';
             if (reports) reports.style.display = current === 'reports' ? 'block' : 'none';
             if (settings) settings.style.display = current === 'settings' ? 'block' : 'none';
@@ -628,6 +659,46 @@ const partnerI18n = @json($partnerI18n);
     const initialDateUrl = new URL(window.location.href);
     const initialCalendarDate = document.querySelector('.day.selected') ? new URL(document.querySelector('.day.selected').href).searchParams.get('date') : null;
     if (bookingListMode === 'day') renderSelectedDayEvents(initialDateUrl.searchParams.get('date') || initialCalendarDate || newBookingPanel?.querySelector('input[name="booking_date"]')?.value);
+    const bookingListPanel = document.querySelector('.booking-list');
+    let bookingListRequest;
+    const loadBookingList = async (url, updateHistory = true) => {
+        bookingListRequest?.abort();
+        bookingListRequest = new AbortController();
+        bookingListPanel.setAttribute('aria-busy', 'true');
+        try {
+            const response = await fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' }, signal: bookingListRequest.signal });
+            if (!response.ok) throw new Error('Booking list unavailable');
+            const page = new DOMParser().parseFromString(await response.text(), 'text/html');
+            const nextList = page.querySelector('.booking-list');
+            if (!nextList) throw new Error('Booking list missing');
+            bookingListPanel.innerHTML = nextList.innerHTML;
+            bookingListMode = nextList.querySelector('.booking-list-tabs a.current')?.dataset.listMode || 'upcoming';
+            bookingListPanel.querySelectorAll('.booking-edit-form').forEach((form) => bindTariffPricing(form));
+            if (updateHistory) history.pushState({ bookingList: true }, '', url);
+        } catch (error) {
+            if (error.name !== 'AbortError') window.location.assign(url);
+        } finally {
+            bookingListPanel.removeAttribute('aria-busy');
+        }
+    };
+    bookingListPanel.addEventListener('click', (event) => {
+        const link = event.target.closest('.booking-list-tabs a, .booking-pagination a, .booking-search-reset');
+        if (!link) return;
+        event.preventDefault();
+        loadBookingList(link.href);
+    });
+    bookingListPanel.addEventListener('submit', (event) => {
+        if (!event.target.matches('.booking-search')) return;
+        event.preventDefault();
+        const form = event.target;
+        const url = new URL(form.action);
+        new FormData(form).forEach((value, key) => url.searchParams.set(key, value));
+        loadBookingList(url.toString());
+    });
+    window.addEventListener('popstate', () => {
+        const listUrl = new URL(window.location.href);
+        if (listUrl.hash === '#schedule') loadBookingList(listUrl.toString(), false);
+    });
     const calendarPanel = document.getElementById('schedule');
     const calendarGrid = calendarPanel?.querySelector('.calendar-grid');
     const calendarHeading = calendarPanel?.querySelector('[data-calendar-heading]');
@@ -791,8 +862,6 @@ const partnerI18n = @json($partnerI18n);
     const settingsSaveButton = document.querySelector('#settings form[action*="/restaurant/settings/slots"] button[type="submit"]');
     if (settingsSaveButton) settingsSaveButton.textContent = partnerI18n.saveSettings;
     const schedulePanel = document.getElementById('schedule');
-    const bookingListTitle = document.querySelector('.booking-list h2');
-    if (bookingListTitle) bookingListTitle.textContent = partnerI18n.selectedDay;
     if (schedulePanel && newBookingPanel && !document.getElementById('add-booking-from-calendar')) {
         const addBooking = document.createElement('a');
         addBooking.id = 'add-booking-from-calendar';
@@ -844,7 +913,7 @@ const partnerI18n = @json($partnerI18n);
         document.querySelector('.restaurant-nav a[href*="#new-booking"]')?.remove();
         const calendarLink = document.querySelector('.restaurant-nav a[href="#schedule"]');
         if (calendarLink) calendarLink.lastChild.textContent = partnerI18n.bookings;
-        const sections = ['new-booking', 'schedule', 'bonuses', 'reports', 'settings'];
+        const sections = ['new-booking', 'schedule', 'staff', 'bonuses', 'reports', 'settings'];
         const navLinks = [...document.querySelectorAll('.restaurant-nav a')];
         const figmaIcons = {
             schedule: '<svg class="figma-icon" viewBox="0 0 17 20" aria-hidden="true"><path fill="currentColor" fill-rule="evenodd" d="M13.342 2.426h1.819a1.82 1.82 0 0 1 1.819 1.819v1.819H0V4.245a1.82 1.82 0 0 1 1.819-1.819h1.82V.606A.606.606 0 0 1 4.245 0h1.213a.606.606 0 0 1 .606.606v1.82h4.852V.606A.606.606 0 0 1 11.522 0h1.213a.606.606 0 0 1 .607.606v1.82ZM1.819 19.406A1.82 1.82 0 0 1 0 17.587V7.277h16.98v10.31a1.82 1.82 0 0 1-1.819 1.819H1.819Z"/></svg>',
@@ -865,6 +934,7 @@ const partnerI18n = @json($partnerI18n);
         const schedule = document.getElementById('schedule');
         const newBooking = document.getElementById('new-booking');
         const bookingList = document.querySelector('.booking-list');
+        const staff = document.getElementById('staff');
         const bonuses = document.getElementById('bonuses');
         const settings = document.getElementById('settings');
         const reports = document.getElementById('reports');
@@ -877,6 +947,7 @@ const partnerI18n = @json($partnerI18n);
             schedule.style.display = current === 'schedule' ? 'block' : 'none';
             newBooking.style.display = calendarTab ? 'block' : 'none';
             bookingList.style.display = calendarTab ? 'block' : 'none';
+            staff.style.display = current === 'staff' ? 'block' : 'none';
             bonuses.style.display = current === 'bonuses' ? 'block' : 'none';
             reports.style.display = current === 'reports' ? 'block' : 'none';
             settings.style.display = current === 'settings' ? 'block' : 'none';
