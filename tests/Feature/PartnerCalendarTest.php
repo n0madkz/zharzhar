@@ -364,6 +364,33 @@ class PartnerCalendarTest extends TestCase
                 && $bookings->lastPage() === 2);
     }
 
+    public function test_partner_searches_upcoming_events_and_finds_past_events_in_archive(): void
+    {
+        [$partner, $restaurant, $slot] = $this->partnerFixture();
+        $bookingData = [
+            'restaurant_id' => $restaurant->id,
+            'restaurant_slot_id' => $slot->id,
+            'event_type' => 'wedding',
+            'phone' => '+7 700 000 00 01',
+            'guest_count' => 20,
+            'price_per_guest' => 10000,
+            'prepayment' => 0,
+            'status' => 'confirmed',
+        ];
+        $future = Booking::create($bookingData + ['visitor_name' => 'Future Guest', 'booking_date' => Carbon::today()->addMonth()->toDateString()]);
+        $past = Booking::create($bookingData + ['visitor_name' => 'Past Guest', 'booking_date' => Carbon::today()->subDay()->toDateString()]);
+
+        $this->actingAs($partner)->get('http://partner.zharzhar.kz/restaurant?q=Guest')
+            ->assertOk()
+            ->assertViewHas('bookingListMode', 'upcoming')
+            ->assertViewHas('bookings', fn ($bookings) => $bookings->total() === 1 && $bookings->first()->is($future));
+
+        $this->actingAs($partner)->get('http://partner.zharzhar.kz/restaurant?view=archive&q=Guest')
+            ->assertOk()
+            ->assertViewHas('bookingListMode', 'archive')
+            ->assertViewHas('bookings', fn ($bookings) => $bookings->total() === 1 && $bookings->first()->is($past));
+    }
+
     public function test_booking_price_is_taken_from_own_active_tariff(): void
     {
         [$partner, $restaurant, $slot] = $this->partnerFixture();

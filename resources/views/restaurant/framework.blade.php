@@ -252,6 +252,7 @@
     .bonus-info,.bonus-side{display:flex;flex-direction:column;gap:4px}.bonus-row small{color:#667085}.bonus-side{align-items:flex-end;gap:9px}.bonus-amount{color:#067647;font-weight:800;white-space:nowrap}.bonus-invitation-link{display:inline-flex;align-items:center;justify-content:center;min-height:36px;padding:8px 12px;border:1px solid #b9c8ff;border-radius:9px;background:#eef3ff;color:#1746c9;font-size:12px;font-weight:800;text-decoration:none}.bonus-invitation-link:hover{background:#dfe8ff}.bonus-unavailable{font-size:12px;color:#98a2b3}.bonus-empty{padding:18px 0}
     .payout-panel{margin-top:18px;padding:20px;border:1px solid #dbe4ff;border-radius:16px;background:#fff}.payout-panel h3{margin:0 0 6px}.payout-form{display:grid;grid-template-columns:minmax(150px,.7fr) minmax(220px,1fr) auto;gap:12px;align-items:end;margin-top:18px}.payout-form .field{margin:0}.payout-form .button{min-height:46px}.payout-notice{margin:16px 0 0;padding:13px 15px;border-radius:10px;background:#f2f4f7;color:#475467;font-weight:700}.payout-history{margin-top:20px;padding-top:18px;border-top:1px solid #eef1f5}.payout-history article{display:flex;justify-content:space-between;gap:16px;padding:12px 0;border-bottom:1px solid #eef1f5}.payout-history article strong{text-align:right}
     .booking-list-head{display:flex;align-items:end;justify-content:space-between;gap:18px;margin-bottom:10px}.booking-search{display:flex;gap:8px;width:min(480px,100%)}.booking-search input{flex:1;min-width:150px;padding:11px 13px;border:1px solid #d0d5dd;border-radius:9px;background:#fff}.booking-search .button{white-space:nowrap}.booking-search-reset{display:inline-flex;align-items:center;padding:0 5px;color:#475467;font-size:13px}
+    .booking-list-tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}.booking-list-tabs a{display:inline-flex;align-items:center;justify-content:center;padding:9px 12px;border:1px solid #d0d5dd;border-radius:9px;color:#344054;text-decoration:none;font-size:13px;font-weight:650}.booking-list-tabs a.current{border-color:#2563eb;background:#eff4ff;color:#1d4ed8}.booking-list-tabs a:hover{border-color:#2563eb}
     @media(max-width:560px){
         .day-modal-backdrop{align-items:stretch;padding:8px}
         .day-modal{width:100%;max-height:calc(100dvh - 16px);padding:18px 14px;border-radius:16px}
@@ -334,7 +335,7 @@
             </section>
         </div>
 
-        <section class="panel booking-list"><div class="booking-list-head"><h2>{{ $bookingSearch !== '' ? __('partner.search.results') : __('partner.booking.selected_day') }}</h2><form class="booking-search" method="GET" action="{{ route('restaurant.dashboard') }}#schedule" role="search"><input type="hidden" name="month" value="{{ $month->format('Y-m') }}"><input name="q" type="search" value="{{ $bookingSearch }}" placeholder="{{ __('partner.search.placeholder') }}" aria-label="{{ __('partner.search.label') }}"><button class="button button-secondary" type="submit">{{ __('partner.search.submit') }}</button>@if($bookingSearch !== '')<a class="booking-search-reset" href="{{ route('restaurant.dashboard', ['month' => $month->format('Y-m'), 'date' => $selectedDate->format('Y-m-d')]) }}#schedule">{{ __('partner.search.reset') }}</a>@endif</form></div>
+        <section class="panel booking-list"><nav class="booking-list-tabs" aria-label="{{ __('partner.nav.bookings') }}"><a class="{{ $bookingListMode === 'upcoming' ? 'current' : '' }}" data-list-mode="upcoming" href="{{ route('restaurant.dashboard', ['view' => 'upcoming', 'q' => $bookingSearch]) }}#schedule">{{ __('partner.booking_list.upcoming') }}</a><a class="{{ $bookingListMode === 'day' ? 'current' : '' }}" data-list-mode="day" href="{{ route('restaurant.dashboard', ['view' => 'day', 'month' => $month->format('Y-m'), 'date' => $selectedDate->format('Y-m-d')]) }}#schedule">{{ __('partner.booking_list.day') }}</a><a class="{{ $bookingListMode === 'archive' ? 'current' : '' }}" data-list-mode="archive" href="{{ route('restaurant.dashboard', ['view' => 'archive', 'q' => $bookingSearch]) }}#schedule">{{ __('partner.booking_list.archive') }}</a></nav><div class="booking-list-head"><h2>{{ $bookingSearch !== '' ? __('partner.search.results') : __('partner.booking_list.'.$bookingListMode) }}</h2><form class="booking-search" method="GET" action="{{ route('restaurant.dashboard') }}#schedule" role="search"><input type="hidden" name="view" value="{{ $bookingListMode === 'archive' ? 'archive' : 'upcoming' }}"><input name="q" type="search" value="{{ $bookingSearch }}" placeholder="{{ __('partner.search.placeholder') }}" aria-label="{{ __('partner.search.label') }}"><button class="button button-secondary" type="submit">{{ __('partner.search.submit') }}</button>@if($bookingSearch !== '')<a class="booking-search-reset" href="{{ route('restaurant.dashboard', ['view' => $bookingListMode === 'archive' ? 'archive' : 'upcoming']) }}#schedule">{{ __('partner.search.reset') }}</a>@endif</form></div>
             @forelse($bookings as $booking)
                 <details class="booking-card" id="booking-{{ $booking->id }}"><summary><i class="booking-color" style="--booking-color:{{ $booking->color }}"></i><span><strong>{{ $booking->visitor_name }}</strong><small>{{ $booking->booking_date->format('d.m.Y') }} · {{ $booking->tariff?->name ?? __('partner.packages.package') }} · {{ $booking->slot?->label ?? __('partner.booking.not_selected') }} · {{ $booking->guest_count }} {{ __('partner.booking.guests') }}</small></span></summary>
                     <form method="POST" action="{{ route('restaurant.bookings.update', $booking) }}" class="booking-edit-form">@csrf @method('PUT')
@@ -347,7 +348,7 @@
                     </form>
                     <form method="POST" action="{{ route('restaurant.bookings.destroy', $booking) }}" onsubmit="return window.confirm(this.dataset.confirm)" data-confirm="{{ __('partner.booking.delete_confirm') }}">@csrf @method('DELETE')<button class="button button-danger" type="submit">{{ __('partner.booking.delete') }}</button></form>
                 </details>
-            @empty<p class="muted">{{ $bookingSearch !== '' ? __('partner.search.empty') : __('partner.booking.no_month') }}</p>@endforelse
+            @empty<p class="muted">{{ $bookingSearch !== '' ? __('partner.search.empty') : ($bookingListMode === 'day' ? __('partner.booking.no_day') : __('partner.booking_list.'.$bookingListMode.'_empty')) }}</p>@endforelse
             @if($bookings->hasPages())
                 <div class="pagination booking-pagination"><nav aria-label="{{ __('partner.nav.bookings') }}"><div>
                     @if($bookings->previousPageUrl())<a href="{{ $bookings->previousPageUrl() }}#schedule" aria-label="Previous">←</a>@endif
@@ -477,6 +478,7 @@ const partnerI18n = @json($partnerI18n);
         showSection(window.location.hash.slice(1));
     })();
     let calendarBookingData = @json($calendarBookingData);
+    let bookingListMode = @json($bookingListMode);
     const dayModalBackdrop = document.createElement('div');
     dayModalBackdrop.className = 'day-modal-backdrop';
     dayModalBackdrop.innerHTML = '<div class="day-modal" role="dialog" aria-modal="true" aria-labelledby="day-modal-title"><div class="day-modal-head"><h2 id="day-modal-title"></h2><button type="button" class="day-modal-close" aria-label="' + partnerI18n.close + '">×</button></div><div class="day-modal-events"></div><div class="day-modal-form"></div><button type="button" class="button calendar-add-booking">' + partnerI18n.addEvent + '</button></div>';
@@ -511,6 +513,10 @@ const partnerI18n = @json($partnerI18n);
     const renderSelectedDayEvents = (date) => {
         const selectedDayList = document.querySelector('.booking-list');
         if (!selectedDayList || !date) return;
+        bookingListMode = 'day';
+        selectedDayList.querySelectorAll('.booking-list-tabs a').forEach((link) => link.classList.toggle('current', link.dataset.listMode === 'day'));
+        selectedDayList.querySelector('.booking-search input[name="q"]').value = '';
+        selectedDayList.querySelectorAll('.booking-pagination').forEach((pagination) => pagination.remove());
         const normalizedDate = String(date).slice(0, 10);
         const events = calendarBookingData.filter((booking) => String(booking.date).slice(0, 10) === normalizedDate && booking.status !== 'cancelled');
         const listTitle = selectedDayList.querySelector('h2');
@@ -530,6 +536,9 @@ const partnerI18n = @json($partnerI18n);
         const renderedMonth = document.getElementById('schedule')?.dataset.calendarMonth || '{{ $month->format('Y-m') }}';
         currentUrl.searchParams.set('month', renderedMonth);
         currentUrl.searchParams.set('date', date);
+        currentUrl.searchParams.set('view', 'day');
+        currentUrl.searchParams.delete('q');
+        currentUrl.searchParams.delete('bookings_page');
         currentUrl.hash = '#schedule';
         history.replaceState(null, '', currentUrl);
     };
@@ -618,7 +627,7 @@ const partnerI18n = @json($partnerI18n);
     bindCalendarDays();
     const initialDateUrl = new URL(window.location.href);
     const initialCalendarDate = document.querySelector('.day.selected') ? new URL(document.querySelector('.day.selected').href).searchParams.get('date') : null;
-    renderSelectedDayEvents(initialDateUrl.searchParams.get('date') || initialCalendarDate || newBookingPanel?.querySelector('input[name="booking_date"]')?.value);
+    if (bookingListMode === 'day') renderSelectedDayEvents(initialDateUrl.searchParams.get('date') || initialCalendarDate || newBookingPanel?.querySelector('input[name="booking_date"]')?.value);
     const calendarPanel = document.getElementById('schedule');
     const calendarGrid = calendarPanel?.querySelector('.calendar-grid');
     const calendarHeading = calendarPanel?.querySelector('[data-calendar-heading]');
@@ -685,7 +694,7 @@ const partnerI18n = @json($partnerI18n);
         activeModalDate = selectedDate;
         const formDate = newBookingPanel?.querySelector('input[name="booking_date"]');
         if (formDate) formDate.value = selectedDate;
-        renderSelectedDayEvents(selectedDate);
+        if (bookingListMode === 'day') renderSelectedDayEvents(selectedDate);
         bindCalendarDays();
         updateMonthLinks(value, selectedDate);
         const targetUrl = new URL(window.location.href);

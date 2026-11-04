@@ -36,10 +36,16 @@ class RestaurantController extends Controller
         }
         $bookingSearch = trim(mb_substr($request->string('q')->toString(), 0, 100));
         $phoneSearch = preg_replace('/\D+/', '', $bookingSearch);
+        $bookingListMode = $request->input('view');
+        if (! in_array($bookingListMode, ['upcoming', 'day', 'archive'], true)) {
+            $bookingListMode = $request->filled('date') && $bookingSearch === '' ? 'day' : 'upcoming';
+        }
         $allBookings = Booking::where('restaurant_id', $restaurant->id)->with(['slot', 'tariff.service'])->whereBetween('booking_date', [$calendarStart->toDateString(), $calendarEnd->toDateString()])->latest('booking_date')->latest()->get();
         $bookings = Booking::where('restaurant_id', $restaurant->id)
             ->with(['slot', 'tariff.service'])
-            ->when($bookingSearch === '', fn ($query) => $query->whereDate('booking_date', $selectedDate->toDateString()))
+            ->when($bookingListMode === 'day', fn ($query) => $query->whereDate('booking_date', $selectedDate->toDateString()))
+            ->when($bookingListMode === 'upcoming', fn ($query) => $query->whereDate('booking_date', '>=', Carbon::today()->toDateString())->where('status', '!=', 'cancelled'))
+            ->when($bookingListMode === 'archive', fn ($query) => $query->whereDate('booking_date', '<', Carbon::today()->toDateString()))
             ->when($bookingSearch !== '', function ($query) use ($bookingSearch, $phoneSearch): void {
                 $query->where(function ($query) use ($bookingSearch, $phoneSearch): void {
                     $query->where('visitor_name', 'like', '%'.$bookingSearch.'%')
@@ -49,8 +55,8 @@ class RestaurantController extends Controller
                     }
                 });
             })
-            ->latest('booking_date')
-            ->latest()
+            ->orderBy('booking_date', $bookingListMode === 'upcoming' ? 'asc' : 'desc')
+            ->orderBy('id', $bookingListMode === 'upcoming' ? 'asc' : 'desc')
             ->paginate(10, ['*'], 'bookings_page')
             ->withQueryString();
         $selectedBookings = $bookings->getCollection();
@@ -98,7 +104,7 @@ class RestaurantController extends Controller
             ->exists();
         $packages = $restaurant->services->flatMap->tariffs->sortBy('sort_order')->sortBy('id')->values();
 
-        return view('restaurant.framework', compact('restaurant', 'bookings', 'allBookings', 'selectedBookings', 'selectedDate', 'month', 'calendarDays', 'calendarBookingData', 'reportBookings', 'reportPeriod', 'reportFrom', 'reportTo', 'reportRows', 'reportPeriods', 'bonusTransactions', 'bonusBalance', 'payoutRequests', 'hasMonthlyPayout', 'packages', 'bookingSearch'));
+        return view('restaurant.framework', compact('restaurant', 'bookings', 'allBookings', 'selectedBookings', 'selectedDate', 'month', 'calendarDays', 'calendarBookingData', 'reportBookings', 'reportPeriod', 'reportFrom', 'reportTo', 'reportRows', 'reportPeriods', 'bonusTransactions', 'bonusBalance', 'payoutRequests', 'hasMonthlyPayout', 'packages', 'bookingSearch', 'bookingListMode'));
     }
 
     public function requestPayout(Request $request): RedirectResponse
