@@ -149,7 +149,7 @@
         @media(max-width:850px){
         body{padding-bottom:82px}
         .restaurant-app{display:block;padding-bottom:70px}
-        .restaurant-nav{position:fixed;z-index:20;left:12px;right:12px;bottom:12px;height:68px;border:1px solid #e1e8e3;border-radius:18px;background:rgba(255,255,255,.97);box-shadow:0 10px 30px rgba(23,51,42,.16);padding:5px;display:grid;grid-template-columns:repeat(5,1fr);gap:3px;backdrop-filter:blur(14px)}
+        .restaurant-nav{position:fixed;z-index:20;left:12px;right:12px;bottom:12px;height:68px;border:1px solid #e1e8e3;border-radius:18px;background:rgba(255,255,255,.97);box-shadow:0 10px 30px rgba(23,51,42,.16);padding:5px;display:grid;grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:3px;backdrop-filter:blur(14px)}
         .restaurant-nav .brand{display:none}
         .restaurant-nav a{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;text-align:center;font-size:10px;line-height:1.1;margin:0;padding:6px 2px;min-height:44px;font-weight:600}
         .restaurant-nav a .nav-icon{width:20px;height:20px;display:grid;place-items:center;font-size:0;margin-right:0}

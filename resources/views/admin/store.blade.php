@@ -113,13 +113,30 @@ $groups = [
 @foreach($groups as $groupKey => $group)
 <section class="admin-section" id="{{ $groupKey }}"><h2>{{ $group['title'] }}</h2><p class="hint">{{ $group['hint'] }}</p>
 @if($groupKey === 'templates')
+@if(session('success'))<p class="notice" role="status">{{ session('success') }}</p>@endif
 <form method="POST" action="{{ route('admin.store.templates.discount-all') }}" class="panel template-discount-form">@csrf
-    <label class="field" for="all-template-discount">Скидка для всех дизайнов, %
-        <input id="all-template-discount" name="discount_percent" type="number" min="0" max="100" value="50" required>
+    <div class="template-discount-heading"><strong>Управление скидками</strong><p class="hint">Выберите все дизайны или отметьте нужные ниже.</p></div>
+    <div class="template-discount-scope" role="group" aria-label="Какие дизайны изменить">
+        <label class="check"><input type="radio" name="scope" value="all" @checked(old('scope', 'all') === 'all')> Все дизайны</label>
+        <label class="check"><input type="radio" name="scope" value="selected" @checked(old('scope') === 'selected')> Только отмеченные</label>
+    </div>
+    <div class="template-discount-list" role="group" aria-label="Выбор дизайнов">
+        @foreach($group['records'] as $template)
+            <label class="check"><input type="checkbox" name="template_ids[]" value="{{ $template->id }}" @checked(in_array($template->id, array_map('intval', (array) old('template_ids', []))))>
+                <span>{{ $template->name }} <small>· {{ $template->discount_percent }}% · {{ number_format($template->salePrice(), 0, ',', ' ') }} ₸</small></span>
+            </label>
+        @endforeach
+    </div>
+    <label class="field" for="all-template-discount">Размер скидки, %
+        <input id="all-template-discount" name="discount_percent" type="number" min="0" max="100" value="{{ old('discount_percent', 50) }}">
     </label>
-    <button class="button primary" type="submit">Применить ко всем дизайнам</button>
-    <p class="hint">Заменит индивидуальные скидки у всех дизайнов. Существующие заказы сохранят прежнюю сумму.</p>
+    <div class="template-discount-actions">
+        <button class="button primary" type="submit" name="action" value="apply">Применить скидку</button>
+        <button class="button outline" type="submit" name="action" value="remove">Убрать скидку</button>
+    </div>
+    <p class="hint">Изменит скидку в выбранной группе. Существующие заказы сохранят прежнюю сумму.</p>
     @error('discount_percent')<span class="error">{{ $message }}</span>@enderror
+    @error('template_ids')<span class="error">{{ $message }}</span>@enderror
 </form>
 @endif
 <div class="admin-grid"><div class="admin-editor"><h3>Добавить</h3><form method="POST" action="{{ route('admin.store.'.$group['route']) }}" @if(in_array($groupKey, ['templates', 'music'])) enctype="multipart/form-data" @endif>@csrf

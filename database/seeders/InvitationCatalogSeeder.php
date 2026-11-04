@@ -183,13 +183,18 @@ class InvitationCatalogSeeder extends Seeder
                 'besik_toi' => 'Еңлік',
                 default => 'Айдын - Айдана',
             };
+            $existingConfig = Template::where('slug', $slug)->first()?->config_json ?? [];
+            $config = array_replace(['theme' => $theme, 'sample_names' => $sampleNames, 'content_kk' => $content], $settings);
+            if (array_key_exists('discount_percent', $existingConfig)) {
+                $config['discount_percent'] = $existingConfig['discount_percent'];
+            }
             Template::updateOrCreate(['slug' => $slug], [
                 'name' => $name,
                 'category' => $event,
                 'event_type' => $event,
                 'price' => $price,
                 'preview_image' => $image,
-                'config_json' => array_replace(['theme' => $theme, 'sample_names' => $sampleNames, 'content_kk' => $content], $settings),
+                'config_json' => $config,
                 'is_active' => true,
             ]);
         }

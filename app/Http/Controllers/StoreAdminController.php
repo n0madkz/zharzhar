@@ -311,6 +311,7 @@ class StoreAdminController extends Controller
         $config = $template?->config_json ?? [];
         $config['theme'] = $data['theme'];
         $config['format'] = $data['format'];
+        $config['discount_percent'] = (int) $data['discount_percent'];
         $config['video_end_seconds'] = (int) ($data['video_end_seconds'] ?? 6);
         $config['sample_names'] = $content['title'];
         $config['content_kk'] = $content;
@@ -343,7 +344,6 @@ class StoreAdminController extends Controller
             'event_type' => $data['event_type'] ?? null,
             'category' => $data['event_type'] ?? 'all',
             'price' => $data['price'],
-            'discount_percent' => $data['discount_percent'],
             'preview_image' => $previewImage,
             'config_json' => $config,
             'is_active' => $request->boolean('is_active'),
@@ -360,12 +360,28 @@ class StoreAdminController extends Controller
     public function discountAllTemplates(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'discount_percent' => ['required', 'integer', 'between:0,100'],
+            'scope' => ['required', Rule::in(['all', 'selected'])],
+            'action' => ['required', Rule::in(['apply', 'remove'])],
+            'discount_percent' => [Rule::requiredIf($request->input('action') === 'apply'), 'nullable', 'integer', 'between:0,100'],
+            'template_ids' => ['required_if:scope,selected', 'array', 'min:1'],
+            'template_ids.*' => ['integer', 'distinct', 'exists:templates,id'],
         ]);
 
-        Template::query()->update(['discount_percent' => $data['discount_percent']]);
+        $percentage = $data['action'] === 'remove' ? 0 : (int) $data['discount_percent'];
+        DB::transaction(function () use ($data, $percentage): void {
+            Template::query()
+                ->when($data['scope'] === 'selected', fn ($query) => $query->whereIn('id', $data['template_ids']))
+                ->chunkById(100, function ($templates) use ($percentage): void {
+                    foreach ($templates as $template) {
+                        $config = $template->config_json ?? [];
+                        $config['discount_percent'] = $percentage;
+                        $template->update(['config_json' => $config]);
+                    }
+                });
+        });
 
-        return back()->with('success', 'Скидка для всех дизайнов обновлена.');
+        return redirect()->to(route('admin.store.index').'#templates')
+            ->with('success', $data['action'] === 'remove' ? 'Скидка снята с выбранных дизайнов.' : 'Скидка для дизайнов обновлена.');
     }
 
     public function saveMusic(Request $request, ?Music $music = null): RedirectResponse

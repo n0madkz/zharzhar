@@ -532,10 +532,10 @@ class InvitationStoreTest extends TestCase
 
     public function test_template_sale_is_reflected_in_catalog_quote_order_and_payment(): void
     {
-        $template = Template::factory()->create(['price' => 9990, 'discount_percent' => 50]);
+        $template = Template::factory()->create(['price' => 9990, 'config_json' => ['theme' => 'sage', 'discount_percent' => 50]]);
         $promo = PromoCode::factory()->create(['code' => 'EXTRA10', 'type' => 'percent', 'value' => 10]);
 
-        $this->get('/')->assertOk()->assertSee('4 995')->assertSee('−50%');
+        $this->get('/')->assertOk()->assertSee('<del class="design-old-price">9 990 ₸</del>', false)->assertSee('4 995')->assertSee('−50%');
         $this->postJson('/checkout/quote', ['template_id' => $template->id])
             ->assertOk()->assertJson(['subtotal' => 9990, 'discount' => 4995, 'total' => 4995]);
         $this->postJson('/checkout/quote', ['template_id' => $template->id, 'promo_code' => $promo->code])
@@ -551,21 +551,29 @@ class InvitationStoreTest extends TestCase
 
     public function test_admin_can_set_discount_for_all_or_one_template(): void
     {
-        $first = Template::factory()->create(['discount_percent' => 50]);
-        $second = Template::factory()->create(['discount_percent' => 20]);
+        $first = Template::factory()->create(['config_json' => ['theme' => 'sage', 'discount_percent' => 50]]);
+        $second = Template::factory()->create(['config_json' => ['theme' => 'sage', 'discount_percent' => 20]]);
         $this->actingAs(User::factory()->create(['role' => 'admin']));
 
-        $this->post('/admin/store/templates-discount', ['discount_percent' => 101])->assertSessionHasErrors('discount_percent');
-        $this->post('/admin/store/templates-discount', ['discount_percent' => 25])->assertRedirect();
+        $this->post('/admin/store/templates-discount', ['scope' => 'all', 'action' => 'apply', 'discount_percent' => 101])->assertSessionHasErrors('discount_percent');
+        $this->post('/admin/store/templates-discount', ['scope' => 'all', 'action' => 'apply', 'discount_percent' => 25])->assertRedirect();
         $this->assertSame(25, $first->fresh()->discount_percent);
         $this->assertSame(25, $second->fresh()->discount_percent);
+
+        $this->post('/admin/store/templates-discount', ['scope' => 'selected', 'action' => 'apply', 'discount_percent' => 40])->assertSessionHasErrors('template_ids');
+        $this->post('/admin/store/templates-discount', ['scope' => 'selected', 'action' => 'apply', 'discount_percent' => 40, 'template_ids' => [$second->id]])->assertRedirect();
+        $this->assertSame(25, $first->fresh()->discount_percent);
+        $this->assertSame(40, $second->fresh()->discount_percent);
+
+        $this->post('/admin/store/templates-discount', ['scope' => 'selected', 'action' => 'remove', 'template_ids' => [$second->id]])->assertRedirect();
+        $this->assertSame(0, $second->fresh()->discount_percent);
 
         $this->post('/admin/store/templates/'.$first->id, $this->adminTemplateData([
             'slug' => $first->slug,
             'discount_percent' => 0,
         ]))->assertRedirect();
         $this->assertSame(0, $first->fresh()->discount_percent);
-        $this->assertSame(25, $second->fresh()->discount_percent);
+        $this->assertSame(0, $second->fresh()->discount_percent);
     }
 
     public function test_selected_language_is_used_by_the_published_invitation(): void
