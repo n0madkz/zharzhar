@@ -6,28 +6,35 @@ use App\Models\StaffApplication;
 use App\Models\StaffRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class StaffRequestController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
-        $requests = StaffRequest::query()
+        $staffEnabled = $this->staffEnabled();
+        $requests = $staffEnabled ? StaffRequest::query()
             ->with('restaurant:id,name,city')
             ->withCount(['applications as accepted_count' => fn ($query) => $query->where('status', 'accepted')])
             ->where('status', 'open')
             ->whereDate('event_date', '>=', today()->toDateString())
             ->orderBy('event_date')
-            ->paginate(20);
+            ->paginate(20) : new LengthAwarePaginator([], 0, 20, $request->integer('page', 1), ['path' => $request->url()]);
+        $myApplications = $staffEnabled && $request->user()?->isRole('staff')
+            ? $request->user()->staffApplications()->with('staffRequest.restaurant:id,name,city')->latest()->get()
+            : collect();
 
-        return view('staff.requests', compact('requests'));
+        return view('staff.requests', compact('requests', 'myApplications', 'staffEnabled'));
     }
 
     public function store(Request $request): RedirectResponse
     {
+        $this->requireStaffTables();
         $restaurant = $request->user()->restaurant()->firstOrFail();
         $data = $request->validate([
             'event_date' => ['required', 'date', 'after_or_equal:today'],
@@ -44,6 +51,7 @@ class StaffRequestController extends Controller
 
     public function close(Request $request, StaffRequest $staffRequest): RedirectResponse
     {
+        $this->requireStaffTables();
         $this->ensureOwner($request, $staffRequest);
         $staffRequest->update(['status' => 'closed']);
 
@@ -52,36 +60,36 @@ class StaffRequestController extends Controller
 
     public function apply(Request $request, StaffRequest $staffRequest): RedirectResponse
     {
-        abort_unless($staffRequest->status === 'open' && $staffRequest->event_date->gte(today()), 404);
+        $this->requireStaffTables();
         $data = $request->validate([
-            'name' => ['required', 'string', 'min:2', 'max:100'],
-            'phone' => ['required', 'string', 'max:30'],
             'message' => ['nullable', 'string', 'max:500'],
         ]);
-        $phone = preg_replace('/\D+/', '', $data['phone']);
-        if (strlen($phone) === 11 && str_starts_with($phone, '8')) {
-            $phone = '7'.substr($phone, 1);
+        $phone = $request->user()->phone;
+        if (! preg_match('/^\d{10,15}$/', (string) $phone)) {
+            throw ValidationException::withMessages(['phone' => 'В профиле требуется действующий номер телефона.']);
         }
-        if (strlen($phone) === 10) {
-            $phone = '7'.$phone;
-        }
-        if (! preg_match('/^\d{10,15}$/', $phone)) {
-            throw ValidationException::withMessages(['phone' => 'Укажите действующий номер телефона.']);
-        }
-        if ($staffRequest->applications()->where('phone', $phone)->exists()) {
-            throw ValidationException::withMessages(['phone' => 'Вы уже откликнулись на эту заявку.']);
-        }
-        $staffRequest->applications()->create([
-            'name' => $data['name'],
-            'phone' => $phone,
-            'message' => $data['message'] ?? null,
-        ]);
+        DB::transaction(function () use ($request, $staffRequest, $phone, $data): void {
+            $locked = StaffRequest::query()->lockForUpdate()->findOrFail($staffRequest->id);
+            abort_unless($locked->status === 'open' && $locked->event_date->gte(today()), 404);
+            if ($locked->applications()->where(function ($query) use ($request, $phone): void {
+                $query->where('phone', $phone)->orWhere('user_id', $request->user()->id);
+            })->exists()) {
+                throw ValidationException::withMessages(['phone' => 'Вы уже откликнулись на эту заявку.']);
+            }
+            $locked->applications()->create([
+                'user_id' => $request->user()->id,
+                'name' => $request->user()->name,
+                'phone' => $phone,
+                'message' => $data['message'] ?? null,
+            ]);
+        });
 
         return back()->with('success', 'Отклик отправлен ресторану.');
     }
 
     public function updateApplication(Request $request, StaffRequest $staffRequest, StaffApplication $application): RedirectResponse
     {
+        $this->requireStaffTables();
         $this->ensureOwner($request, $staffRequest);
         abort_unless($application->staff_request_id === $staffRequest->id, 404);
         $data = $request->validate(['status' => ['required', Rule::in(['accepted', 'rejected'])]]);
@@ -105,5 +113,16 @@ class StaffRequestController extends Controller
     private function ensureOwner(Request $request, StaffRequest $staffRequest): void
     {
         abort_unless($staffRequest->restaurant_id === $request->user()->restaurant()->firstOrFail()->id, 404);
+    }
+
+    private function staffEnabled(): bool
+    {
+        return Schema::hasTable('staff_requests') && Schema::hasTable('staff_applications')
+            && Schema::hasColumn('staff_applications', 'user_id');
+    }
+
+    private function requireStaffTables(): void
+    {
+        abort_unless($this->staffEnabled(), 503, 'Раздел персонала временно недоступен. Требуется выполнить миграции базы данных.');
     }
 }

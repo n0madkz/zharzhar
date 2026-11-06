@@ -18,6 +18,7 @@ use Dompdf\Options;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
@@ -103,9 +104,13 @@ class RestaurantController extends Controller
             ->whereBetween('created_at', [now()->startOfMonth(), now()->endOfMonth()])
             ->exists();
         $packages = $restaurant->services->flatMap->tariffs->sortBy('sort_order')->sortBy('id')->values();
-        $staffRequests = $restaurant->staffRequests()->with('applications')->latest()->limit(30)->get();
+        $staffEnabled = Schema::hasTable('staff_requests') && Schema::hasTable('staff_applications')
+            && Schema::hasColumn('staff_applications', 'user_id');
+        $staffRequests = $staffEnabled
+            ? $restaurant->staffRequests()->with('applications')->latest()->limit(30)->get()
+            : collect();
 
-        return view('restaurant.framework', compact('restaurant', 'bookings', 'allBookings', 'selectedBookings', 'selectedDate', 'month', 'calendarDays', 'calendarBookingData', 'reportBookings', 'reportPeriod', 'reportFrom', 'reportTo', 'reportRows', 'reportPeriods', 'bonusTransactions', 'bonusBalance', 'payoutRequests', 'hasMonthlyPayout', 'packages', 'bookingSearch', 'bookingListMode', 'staffRequests'));
+        return view('restaurant.framework', compact('restaurant', 'bookings', 'allBookings', 'selectedBookings', 'selectedDate', 'month', 'calendarDays', 'calendarBookingData', 'reportBookings', 'reportPeriod', 'reportFrom', 'reportTo', 'reportRows', 'reportPeriods', 'bonusTransactions', 'bonusBalance', 'payoutRequests', 'hasMonthlyPayout', 'packages', 'bookingSearch', 'bookingListMode', 'staffRequests', 'staffEnabled'));
     }
 
     public function requestPayout(Request $request): RedirectResponse

@@ -4,9 +4,9 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BrokerController;
 use App\Http\Controllers\RestaurantController;
+use App\Http\Controllers\StaffRequestController;
 use App\Http\Controllers\StoreAdminController;
 use App\Http\Controllers\StorefrontController;
-use App\Http\Controllers\StaffRequestController;
 use App\Http\Middleware\SetPartnerLocale;
 use Illuminate\Support\Facades\Route;
 
@@ -34,7 +34,8 @@ Route::put('/admin/brokers/{user}', [BrokerController::class, 'updateStaff'])->m
 Route::domain(config('store.partner_domain'))->get('/', fn () => redirect(auth()->user()?->isRole('partner') ? '/restaurant' : '/login'))->name('partner.home');
 Route::get('/', [StorefrontController::class, 'index'])->name('store.catalog');
 Route::get('/staff/jobs', [StaffRequestController::class, 'index'])->name('staff.requests.index');
-Route::post('/staff/jobs/{staffRequest}/apply', [StaffRequestController::class, 'apply'])->middleware('throttle:5,1')->name('staff.requests.apply');
+Route::get('/staff', [StaffRequestController::class, 'index'])->middleware(['auth', 'role:staff'])->name('staff.dashboard');
+Route::post('/staff/jobs/{staffRequest}/apply', [StaffRequestController::class, 'apply'])->middleware(['auth', 'role:staff', 'throttle:5,1'])->name('staff.requests.apply');
 Route::get('/designs/{template}/preview', [StorefrontController::class, 'preview'])->name('store.preview');
 Route::get('/checkout/{template}', [StorefrontController::class, 'checkout'])->name('store.checkout');
 Route::post('/checkout', [StorefrontController::class, 'store'])->middleware('throttle:10,1')->name('store.order');
@@ -71,6 +72,8 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin/store')->name('admin.st
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,1')->name('login.store');
+    Route::get('/staff/register', [AuthController::class, 'showStaffRegistration'])->name('staff.register');
+    Route::post('/staff/register', [AuthController::class, 'registerStaff'])->middleware('throttle:5,1')->name('staff.register.store');
 });
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
 Route::get('/admin', [AdminController::class, 'index'])->middleware(['auth', 'role:admin'])->name('admin.dashboard');
@@ -101,5 +104,10 @@ Route::domain(config('store.partner_domain'))->middleware(['partner.domain', 'au
     Route::delete('/restaurant/settings/packages/{tariff}', [RestaurantController::class, 'destroyPackage'])->name('restaurant.packages.destroy');
 });
 Route::get('/dashboard', function () {
-    return redirect(auth()->user()?->isRole('broker') ? '/broker' : (auth()->user()?->isRole('partner') ? '/restaurant' : '/admin'));
+    return redirect(match (strtolower((string) auth()->user()?->role)) {
+        'broker' => '/broker',
+        'partner' => '/restaurant',
+        'staff' => '/staff',
+        default => '/admin',
+    });
 })->middleware('auth');

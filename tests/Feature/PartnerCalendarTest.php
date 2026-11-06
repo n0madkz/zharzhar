@@ -2,22 +2,25 @@
 
 namespace Tests\Feature;
 
-use App\Models\Booking;
 use App\Models\BonusTransaction;
+use App\Models\Booking;
 use App\Models\Event;
 use App\Models\Invitation;
 use App\Models\InvitationOrder;
 use App\Models\PayoutRequest;
 use App\Models\Restaurant;
-use App\Models\RestaurantSlot;
 use App\Models\RestaurantService;
+use App\Models\RestaurantSlot;
 use App\Models\RestaurantTariff;
 use App\Models\StaffRequest;
 use App\Models\Template;
 use App\Models\User;
 use App\Support\RestaurantInvitationCard;
 use Carbon\Carbon;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
 
 class PartnerCalendarTest extends TestCase
@@ -406,9 +409,14 @@ class PartnerCalendarTest extends TestCase
 
         $job = StaffRequest::where('restaurant_id', $restaurant->id)->firstOrFail();
         $this->get('http://zharzhar.kz/staff/jobs')->assertOk()->assertSee('Wedding shift');
-        $this->post('http://zharzhar.kz/staff/jobs/'.$job->id.'/apply', [
-            'name' => 'Waiter One', 'phone' => '+7 700 123 45 67',
+        $waiter = User::factory()->create(['role' => 'staff', 'phone' => '77001234567']);
+        $this->actingAs($waiter)->post('http://zharzhar.kz/staff/jobs/'.$job->id.'/apply', [
+            'message' => 'Available',
         ])->assertRedirect();
+        $this->assertSame(1, $job->applications()->count());
+        $this->assertSame($waiter->id, $job->applications()->firstOrFail()->user_id);
+        $this->get('http://zharzhar.kz/staff')->assertOk()->assertSee('На рассмотрении');
+        $this->post('http://zharzhar.kz/staff/jobs/'.$job->id.'/apply')->assertSessionHasErrors('phone');
         $this->assertSame(1, $job->applications()->count());
 
         $application = $job->applications()->firstOrFail();
@@ -418,6 +426,62 @@ class PartnerCalendarTest extends TestCase
         $this->assertSame('accepted', $application->fresh()->status);
         $this->assertSame('closed', $job->fresh()->status);
         $this->get('http://zharzhar.kz/staff/jobs')->assertDontSee('Wedding shift');
+        $this->actingAs($waiter)->get('http://zharzhar.kz/staff')->assertOk()->assertSee('Принят');
+    }
+
+    public function test_staff_registration_fixes_role_and_redirects_to_own_dashboard(): void
+    {
+        $this->get('http://zharzhar.kz/staff/register')->assertOk();
+        $this->post('http://zharzhar.kz/staff/register', [
+            'name' => 'Waiter One', 'email' => 'waiter@example.test',
+            'phone' => '8 (700) 123-45-67', 'password' => 'test-password',
+            'password_confirmation' => 'test-password', 'role' => 'admin',
+        ])->assertRedirect('http://zharzhar.kz/staff');
+        $staff = User::where('email', 'waiter@example.test')->firstOrFail();
+        $this->assertSame('staff', $staff->role);
+        $this->assertSame('77001234567', $staff->phone);
+        $this->assertTrue(Hash::check('test-password', $staff->password));
+        $this->assertAuthenticatedAs($staff);
+        $this->get('http://zharzhar.kz/dashboard')->assertRedirect('/staff');
+        $this->get('http://partner.zharzhar.kz/restaurant')->assertForbidden();
+    }
+
+    public function test_staff_login_and_private_applications(): void
+    {
+        [$partner, $restaurant] = $this->partnerFixture();
+        $staff = User::factory()->create(['role' => 'staff', 'phone' => '77001234567', 'password' => 'test-password']);
+        $other = User::factory()->create(['role' => 'staff', 'phone' => '77007654321']);
+        $job = $restaurant->staffRequests()->create([
+            'event_date' => Carbon::today()->addWeek()->toDateString(), 'starts_at' => '17:00',
+            'ends_at' => '23:00', 'workers_needed' => 2, 'pay_per_worker' => 18000,
+        ]);
+        $job->applications()->create(['user_id' => $other->id, 'name' => $other->name, 'phone' => $other->phone]);
+        $this->post('http://zharzhar.kz/login', ['login' => $staff->email, 'password' => 'test-password'])->assertRedirect('/staff');
+        $this->get('http://zharzhar.kz/staff')->assertOk()->assertViewHas('myApplications', fn ($applications) => $applications->isEmpty());
+        $this->actingAs($partner)->post('http://zharzhar.kz/staff/jobs/'.$job->id.'/apply')->assertForbidden();
+        $this->assertSame(1, $job->applications()->count());
+    }
+
+    public function test_partner_dashboard_remains_available_before_staff_migrations(): void
+    {
+        [$partner] = $this->partnerFixture();
+        Schema::drop('staff_applications');
+        Schema::drop('staff_requests');
+        $this->actingAs($partner)->get('http://partner.zharzhar.kz/restaurant?view=upcoming&q=')
+            ->assertOk()->assertViewHas('staffEnabled', false);
+        $this->get('http://zharzhar.kz/staff/jobs')->assertOk()->assertViewHas('staffEnabled', false);
+        $this->post('http://partner.zharzhar.kz/restaurant/staff/requests')->assertStatus(503);
+    }
+
+    public function test_staff_feature_waits_for_application_user_migration(): void
+    {
+        [$partner] = $this->partnerFixture();
+        Schema::table('staff_applications', function (Blueprint $table): void {
+            $table->dropUnique(['staff_request_id', 'user_id']);
+            $table->dropConstrainedForeignId('user_id');
+        });
+        $this->actingAs($partner)->get('http://partner.zharzhar.kz/restaurant')->assertOk()->assertViewHas('staffEnabled', false);
+        $this->get('http://zharzhar.kz/staff/jobs')->assertOk()->assertViewHas('staffEnabled', false);
     }
 
     public function test_partner_cannot_manage_another_restaurants_staff_request(): void

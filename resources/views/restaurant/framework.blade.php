@@ -364,6 +364,9 @@
 
         <section class="panel staff-panel" id="staff">
             <h2>{{ __('partner.staff.title') }}</h2><p class="muted">{{ __('partner.staff.hint') }}</p>
+            @if(!$staffEnabled)
+                <p class="muted" role="status">Раздел персонала временно недоступен. Администратору нужно выполнить миграции базы данных.</p>
+            @else
             <a class="staff-board-link" href="{{ route('staff.requests.index') }}" target="_blank" rel="noopener">{{ __('partner.staff.board') }} ↗</a>
             <form class="staff-create" method="POST" action="{{ route('restaurant.staff.requests.store') }}">@csrf
                 <label class="field">{{ __('partner.staff.date') }}<input type="date" name="event_date" min="{{ today()->toDateString() }}" value="{{ old('event_date') }}" required></label>
@@ -386,6 +389,7 @@
                     @endforeach
                 </article>
             @empty<p class="muted">{{ __('partner.staff.empty') }}</p>@endforelse
+            @endif
         </section>
 
         <section class="panel info-panel" id="bonuses">

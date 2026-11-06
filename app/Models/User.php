@@ -29,6 +29,11 @@ class User extends Authenticatable
         return $this->hasMany(Event::class);
     }
 
+    public function staffApplications(): HasMany
+    {
+        return $this->hasMany(StaffApplication::class);
+    }
+
     public function isRole(string $role): bool
     {
         return strtolower((string) $this->role) === strtolower($role);
